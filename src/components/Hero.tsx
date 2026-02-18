@@ -1,113 +1,65 @@
 import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
-import IPAGlobe from './IPAGlobe';
-import Magnetic from './ui/Magnetic';
+import { useScroll, useTransform, motion } from 'framer-motion';
+import { Section, Container } from "@/design-system/Layout";
+import { Headline, Text } from "@/design-system/Typography";
+import { ArrowDown } from 'lucide-react';
 
 const Hero = () => {
-  const containerRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"]
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
+  const y = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
 
   return (
-    <section ref={containerRef} className="relative h-screen flex flex-col items-center justify-center overflow-hidden bg-[#020617]">
-      {/* 3D Background */}
-      <div className="absolute inset-0 z-0 opacity-80">
-        <IPAGlobe />
-      </div>
+    <div ref={containerRef} className="relative h-screen min-h-[800px] w-full flex flex-col justify-center overflow-hidden border-b border-border">
 
-      {/* HUD Lines */}
-      <div className="absolute inset-0 z-10 pointer-events-none border-[0.5px] border-slate-800/30 m-4 rounded-3xl" />
-      <div className="absolute top-10 left-10 z-10 flex gap-2 text-[10px] items-center font-mono text-slate-500 uppercase tracking-widest">
-        <div className="w-2 h-2 bg-sky-500/50 rounded-full animate-pulse" />
-        <span>System Status: Online</span>
-      </div>
-      <div className="absolute bottom-10 right-10 z-10 text-[10px] font-mono text-slate-600 uppercase tracking-widest text-right">
-        <p>Coordinates: {new Date().getFullYear()}.{new Date().getMonth()}</p>
-        <p>Pipeline: Active</p>
-      </div>
+      {/* Background Grid - Stays fixed mostly */}
+      <div className="absolute inset-0 bg-grid-paper opacity-50 pointer-events-none" />
 
-      {/* Content */}
+      <Container className="relative z-10">
+        <motion.div style={{ opacity, scale, y }} className="max-w-6xl">
+          {/* Meta Label */}
+          <div className="mb-8 flex items-center gap-4">
+            <div className="h-px w-12 bg-signal" />
+            <Text variant="caption" className="text-signal font-semibold">
+              Linguistic Preservation Initiative 2026
+            </Text>
+          </div>
+
+          {/* The Statement Headline */}
+          <Headline as="h1" className="mb-8">
+            The future of language <br />
+            is <span className="text-transparent bg-clip-text bg-gradient-to-r from-signal to-blue-600">verifiable</span> data.
+          </Headline>
+
+          {/* Subtext */}
+          <div className="max-w-xl">
+            <Text variant="lead">
+              We build the open-source infrastructure for indigenous language revitalization.
+              Structured archives, immutable provenance, and community sovereignty.
+            </Text>
+          </div>
+
+        </motion.div>
+      </Container>
+
+      {/* Scroll Indicator */}
       <motion.div
-        style={{ y, opacity }}
-        className="relative z-20 max-w-5xl mx-auto px-6 text-center"
+        style={{ opacity }}
+        className="absolute bottom-12 left-0 right-0 flex justify-center"
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <span className="inline-block py-1 px-3 rounded-full bg-slate-800/50 border border-slate-700 backdrop-blur-md text-xs font-mono text-sky-400 mb-6 uppercase tracking-wider">
-            Project Verbatim
-          </span>
-        </motion.div>
-
-        <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white to-white/60 mb-8 leading-[0.9]">
-          <span className="block overflow-hidden">
-            <motion.span
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.1 }}
-              className="block"
-            >
-              The Future
-            </motion.span>
-          </span>
-          <span className="block overflow-hidden">
-            <motion.span
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-              className="block text-sky-500/90"
-            >
-              Is Spoken
-            </motion.span>
-          </span>
-        </h1>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10 font-light"
-        >
-          A verifiable pipeline from raw field audio to IPA to language learning.
-          <br className="hidden md:block" />
-          Restoring the wisdom of the past with the intelligence of the future.
-        </motion.p>
-
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, delay: 0.7 }}
-          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-        >
-          <Magnetic>
-            <a
-              href="#pipeline"
-              className="group relative inline-flex items-center justify-center px-8 py-4 bg-white text-black rounded-full font-medium transition-transform active:scale-95"
-            >
-              <span className="relative z-10">Explore Pipeline</span>
-              <div className="absolute inset-0 rounded-full bg-sky-300 blur-lg opacity-0 group-hover:opacity-50 transition-opacity duration-500" />
-            </a>
-          </Magnetic>
-
-          <Magnetic>
-            <a
-              href="#whitepaper"
-              className="inline-flex items-center justify-center px-8 py-4 text-white hover:text-sky-300 transition-colors font-medium relative"
-            >
-              Read Whitepaper
-              <span className="absolute bottom-3 left-8 right-8 h-[1px] bg-sky-500/50 scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
-            </a>
-          </Magnetic>
-        </motion.div>
+        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+          <Text variant="caption" className="text-[10px]">Scroll to Explore</Text>
+          <ArrowDown className="animate-bounce" size={16} />
+        </div>
       </motion.div>
-    </section>
+    </div>
   );
 };
 

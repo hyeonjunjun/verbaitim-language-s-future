@@ -4,95 +4,81 @@
 
 @layer base {
   :root {
-    /* VerbAItim — Scientific Naturalism */
-    --background: 40 33% 97%;
-    --foreground: 60 5% 19%;
+    /* Base - "The Paper" */
+    --background: 0 0% 98%;
+    /* White/Off-white */
+    --foreground: 240 10% 3.9%;
+    /* Rich Black */
 
-    --card: 40 20% 95%;
-    --card-foreground: 60 5% 19%;
+    /* Typography - "The Ink" */
+    --font-display: 'Fraunces', serif;
+    --font-body: 'Inter', sans-serif;
 
-    --popover: 40 33% 97%;
-    --popover-foreground: 60 5% 19%;
+    /* Accents - "The Highlighter" */
+    --signal: 221.2 83.2% 53.3%;
+    /* Electric Blue (Research) */
+    --signal-foreground: 210 40% 98%;
 
-    --primary: 150 25% 42%;
-    --primary-foreground: 40 33% 97%;
+    /* UI Shell */
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
 
-    --secondary: 15 45% 55%;
-    --secondary-foreground: 40 33% 97%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
 
-    --muted: 40 15% 92%;
-    --muted-foreground: 60 5% 45%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
 
-    --accent: 150 18% 88%;
-    --accent-foreground: 150 25% 30%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    --border: 40 15% 88%;
-    --input: 40 15% 88%;
-    --ring: 150 25% 42%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --radius: 1.5rem;
-
-    /* Custom tokens */
-    --sage: 150 25% 42%;
-    --sage-light: 150 18% 88%;
-    --sage-dark: 150 25% 30%;
-    --clay: 15 45% 55%;
-    --clay-light: 15 35% 90%;
-    --clay-dark: 15 45% 40%;
-    --oatmeal: 40 33% 97%;
-    --charcoal: 60 5% 19%;
-    --charcoal-light: 60 5% 45%;
-
-    /* Surfaces */
-    --surface-elevated: 40 20% 95%;
-    --surface-archive: 60 5% 14%;
-    --surface-archive-foreground: 40 20% 92%;
-
-    /* Font families */
-    --font-heading: 'Fraunces', serif;
-    --font-body: 'Plus Jakarta Sans', sans-serif;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0px;
+    /* Sharp corners for premium feel */
   }
 
   .dark {
-    --background: 60 5% 10%;
-    --foreground: 40 20% 92%;
-    --card: 60 5% 14%;
-    --card-foreground: 40 20% 92%;
-    --popover: 60 5% 14%;
-    --popover-foreground: 40 20% 92%;
-    --primary: 150 25% 50%;
-    --primary-foreground: 60 5% 10%;
-    --secondary: 15 45% 55%;
-    --secondary-foreground: 40 33% 97%;
-    --muted: 60 5% 18%;
-    --muted-foreground: 40 15% 65%;
-    --accent: 150 18% 22%;
-    --accent-foreground: 150 18% 88%;
+    /* Base - "The Void" */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --signal: 217.2 91.2% 59.8%;
+    --signal-foreground: 222.2 47.4% 11.2%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 60 5% 22%;
-    --input: 60 5% 22%;
-    --ring: 150 25% 50%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
   }
 }
 
@@ -102,37 +88,33 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-body);
+    @apply bg-background text-foreground font-body antialiased selection:bg-signal selection:text-white;
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-heading);
+  /* Editorial Typography Reset */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight text-foreground;
   }
 }
 
+/* Grid Utilities - The Structure */
 @layer utilities {
-  .mesh-gradient {
-    background:
-      radial-gradient(ellipse 80% 60% at 10% 40%, hsl(180 30% 85% / 0.5), transparent),
-      radial-gradient(ellipse 60% 50% at 80% 20%, hsl(150 25% 80% / 0.4), transparent),
-      radial-gradient(ellipse 70% 70% at 50% 80%, hsl(30 35% 88% / 0.4), transparent),
-      hsl(var(--background));
+  .grid-paper {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   }
 
-  .fade-in-up {
-    opacity: 0;
-    transform: translateY(24px);
-    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
-  }
-
-  .fade-in-up.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .archive-surface {
-    background-color: hsl(var(--surface-archive));
-    color: hsl(var(--surface-archive-foreground));
+  .dark .grid-paper {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
   }
 }

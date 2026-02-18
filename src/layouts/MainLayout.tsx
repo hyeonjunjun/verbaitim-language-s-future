@@ -1,11 +1,10 @@
 import { ReactLenis } from '@studio-freight/react-lenis';
 import { ReactNode } from 'react';
-import { motion } from 'framer-motion';
 
 const MainLayout = ({ children }: { children: ReactNode }) => {
     return (
         <ReactLenis root>
-            <div className="bg-[#020617] min-h-screen text-slate-200 selection:bg-sky-500/30">
+            <div className="bg-background min-h-screen text-foreground selection:bg-signal selection:text-white">
                 {/* Global Grain/Noise Overlay */}
                 <div className="fixed inset-0 z-[9999] pointer-events-none opacity-[0.03] mix-blend-overlay"
                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")` }}

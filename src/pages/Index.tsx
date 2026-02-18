@@ -1,22 +1,22 @@
+import { Shell, Section } from "@/design-system/Layout";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import FeatureShowcase from "@/components/FeatureShowcase";
-import ChainOfCustody from "@/components/ChainOfCustody";
-import DualCTA from "@/components/DualCTA";
-import Footer from "@/components/Footer";
+import Manifesto from "@/components/Manifesto";
+import WorkbenchPreview from "@/components/WorkbenchPreview";
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <Shell>
       <Navbar />
-      <main>
-        <Hero />
-        <FeatureShowcase />
-        <ChainOfCustody />
-        <DualCTA />
-      </main>
-      <Footer />
-    </div>
+      <Hero />
+      <Manifesto />
+      <WorkbenchPreview />
+
+      {/* Footer Placeholder */}
+      <Section className="py-12 border-t border-border">
+        <div className="text-center text-xs text-muted-foreground">© 2026 VerbAItim Institute</div>
+      </Section>
+    </Shell>
   );
 };
 
