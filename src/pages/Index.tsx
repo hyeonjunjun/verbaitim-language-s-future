@@ -1,6 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import Pipeline from "@/components/Pipeline";
+import FeatureShowcase from "@/components/FeatureShowcase";
 import ChainOfCustody from "@/components/ChainOfCustody";
 import DualCTA from "@/components/DualCTA";
 import Footer from "@/components/Footer";
@@ -11,7 +11,7 @@ const Index = () => {
       <Navbar />
       <main>
         <Hero />
-        <Pipeline />
+        <FeatureShowcase />
         <ChainOfCustody />
         <DualCTA />
       </main>

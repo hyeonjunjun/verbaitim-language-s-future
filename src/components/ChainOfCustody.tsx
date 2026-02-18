@@ -26,19 +26,19 @@ const ChainOfCustody = () => {
   const { ref, isVisible } = useScrollReveal();
 
   return (
-    <section className="archive-surface py-24 md:py-32">
+    <section className="relative py-24 md:py-32 bg-[#020617] text-slate-300">
       <div
         ref={ref}
         className={`max-w-7xl mx-auto px-6 md:px-10 fade-in-up ${isVisible ? "visible" : ""}`}
       >
         <div className="max-w-xl mb-16">
-          <p className="text-sm font-semibold tracking-widest uppercase text-sage-light/70 mb-3">
+          <p className="text-sm font-mono tracking-widest uppercase text-sky-500 mb-3">
             Chain of Custody
           </p>
-          <h2 className="font-heading text-3xl sm:text-4xl font-semibold tracking-tight mb-4">
+          <h2 className="font-heading text-3xl sm:text-4xl font-semibold tracking-tight text-white mb-4">
             Every word links back to the speaker.
           </h2>
-          <p className="text-sage-light/70 text-lg leading-relaxed">
+          <p className="text-slate-400 text-lg leading-relaxed border-l-2 border-sky-500/30 pl-6">
             A verifiable archive where no transcription exists without its
             source recording.
           </p>
@@ -48,15 +48,15 @@ const ChainOfCustody = () => {
           {features.map((f, i) => (
             <div
               key={i}
-              className="rounded-lg border border-sage-light/15 p-8 hover:border-sage-light/30 transition-colors"
+              className="group rounded-2xl border border-white/5 bg-white/5 p-8 hover:bg-white/10 hover:border-sky-500/30 transition-all duration-300 backdrop-blur-sm"
             >
-              <div className="flex items-center justify-center w-10 h-10 rounded-md bg-sage-light/10 text-sage-light mb-6">
-                <f.icon size={20} />
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-sky-500/10 text-sky-400 mb-6 group-hover:scale-110 transition-transform">
+                <f.icon size={24} />
               </div>
-              <h3 className="font-heading text-xl font-semibold mb-3">
+              <h3 className="font-heading text-xl font-semibold text-white mb-3">
                 {f.title}
               </h3>
-              <p className="text-sm leading-relaxed text-sage-light/70">
+              <p className="text-sm leading-relaxed text-slate-400 group-hover:text-slate-300 transition-colors">
                 {f.description}
               </p>
             </div>

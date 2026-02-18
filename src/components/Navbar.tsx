@@ -1,67 +1,96 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
+import Magnetic from "./ui/Magnetic";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
-      <div className="max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between h-16">
-        <a href="/" className="font-heading text-xl font-semibold tracking-tight text-foreground">
-          Verb<span className="text-primary">AI</span>tim
-        </a>
+    <>
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.5 }}
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "py-4" : "py-6"}`}
+      >
+        <div className={`max-w-7xl mx-auto px-6 md:px-10 flex items-center justify-between transition-all duration-300 ${scrolled ? "bg-black/50 backdrop-blur-xl border border-white/10 rounded-full pr-2 pl-6 py-2 mx-4 md:mx-auto" : ""}`}>
 
-        {/* Desktop links */}
-        <div className="hidden md:flex items-center gap-8">
-          <a href="#pipeline" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            Technology
+          <a href="/" className="font-heading text-xl font-bold tracking-tight text-white flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+            Verb<span className="text-sky-400">AI</span>tim
           </a>
-          <a href="#paths" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            For Researchers
-          </a>
-          <a href="#paths" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-            For Communities
-          </a>
-          <a
-            href="#cta"
-            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-5 py-2 text-sm font-semibold hover:opacity-90 transition-opacity"
+
+          {/* Desktop links */}
+          <div className="hidden md:flex items-center gap-8">
+            {['Technology', 'Researchers', 'Communities'].map((item) => (
+              <Magnetic key={item}>
+                <a href={`#${item.toLowerCase()}`} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">
+                  {item}
+                </a>
+              </Magnetic>
+            ))}
+
+            <Magnetic>
+              <a
+                href="#cta"
+                className="inline-flex items-center justify-center rounded-full bg-white text-black px-6 py-2.5 text-sm font-bold hover:bg-sky-400 transition-colors"
+              >
+                Start Documenting
+              </a>
+            </Magnetic>
+          </div>
+
+          {/* Mobile toggle */}
+          <button
+            onClick={() => setOpen(!open)}
+            className="md:hidden text-white rounded-full p-2 hover:bg-white/10"
+            aria-label="Toggle menu"
           >
-            Start Documenting
-          </a>
+            {open ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="md:hidden text-foreground"
-          aria-label="Toggle menu"
-        >
-          {open ? <X size={22} /> : <Menu size={22} />}
-        </button>
-      </div>
+      </motion.nav>
 
       {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden bg-background border-b border-border px-6 pb-6 flex flex-col gap-4">
-          <a href="#pipeline" className="text-sm font-medium text-muted-foreground" onClick={() => setOpen(false)}>
-            Technology
-          </a>
-          <a href="#paths" className="text-sm font-medium text-muted-foreground" onClick={() => setOpen(false)}>
-            For Researchers
-          </a>
-          <a href="#paths" className="text-sm font-medium text-muted-foreground" onClick={() => setOpen(false)}>
-            For Communities
-          </a>
-          <a
-            href="#cta"
-            className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-5 py-2.5 text-sm font-semibold"
-            onClick={() => setOpen(false)}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-40 bg-neutral-950 pt-24 px-6 md:hidden"
           >
-            Start Documenting
-          </a>
-        </div>
-      )}
-    </nav>
+            <div className="flex flex-col gap-6 text-2xl font-light text-slate-300">
+              {['Technology', 'Researchers', 'Communities'].map((item) => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  onClick={() => setOpen(false)}
+                  className="border-b border-white/10 pb-4"
+                >
+                  {item}
+                </a>
+              ))}
+              <a
+                href="#cta"
+                className="mt-4 inline-flex items-center justify-center rounded-full bg-sky-500 text-white px-5 py-4 text-lg font-bold"
+                onClick={() => setOpen(false)}
+              >
+                Start Documenting
+              </a>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 };
 

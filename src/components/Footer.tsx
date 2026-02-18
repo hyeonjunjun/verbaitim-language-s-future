@@ -1,37 +1,35 @@
 import { useState } from "react";
-import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import Magnetic from "./ui/Magnetic";
 
 const Footer = () => {
-  const { ref, isVisible } = useScrollReveal(0.1);
   const [email, setEmail] = useState("");
 
   return (
-    <footer id="cta" className="bg-muted border-t border-border py-16 md:py-20">
-      <div
-        ref={ref}
-        className={`max-w-7xl mx-auto px-6 md:px-10 fade-in-up ${isVisible ? "visible" : ""}`}
-      >
-        <div className="grid md:grid-cols-2 gap-12 mb-16">
+    <footer id="cta" className="bg-[#020617] border-t border-white/10 py-20 relative overflow-hidden">
+      {/* Background Glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-sky-500/5 blur-[100px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 md:px-10 relative z-10">
+        <div className="grid md:grid-cols-2 gap-20 mb-20">
           {/* Info */}
           <div>
-            <a href="/" className="font-heading text-xl font-semibold tracking-tight text-foreground">
-              Verb<span className="text-primary">AI</span>tim
+            <a href="/" className="font-heading text-2xl font-bold tracking-tight text-white mb-6 block">
+              Verb<span className="text-sky-400">AI</span>tim
             </a>
-            <p className="text-muted-foreground text-sm mt-4 max-w-sm leading-relaxed">
-              A verifiable pipeline from raw field audio to IPA to language
-              learning. Built with integrity for field linguists and heritage
-              communities.
+            <p className="text-slate-400 text-lg leading-relaxed max-w-sm">
+              Constructing the digital infrastructure for linguistic preservation.
+              <br />
+              <span className="text-sm font-mono text-slate-600 mt-4 block">EST. 2025 // SINGAPORE</span>
             </p>
           </div>
 
           {/* Newsletter */}
           <div>
-            <h3 className="font-heading text-lg font-semibold text-foreground mb-2">
-              Stay in the loop
+            <h3 className="font-heading text-xl font-semibold text-white mb-4">
+              Initialize Connection
             </h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Get updates on new features, research publications, and community
-              stories.
+            <p className="text-sm text-slate-400 mb-6">
+              Receive transmission logs, research updates, and system alerts.
             </p>
             <form
               onSubmit={(e) => {
@@ -44,35 +42,33 @@ const Footer = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@university.edu"
+                placeholder="researcher@institute.edu"
                 required
-                className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                className="flex-1 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500/50 transition-colors"
               />
-              <button
-                type="submit"
-                className="inline-flex items-center justify-center rounded-lg bg-primary text-primary-foreground px-6 py-2.5 text-sm font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
-              >
-                Subscribe
-              </button>
+              <Magnetic>
+                <button
+                  type="submit"
+                  className="inline-flex items-center justify-center rounded-full bg-white text-black px-8 py-3 text-sm font-bold hover:bg-sky-400 transition-colors whitespace-nowrap"
+                >
+                  Subscribe
+                </button>
+              </Magnetic>
             </form>
           </div>
         </div>
 
         {/* Bottom links */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-8 border-t border-border">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} VerbAItim. All rights reserved.
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-8 border-t border-white/5">
+          <p className="text-xs text-slate-600 font-mono">
+            © {new Date().getFullYear()} VERBAITIM SYSTEMS. ALL RIGHTS RESERVED.
           </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Privacy
-            </a>
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Terms
-            </a>
-            <a href="#" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Contact
-            </a>
+          <div className="flex gap-8">
+            {['Privacy', 'Terms', 'Contact'].map(link => (
+              <a key={link} href="#" className="text-xs text-slate-500 hover:text-white transition-colors font-mono uppercase tracking-widest">
+                {link}
+              </a>
+            ))}
           </div>
         </div>
       </div>
