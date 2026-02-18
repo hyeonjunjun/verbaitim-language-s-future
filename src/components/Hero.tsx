@@ -1,4 +1,6 @@
 import { useScrollReveal } from "@/hooks/use-scroll-reveal";
+import IPAFloatingBackground from "./IPAFloatingBackground";
+import { DebugErrorBoundary } from "./DebugErrorBoundary";
 
 const Hero = () => {
   const { ref, isVisible } = useScrollReveal(0.1);
@@ -7,6 +9,11 @@ const Hero = () => {
     <section className="relative min-h-[90vh] flex items-center overflow-hidden">
       {/* Mesh gradient background */}
       <div className="absolute inset-0 mesh-gradient" aria-hidden="true" />
+      <div className="absolute inset-0 z-0">
+        <DebugErrorBoundary>
+          <IPAFloatingBackground />
+        </DebugErrorBoundary>
+      </div>
 
       <div
         ref={ref}
