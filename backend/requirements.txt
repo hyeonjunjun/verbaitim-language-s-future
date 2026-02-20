@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+librosa
+ffmpeg-python
+pydub
+torch
+transformers
+allosaurus
+psycopg2-binary
+pgvector
+pydantic
+boto3
+supabase
+websockets
+numpy
