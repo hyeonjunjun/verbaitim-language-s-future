@@ -4,6 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import LinguistDashboard from "./pages/LinguistDashboard";
+import LearnerDashboard from "./pages/LearnerDashboard";
+import WorkbenchDashboard from "./pages/WorkbenchDashboard";
+import WorkbenchEditor from "./pages/WorkbenchEditor";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,6 +23,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/linguist" element={<LinguistDashboard />} />
+            <Route path="/learner" element={<LearnerDashboard />} />
+
+            {/* Professional Workbench - Immersive App Routes */}
+            <Route path="/workbench" element={<WorkbenchDashboard />} />
+            <Route path="/workbench/editor" element={<WorkbenchEditor />} />
+
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

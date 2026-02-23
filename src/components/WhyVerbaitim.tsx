@@ -52,7 +52,7 @@ const WhyVerbaitim = () => {
                                     {reason.title}
                                 </h3>
                             </div>
-                            <Text variant="reading" className="text-lg leading-relaxed text-foreground/80">
+                            <Text variant="reading" className="text-lg leading-relaxed text-foreground/90">
                                 {reason.description}
                             </Text>
                         </motion.div>

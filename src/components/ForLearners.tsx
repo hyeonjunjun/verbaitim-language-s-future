@@ -2,6 +2,7 @@ import { Container, Section } from "@/design-system/Layout";
 import { Headline, Text } from "@/design-system/Typography";
 import { motion } from "framer-motion";
 import { BookOpen, MessageCircle, Library, Users } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const pathways = [
     {
@@ -37,7 +38,7 @@ const ForLearners = () => {
                     <Headline as="h2" className="mb-8">
                         For Communities & Learners
                     </Headline>
-                    <Text variant="body" className="text-foreground/70">
+                    <Text variant="body" className="text-foreground/85">
                         Access newly documented language materials through structured learning pathways built on actual field research.
                     </Text>
                 </div>
@@ -50,7 +51,7 @@ const ForLearners = () => {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="flex gap-6 p-8 rounded-2xl bg-secondary/20 border border-transparent hover:border-signal/10 hover:bg-white transition-all shadow-sm"
+                            className="flex gap-6 p-8 rounded-2xl bg-secondary/20 border border-transparent hover:border-signal/10 hover:bg-card transition-all shadow-sm"
                         >
                             <div className="flex-shrink-0 w-12 h-12 rounded-full bg-signal text-white flex items-center justify-center">
                                 <path.icon size={22} />
@@ -68,10 +69,16 @@ const ForLearners = () => {
                 </div>
 
                 <div className="text-center bg-accent/30 p-12 rounded-3xl border border-accent">
-                    <Text variant="lead" className="max-w-2xl mx-auto text-foreground italic serif-italic mb-0">
+                    <Text variant="lead" className="max-w-2xl mx-auto text-foreground italic serif-italic mb-8">
                         "Language documentation should not end in an archive. <br />
                         <span className="text-signal not-italic font-bold">Activate the next speaker.</span>"
                     </Text>
+                    <Link
+                        to="/learner"
+                        className="inline-flex items-center justify-center px-10 py-4 bg-background border border-signal text-signal rounded-full font-display font-bold text-lg hover:bg-signal hover:text-white transition-all active:scale-95 shadow-sm"
+                    >
+                        Explore the Learning Hub
+                    </Link>
                 </div>
             </Container>
         </Section>

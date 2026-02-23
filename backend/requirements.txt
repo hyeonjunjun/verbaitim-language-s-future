@@ -1,11 +1,7 @@
+# Core "Lite" Requirements
 fastapi
 uvicorn
-librosa
-ffmpeg-python
-pydub
-torch
-transformers
-allosaurus
+python-multipart
 psycopg2-binary
 pgvector
 pydantic
@@ -13,3 +9,7 @@ boto3
 supabase
 websockets
 numpy
+
+# Note: Heavy ML dependencies (torch, transformers, allosaurus) 
+# have been moved to requirements-full.txt to keep the 
+# base installation accessible.

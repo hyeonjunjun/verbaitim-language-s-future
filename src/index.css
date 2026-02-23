@@ -4,82 +4,100 @@
 
 @layer base {
   :root {
-    /* Base - "The Paper" */
-    --background: 40 33% 97%;
-    /* Warm Cream Paper */
-    --foreground: 240 10% 3.9%;
-    /* Rich Black */
+    /* Base - "The Parchment" */
+    --background: 35 30% 96%;
+    /* Deep Warm Cream */
+    --foreground: 25 15% 15%;
+    /* Umber Rich Black */
 
     /* Typography - "The Ink" */
     --font-display: 'Fraunces', serif;
     --font-body: 'Source Sans 3', sans-serif;
     --font-reading: 'Source Serif 4', serif;
 
-    /* Accents - "The Scholar" */
-    --signal: 174 60% 40%;
-    /* Academic Teal */
+    /* Accents - "The Earth" */
+    --signal: 25 45% 45%;
+    /* Grounded Terracotta */
     --signal-foreground: 0 0% 100%;
 
     /* UI Shell */
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --card: 35 30% 98%;
+    --card-foreground: 25 15% 15%;
+    --popover: 35 30% 98%;
+    --popover-foreground: 25 15% 15%;
 
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 40 33% 97%;
+    --primary: 25 45% 45%;
+    --primary-foreground: 35 30% 96%;
 
-    --secondary: 40 33% 94%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 35 20% 90%;
+    --secondary-foreground: 25 15% 15%;
 
-    --muted: 40 33% 92%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 35 15% 92%;
+    --muted-foreground: 25 12% 38%;
 
-    --accent: 174 60% 95%;
-    --accent-foreground: 174 60% 40%;
+    --accent: 25 45% 94%;
+    --accent-foreground: 25 45% 45%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 0 60% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 40 33% 85%;
-    --input: 40 33% 85%;
-    --ring: 174 60% 40%;
+    /* Semantic Status Colors - "The Garden" */
+    --sage: 142 30% 42%;
+    --sage-foreground: 0 0% 100%;
+    --clay: 210 25% 48%;
+    --clay-foreground: 0 0% 100%;
+    --ochre: 38 75% 50%;
+    --ochre-foreground: 25 15% 15%;
+
+    --border: 35 20% 82%;
+    --input: 35 20% 82%;
+    --ring: 25 45% 45%;
     --radius: 8px;
-    /* Friendlier rounded corners */
   }
 
   .dark {
-    /* Base - "The Void" */
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
+    /* Base - "The Earth's Core" */
+    --background: 25 15% 5%;
+    /* Deep Umber */
+    --foreground: 35 20% 90%;
+    /* Soft Parchment */
 
-    --signal: 217.2 91.2% 59.8%;
-    --signal-foreground: 222.2 47.4% 11.2%;
+    --signal: 25 60% 60%;
+    /* Vibrant Terracotta */
+    --signal-foreground: 25 15% 5%;
 
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
+    --card: 25 10% 8%;
+    --card-foreground: 35 20% 90%;
 
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 25 10% 8%;
+    --popover-foreground: 35 20% 90%;
 
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
+    --primary: 35 20% 90%;
+    --primary-foreground: 25 15% 5%;
 
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 25 10% 12%;
+    --secondary-foreground: 35 20% 90%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    --muted: 25 10% 15%;
+    --muted-foreground: 35 12% 68%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 25 30% 15%;
+    --accent-foreground: 35 20% 90%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
+    /* Semantic Status Colors - "Deep Garden" */
+    --sage: 142 35% 55%;
+    --sage-foreground: 25 15% 5%;
+    --clay: 210 30% 60%;
+    --clay-foreground: 25 15% 5%;
+    --ochre: 38 80% 60%;
+    --ochre-foreground: 25 15% 5%;
+
+    --border: 25 10% 15%;
+    --input: 25 10% 15%;
+    --ring: 25 60% 60%;
   }
 }
 

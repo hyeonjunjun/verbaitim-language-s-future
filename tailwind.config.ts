@@ -56,6 +56,18 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        sage: {
+          DEFAULT: "hsl(var(--sage))",
+          foreground: "hsl(var(--sage-foreground))",
+        },
+        clay: {
+          DEFAULT: "hsl(var(--clay))",
+          foreground: "hsl(var(--clay-foreground))",
+        },
+        ochre: {
+          DEFAULT: "hsl(var(--ochre))",
+          foreground: "hsl(var(--ochre-foreground))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

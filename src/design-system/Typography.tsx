@@ -23,13 +23,13 @@ export const Headline = ({ children, className, as: Component = "h1" }: { childr
 export const Text = ({ children, className, variant = "body" }: { children: ReactNode, className?: string, variant?: "body" | "caption" | "lead" | "code" | "reading" }) => {
     return (
         <p className={cn(
-            "text-foreground/85 antialiased",
+            "text-foreground antialiased",
             {
                 "font-body text-base md:text-lg leading-relaxed": variant === "body",
-                "font-body text-xl md:text-2xl font-light text-foreground/70": variant === "lead",
+                "font-body text-xl md:text-2xl font-light text-foreground/85": variant === "lead",
                 "font-body text-sm uppercase tracking-wider font-medium text-muted-foreground": variant === "caption",
                 "font-mono text-xs text-signal": variant === "code",
-                "font-reading text-lg md:text-xl leading-relaxed text-foreground/90": variant === "reading",
+                "font-reading text-lg md:text-xl leading-relaxed text-foreground": variant === "reading",
             },
             className
         )}>

@@ -77,7 +77,7 @@ const WorkbenchPreview = () => {
                                 </svg>
 
                                 {/* Playhead */}
-                                <div className="absolute top-0 bottom-0 left-1/3 w-px bg-signal shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                                <div className="absolute top-0 bottom-0 left-1/3 w-px bg-signal shadow-[0_0_10px_hsl(var(--signal)/0.5)]" />
                             </div>
 
                             {/* Data Table */}
@@ -99,7 +99,7 @@ const WorkbenchPreview = () => {
                                                 <td className="p-3 font-semibold text-foreground">EF_02</td>
                                                 <td className="p-3">Hau, mitákuyepi.</td>
                                                 <td className="p-3 font-serif text-muted-foreground">haʊ miˈtakuˌjepi</td>
-                                                <td className="p-3"><span className="inline-block w-full h-1 bg-green-500 rounded-full opacity-50" /></td>
+                                                <td className="p-3"><span className="inline-block w-full h-1 bg-sage rounded-full opacity-70" /></td>
                                             </tr>
                                         ))}
                                     </tbody>

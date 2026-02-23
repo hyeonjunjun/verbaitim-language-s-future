@@ -1,15 +1,9 @@
 import sys
 import importlib
 
-packages = [
+core_packages = [
     "fastapi",
     "uvicorn",
-    "librosa",
-    "ffmpeg",
-    "pydub",
-    "torch",
-    "transformers",
-    # "allosaurus", # specific import check might differ
     "psycopg2",
     "pgvector",
     "pydantic",
@@ -19,28 +13,39 @@ packages = [
     "numpy"
 ]
 
+ml_packages = [
+    "librosa",
+    "pydub",
+    "torch",
+    "transformers",
+    "allosaurus"
+]
+
 print(f"Python version: {sys.version}")
 
-failed = []
-for package in packages:
+failed_core = []
+for package in core_packages:
     try:
         importlib.import_module(package)
         print(f"[OK] {package} imported successfully")
     except ImportError as e:
-        print(f"[FAIL] {package} failed to import: {e}")
-        failed.append(package)
+        print(f"[FAIL] {package} (CORE) failed to import: {e}")
+        failed_core.append(package)
 
-# Special check for allosaurus as it might be 'allosaurus' or something else
-try:
-    import allosaurus
-    print("[OK] allosaurus imported successfully")
-except ImportError:
-    print("[FAIL] allosaurus failed to import")
-    failed.append("allosaurus")
+print("\n--- Optional ML Dependencies (Full Mode) ---")
+ml_available = []
+for package in ml_packages:
+    try:
+        importlib.import_module(package)
+        print(f"[OK] {package} is available")
+        ml_available.append(package)
+    except ImportError:
+        print(f"[-] {package} is not installed (Lite Mode active)")
 
-if failed:
-    print(f"\nFailed packages: {', '.join(failed)}")
+if failed_core:
+    print(f"\n❌ FAILED: Core packages missing: {', '.join(failed_core)}")
     sys.exit(1)
 else:
-    print("\nAll packages installed successfully!")
+    mode = "FULL" if len(ml_available) == len(ml_packages) else "LITE"
+    print(f"\n✅ SUCCESS: Core dependencies healthy. Backend running in {mode} mode.")
     sys.exit(0)

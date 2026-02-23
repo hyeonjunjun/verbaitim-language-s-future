@@ -15,20 +15,36 @@ from typing import Optional
 from fastapi import APIRouter, File, UploadFile, HTTPException, Query
 from pydantic import BaseModel
 
-# ── Lazy-loaded model singleton ───────────────────────────────────────
+# ── Lazy-loaded model singleton / Mock Fallback ────────────────────────
 _recognizer = None
+
+class MockRecognizer:
+    """Fallback for Lite Mode without Allosaurus/Torch."""
+    SAMPLES = {
+        "que": {"ipa": "[qʰu.t͡ʃu.pa.sa.pa.ni]", "meaning": "I am working (hard)"},
+        "mri": {"ipa": "[tā.ne.nu.i.ā.raŋ.i]", "meaning": "Tāne of the great heavens"},
+        "ipa": {"ipa": "[pʰə.neɪ.tɪk.træn.skrɪp.ʃən]", "meaning": "Phonetic transcription"}
+    }
+
+    def recognize(self, file_path: str, language: str) -> dict:
+        # Default to 'ipa' if lang not in samples
+        data = self.SAMPLES.get(language, self.SAMPLES["ipa"])
+        return data
 
 def _get_recognizer():
     """
-    Load the Allosaurus recognizer on first request so the server
-    starts quickly and the ~200 MB model is only loaded once.
+    Load Allosaurus if available, else fall back to MockRecognizer.
     """
     global _recognizer
     if _recognizer is None:
-        logging.info("Loading Allosaurus uni2005 model …")
-        from allosaurus.app import read_recognizer          # heavy import
-        _recognizer = read_recognizer("uni2005")
-        logging.info("Allosaurus model loaded ✓")
+        try:
+            logging.info("Attempting to load Allosaurus uni2005 model …")
+            from allosaurus.app import read_recognizer
+            _recognizer = read_recognizer("uni2005")
+            logging.info("Allosaurus model loaded ✓")
+        except (ImportError, Exception):
+            logging.warning("Allosaurus/Torch not found. Initializing MockRecognizer (Lite Mode).")
+            _recognizer = MockRecognizer()
     return _recognizer
 
 
@@ -40,14 +56,16 @@ router = APIRouter(tags=["phonetics"])
 class TranscriptionResult(BaseModel):
     """Returned by /transcribe."""
     ipa: str
+    meaning: str
     language: str
-    model: str = "uni2005"
+    model: str = "uni2005 (or mock)"
 
 
 class HealthStatus(BaseModel):
     """Returned by /health."""
     status: str
     model_loaded: bool
+    mode: str
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────
@@ -62,7 +80,7 @@ async def transcribe_audio(
 ):
     """
     Accept an audio file upload and return the IPA phoneme transcription
-    produced by the Allosaurus universal phone recognizer.
+    and its English meaning.
     """
     # ── Validate MIME loosely ─────────────────────────────────────────
     allowed = {"audio/", "application/octet-stream", "video/"}
@@ -82,9 +100,24 @@ async def transcribe_audio(
             tmp_path = tmp.name
 
         recognizer = _get_recognizer()
-        ipa_result = recognizer.recognize(tmp_path, language)
+        result = recognizer.recognize(tmp_path, language)
 
-        return TranscriptionResult(ipa=ipa_result, language=language)
+        # Handle both real Allosaurus (returns str) and Mock (returns dict)
+        if isinstance(result, str):
+            # If real Allosaurus is used, we still need a default meaning for now
+            return TranscriptionResult(
+                ipa=result, 
+                meaning="Meaning annotation pending.", 
+                language=language,
+                model="uni2005"
+            )
+        
+        return TranscriptionResult(
+            ipa=result["ipa"], 
+            meaning=result["meaning"], 
+            language=language,
+            model="MockRecognizer (Lite)"
+        )
 
     except Exception as e:
         logging.exception("Transcription failed")
@@ -99,7 +132,10 @@ async def transcribe_audio(
 @router.get("/health", response_model=HealthStatus)
 async def health():
     """Lightweight liveness / readiness check."""
+    loaded = _recognizer is not None and not isinstance(_recognizer, MockRecognizer)
+    mode = "Full" if loaded else "Lite"
     return HealthStatus(
         status="ok",
-        model_loaded=_recognizer is not None,
+        model_loaded=loaded,
+        mode=mode
     )

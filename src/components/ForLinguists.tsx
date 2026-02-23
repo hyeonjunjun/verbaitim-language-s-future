@@ -2,6 +2,7 @@ import { Container, Section } from "@/design-system/Layout";
 import { Headline, Text } from "@/design-system/Typography";
 import { motion } from "framer-motion";
 import { Upload, FileText, Database, GraduationCap } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const features = [
     {
@@ -38,14 +39,14 @@ const ForLinguists = () => {
                         <Headline as="h2">
                             For Field Linguists
                         </Headline>
-                        <Text variant="lead" className="text-foreground/70 italic serif-italic">
+                        <Text variant="lead" className="text-foreground/85 italic serif-italic">
                             Spend less time formatting. <br className="hidden md:block" />
                             More time analyzing.
                         </Text>
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
                     {features.map((feature, idx) => (
                         <motion.div
                             key={feature.title}
@@ -66,6 +67,15 @@ const ForLinguists = () => {
                             </Text>
                         </motion.div>
                     ))}
+                </div>
+
+                <div className="flex justify-center">
+                    <Link
+                        to="/linguist"
+                        className="inline-flex items-center justify-center px-10 py-4 bg-signal text-white rounded-full font-display font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95"
+                    >
+                        Enter the Workbench
+                    </Link>
                 </div>
             </Container>
         </Section>

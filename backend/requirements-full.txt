@@ -1,0 +1,6 @@
+torch
+transformers
+allosaurus
+librosa
+pydub
+ffmpeg-python
