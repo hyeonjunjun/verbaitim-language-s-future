@@ -4,7 +4,7 @@ import { Container } from "@/design-system/Layout";
 import { Headline, Text } from "@/design-system/Typography";
 import { ArrowDown } from 'lucide-react';
 import IPAGrid from './IPAGrid';
-import { Link } from "react-router-dom";
+
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,12 +78,12 @@ const Hero = () => {
             transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
             className="flex flex-wrap items-center justify-center gap-6"
           >
-            <Link
-              to="/workbench"
+            <a
+              href="#join"
               className="px-8 py-4 bg-signal text-white rounded-full font-medium hover:bg-signal/90 transition-all shadow-lg shadow-signal/20 active:scale-95 leading-none"
             >
-              Enter Workbench
-            </Link>
+              Join the Beta
+            </a>
             <a href="#how-it-works" className="group flex items-center gap-2 py-2 text-foreground font-medium hover:text-signal transition-colors leading-none">
               See How It Works
               <span className="inline-block transition-transform group-hover:translate-y-1"><ArrowDown size={18} /></span>

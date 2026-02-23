@@ -1,7 +1,7 @@
 import { Container, Section } from "@/design-system/Layout";
 import { Headline, Text } from "@/design-system/Typography";
 import { motion } from "framer-motion";
-import { Upload, FileText, Database, GraduationCap } from "lucide-react";
+import { Upload, FileText, Database, GraduationCap, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const features = [
@@ -46,26 +46,36 @@ const ForLinguists = () => {
                     </div>
                 </div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+                {/* Feature cards with arrow connectors */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] gap-y-8 gap-x-0 mb-16 items-stretch">
                     {features.map((feature, idx) => (
-                        <motion.div
-                            key={feature.title}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="group p-8 rounded-2xl border border-border hover:border-signal/30 hover:bg-accent/10 transition-all duration-300"
-                        >
-                            <div className="w-12 h-12 rounded-xl bg-signal/10 flex items-center justify-center text-signal mb-6 group-hover:scale-110 transition-transform">
-                                <feature.icon size={24} />
-                            </div>
-                            <h3 className="font-display text-xl font-semibold mb-3 text-foreground">
-                                {feature.title}
-                            </h3>
-                            <Text className="text-sm leading-relaxed text-muted-foreground group-hover:text-foreground/80 transition-colors">
-                                {feature.description}
-                            </Text>
-                        </motion.div>
+                        <>
+                            <motion.div
+                                key={feature.title}
+                                initial={{ opacity: 0, y: 30 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                                className="group p-8 rounded-2xl border border-border hover:border-signal/30 hover:bg-accent/10 transition-all duration-300"
+                            >
+                                <div className="w-12 h-12 rounded-xl bg-signal/10 flex items-center justify-center text-signal mb-6 group-hover:scale-110 transition-transform">
+                                    <feature.icon size={24} />
+                                </div>
+                                <h3 className="font-display text-xl font-semibold mb-3 text-foreground">
+                                    {feature.title}
+                                </h3>
+                                <Text className="text-sm leading-relaxed text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                                    {feature.description}
+                                </Text>
+                            </motion.div>
+
+                            {/* Arrow connector — visible only on lg breakpoint between cards */}
+                            {idx < features.length - 1 && (
+                                <div key={`arrow-${idx}`} className="hidden lg:flex items-center justify-center px-2">
+                                    <ChevronRight size={24} className="text-signal/40" />
+                                </div>
+                            )}
+                        </>
                     ))}
                 </div>
 

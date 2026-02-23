@@ -1,6 +1,7 @@
 import { Container, Section } from "@/design-system/Layout";
 import { Text } from "@/design-system/Typography";
-import { Link } from "react-router-dom"; // Or just use <a> tags if no router setup
+import { Link } from "react-router-dom";
+import WaveformLogo from "./WaveformLogo";
 
 const Footer = () => {
   return (
@@ -11,7 +12,7 @@ const Footer = () => {
           {/* Brand Column */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-3 mb-6">
-              <div className="h-6 w-6 bg-signal" style={{ borderRadius: '2px' }} />
+              <WaveformLogo size={24} />
               <span className="font-display font-semibold text-xl tracking-tight text-foreground">VerbAItim</span>
             </div>
             <Text variant="body" className="max-w-xs text-sm italic serif-italic leading-relaxed text-muted-foreground">

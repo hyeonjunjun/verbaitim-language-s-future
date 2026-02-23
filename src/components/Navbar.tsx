@@ -1,6 +1,7 @@
 import { Container } from "@/design-system/Layout";
 import { Text } from "@/design-system/Typography";
 import { Link } from "react-router-dom";
+import WaveformLogo from "./WaveformLogo";
 
 const Navbar = () => {
   return (
@@ -8,7 +9,7 @@ const Navbar = () => {
       <Container className="flex h-16 items-center justify-between">
         {/* Logo - The Academic Mark */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="h-6 w-6 bg-signal transition-transform group-hover:rotate-12" style={{ borderRadius: '2px' }} />
+          <WaveformLogo size={24} />
           <span className="font-display font-semibold text-xl tracking-tight text-foreground">VerbAItim</span>
         </Link>
 

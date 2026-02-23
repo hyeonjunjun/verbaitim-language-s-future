@@ -15,34 +15,38 @@ const Problem = () => {
                         </Text>
                         <Headline as="h2" className="text-4xl md:text-5xl lg:text-6xl leading-tight mb-8">
                             Language documentation is <span className="italic serif-italic text-signal">slow</span>. <br />
-                            Time isn’t.
+                            Time isn't.
                         </Headline>
 
                         <div className="h-px w-24 bg-border/60 hidden md:block" />
                     </div>
 
-                    {/* Right: The Burden */}
+                    {/* Right: Stat Callout + Context */}
                     <div className="md:col-span-7 flex flex-col gap-10">
+                        {/* Stat Callout — the hero number */}
                         <motion.div
                             initial={{ opacity: 0, x: 20 }}
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
-                            className="bg-accent/30 p-8 rounded-2xl border border-accent"
+                            className="bg-accent/30 p-10 rounded-2xl border border-accent"
                         >
-                            <Text variant="reading" className="mb-0">
-                                Field linguists often spend <span className="font-semibold text-foreground italic">10–20 hours</span> transcribing and annotating for every hour of recorded speech.
+                            <div className="flex items-baseline gap-4 mb-3">
+                                <span className="font-display text-6xl md:text-7xl font-bold text-signal leading-none">10–20×</span>
+                            </div>
+                            <Text variant="body" className="text-foreground/90 leading-relaxed">
+                                hours of transcription and annotation for every single hour of recorded speech.
                             </Text>
                         </motion.div>
 
                         <div className="space-y-8">
-                            <Text variant="body" className="text-foreground/80 leading-relaxed">
+                            <Text variant="body" className="text-foreground/90 leading-relaxed">
                                 Existing tools are fragmented, manual, and built for outdated workflows. After documentation, materials must be manually rebuilt into learning resources, adding years to the process.
                             </Text>
 
                             <div className="p-6 border-l-2 border-signal/30 bg-signal/[0.02]">
                                 <Text variant="lead" className="text-foreground font-medium italic">
-                                    "For many endangered languages, there may not be years left."
+                                    For many endangered languages, there may not be years left.
                                 </Text>
                             </div>
                         </div>

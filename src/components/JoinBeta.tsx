@@ -22,18 +22,16 @@ const JoinBeta = () => {
                         <Headline as="h2" className="text-white mb-8">
                             Join the VerbAItim Beta
                         </Headline>
+
+                        {/* Descriptive text ABOVE the CTA */}
                         <Text variant="lead" className="text-white/90 mb-12 max-w-2xl mx-auto italic serif-italic">
-                            We are onboarding early field linguists and language communities for pilot testing. Shape the future of revitalization.
+                            If you are documenting a language or are interested in learning an endangered language, help shape the platform.
                         </Text>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                             <button className="px-10 py-5 bg-white text-signal rounded-full font-bold text-lg hover:bg-opacity-90 transition-all shadow-2xl shadow-black/20 active:scale-95 leading-none">
                                 Request Access
                             </button>
-                            <Text className="text-white/70 text-sm italic">
-                                If you are documenting a language or interested <br />
-                                in learning, help us build the platform.
-                            </Text>
                         </div>
                     </motion.div>
                 </div>

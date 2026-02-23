@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import WaveformLogo from "./WaveformLogo";
 import {
     LayoutDashboard,
     Mic2,
@@ -31,7 +32,7 @@ const WorkbenchSidebar = () => {
             {/* Sidebar Header */}
             <div className="h-14 flex items-center px-6 border-b border-border">
                 <Link to="/" className="flex items-center gap-3 group">
-                    <div className="h-5 w-5 bg-signal rounded-sm transition-transform group-hover:rotate-12" />
+                    <WaveformLogo size={20} />
                     <span className="font-display font-bold text-lg tracking-tight text-foreground italic">VerbAItim</span>
                 </Link>
             </div>
