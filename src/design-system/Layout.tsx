@@ -4,7 +4,7 @@ import { ReactNode } from "react";
 // The "Shell" - Main wrapper for global margins/grids
 export const Shell = ({ children, className }: { children: ReactNode, className?: string }) => {
     return (
-        <div className={cn("min-h-screen w-full bg-background grid-paper", className)}>
+        <div className={cn("min-h-screen w-full bg-background", className)}>
             {children}
         </div>
     );
@@ -20,9 +20,9 @@ export const Container = ({ children, className }: { children: ReactNode, classN
 }
 
 // Section - Vertical spacing wrapper
-export const Section = ({ children, className }: { children: ReactNode, className?: string }) => {
+export const Section = ({ children, className, id }: { children: ReactNode, className?: string, id?: string }) => {
     return (
-        <section className={cn("py-24 md:py-32", className)}>
+        <section id={id} className={cn("py-24 md:py-32", className)}>
             {children}
         </section>
     );

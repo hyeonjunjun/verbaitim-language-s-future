@@ -65,6 +65,7 @@ export default {
       fontFamily: {
         display: ["var(--font-display)", "serif"],
         body: ["var(--font-body)", "sans-serif"],
+        reading: ["var(--font-reading)", "serif"],
       },
       keyframes: {
         "accordion-down": {

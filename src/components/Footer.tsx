@@ -10,58 +10,58 @@ const Footer = () => {
 
           {/* Brand Column */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="h-5 w-5 bg-foreground" />
-              <span className="font-display font-semibold text-lg tracking-tight">VerbAItim</span>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-6 w-6 bg-signal" style={{ borderRadius: '2px' }} />
+              <span className="font-display font-semibold text-xl tracking-tight text-foreground">VerbAItim</span>
             </div>
-            <Text variant="caption" className="max-w-xs">
-              The Institute for Digital Linguistic Preservation.
+            <Text variant="body" className="max-w-xs text-sm italic serif-italic leading-relaxed text-muted-foreground">
+              An ethical AI platform built with linguists and governed by communities.
               <br /><br />
-              100% Open Source.<br />
-              Community Owned.
+              Open Research. <br />
+              Community Managed.
             </Text>
           </div>
 
           {/* Sitemap Columns */}
           <div>
-            <h4 className="font-mono text-xs font-semibold uppercase tracking-wider mb-6 text-foreground">Platform</h4>
+            <h4 className="font-display text-sm font-bold uppercase tracking-widest mb-6 text-foreground">Platform</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">The Workbench</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Data Sovereignty</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">API Documentation</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Integration Guide</a></li>
+              <li><a href="#linguists" className="text-sm text-muted-foreground hover:text-signal transition-colors">For Linguists</a></li>
+              <li><a href="#learners" className="text-sm text-muted-foreground hover:text-signal transition-colors">For Learners</a></li>
+              <li><a href="#how-it-works" className="text-sm text-muted-foreground hover:text-signal transition-colors">How It Works</a></li>
+              <li><a href="#join" className="text-sm text-muted-foreground hover:text-signal transition-colors">Beta Access</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-mono text-xs font-semibold uppercase tracking-wider mb-6 text-foreground">Institute</h4>
+            <h4 className="font-display text-sm font-bold uppercase tracking-widest mb-6 text-foreground">Resources</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Manifesto</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Research Papers</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Grants & Funding</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Careers</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Methodology</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Ethics Codex</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Case Studies</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Support</a></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-mono text-xs font-semibold uppercase tracking-wider mb-6 text-foreground">Connect</h4>
+            <h4 className="font-display text-sm font-bold uppercase tracking-widest mb-6 text-foreground">Connect</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">GitHub</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Discord</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Twitter / X</a></li>
-              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Contact Us</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Journal</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Newsletter</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Contact</a></li>
+              <li><a href="#" className="text-sm text-muted-foreground hover:text-signal transition-colors">Scholar Portal</a></li>
             </ul>
           </div>
 
         </div>
 
-        <div className="border-t border-border mt-24 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground">
+        <div className="border-t border-border mt-24 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
           <div>
-            © 2026 VerbAItim Institute. All rights reserved.
+            © 2026 VerbAItim Initiative. All rights reserved.
           </div>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-foreground">Privacy Policy</a>
-            <a href="#" className="hover:text-foreground">Terms of Service</a>
+            <a href="#" className="hover:text-signal transition-colors">Privacy</a>
+            <a href="#" className="hover:text-signal transition-colors">Terms</a>
           </div>
         </div>
       </Container>

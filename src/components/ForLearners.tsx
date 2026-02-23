@@ -1,0 +1,81 @@
+import { Container, Section } from "@/design-system/Layout";
+import { Headline, Text } from "@/design-system/Typography";
+import { motion } from "framer-motion";
+import { BookOpen, MessageCircle, Library, Users } from "lucide-react";
+
+const pathways = [
+    {
+        icon: BookOpen,
+        title: "Structured Pathways",
+        description: "Organized vocabulary, grammar, sentences, and phrases derived from documentation."
+    },
+    {
+        icon: MessageCircle,
+        title: "Dialogue Practice",
+        description: "Real-life conversation practice grounded in authentic cultural context."
+    },
+    {
+        icon: Library,
+        title: "Culture & History",
+        description: "Curated articles for learning the rich history and culture surrounding a language."
+    },
+    {
+        icon: Users,
+        title: "Community Forums",
+        description: "Dedicated spaces for community discussions and collaborative learning."
+    }
+];
+
+const ForLearners = () => {
+    return (
+        <Section id="learners" className="bg-background">
+            <Container>
+                <div className="mb-20 text-center max-w-3xl mx-auto">
+                    <Text variant="caption" className="mb-6 block text-signal font-semibold">
+                        Activating the next speaker
+                    </Text>
+                    <Headline as="h2" className="mb-8">
+                        For Communities & Learners
+                    </Headline>
+                    <Text variant="body" className="text-foreground/70">
+                        Access newly documented language materials through structured learning pathways built on actual field research.
+                    </Text>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-8 mb-24">
+                    {pathways.map((path, idx) => (
+                        <motion.div
+                            key={path.title}
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            whileInView={{ opacity: 1, scale: 1 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: idx * 0.1 }}
+                            className="flex gap-6 p-8 rounded-2xl bg-secondary/20 border border-transparent hover:border-signal/10 hover:bg-white transition-all shadow-sm"
+                        >
+                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-signal text-white flex items-center justify-center">
+                                <path.icon size={22} />
+                            </div>
+                            <div>
+                                <h3 className="font-display text-xl font-semibold mb-2 text-foreground">
+                                    {path.title}
+                                </h3>
+                                <Text className="text-base text-muted-foreground italic serif-italic">
+                                    {path.description}
+                                </Text>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+
+                <div className="text-center bg-accent/30 p-12 rounded-3xl border border-accent">
+                    <Text variant="lead" className="max-w-2xl mx-auto text-foreground italic serif-italic mb-0">
+                        "Language documentation should not end in an archive. <br />
+                        <span className="text-signal not-italic font-bold">Activate the next speaker.</span>"
+                    </Text>
+                </div>
+            </Container>
+        </Section>
+    );
+};
+
+export default ForLearners;

@@ -5,19 +5,20 @@
 @layer base {
   :root {
     /* Base - "The Paper" */
-    --background: 0 0% 98%;
-    /* White/Off-white */
+    --background: 40 33% 97%;
+    /* Warm Cream Paper */
     --foreground: 240 10% 3.9%;
     /* Rich Black */
 
     /* Typography - "The Ink" */
     --font-display: 'Fraunces', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-body: 'Source Sans 3', sans-serif;
+    --font-reading: 'Source Serif 4', serif;
 
-    /* Accents - "The Highlighter" */
-    --signal: 221.2 83.2% 53.3%;
-    /* Electric Blue (Research) */
-    --signal-foreground: 210 40% 98%;
+    /* Accents - "The Scholar" */
+    --signal: 174 60% 40%;
+    /* Academic Teal */
+    --signal-foreground: 0 0% 100%;
 
     /* UI Shell */
     --card: 0 0% 100%;
@@ -26,25 +27,25 @@
     --popover-foreground: 240 10% 3.9%;
 
     --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
+    --primary-foreground: 40 33% 97%;
 
-    --secondary: 240 4.8% 95.9%;
+    --secondary: 40 33% 94%;
     --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 240 4.8% 95.9%;
+    --muted: 40 33% 92%;
     --muted-foreground: 240 3.8% 46.1%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 174 60% 95%;
+    --accent-foreground: 174 60% 40%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 240 5.9% 10%;
-    --radius: 0px;
-    /* Sharp corners for premium feel */
+    --border: 40 33% 85%;
+    --input: 40 33% 85%;
+    --ring: 174 60% 40%;
+    --radius: 8px;
+    /* Friendlier rounded corners */
   }
 
   .dark {
@@ -88,7 +89,7 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-signal selection:text-white;
+    @apply bg-background text-foreground font-body antialiased selection:bg-signal/30 selection:text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -103,18 +104,9 @@
   }
 }
 
-/* Grid Utilities - The Structure */
+/* Editorial Typography Reset */
 @layer utilities {
-  .grid-paper {
-    background-size: 40px 40px;
-    background-image:
-      linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
-  }
-
-  .dark .grid-paper {
-    background-image:
-      linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 }

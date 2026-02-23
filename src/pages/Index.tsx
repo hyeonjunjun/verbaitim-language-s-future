@@ -1,21 +1,28 @@
-import { Shell, Section } from "@/design-system/Layout";
+import { Shell } from "@/design-system/Layout";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import Manifesto from "@/components/Manifesto";
-import WorkbenchPreview from "@/components/WorkbenchPreview";
+import Problem from "@/components/Problem";
+import Solution from "@/components/Solution";
+import ForLinguists from "@/components/ForLinguists";
+import ForLearners from "@/components/ForLearners";
+import HowItWorks from "@/components/HowItWorks";
+import WhyVerbaitim from "@/components/WhyVerbaitim";
+import JoinBeta from "@/components/JoinBeta";
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
     <Shell>
       <Navbar />
       <Hero />
-      <Manifesto />
-      <WorkbenchPreview />
-
-      {/* Footer Placeholder */}
-      <Section className="py-12 border-t border-border">
-        <div className="text-center text-xs text-muted-foreground">© 2026 VerbAItim Institute</div>
-      </Section>
+      <Problem />
+      <Solution />
+      <ForLinguists />
+      <ForLearners />
+      <HowItWorks />
+      <WhyVerbaitim />
+      <JoinBeta />
+      <Footer />
     </Shell>
   );
 };

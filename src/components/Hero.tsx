@@ -14,59 +14,80 @@ const Hero = () => {
   });
 
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 0.5], [1, 0.95]);
   const y = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
 
   return (
-    <div ref={containerRef} className="relative h-screen min-h-[800px] w-full flex flex-col justify-center overflow-hidden border-b border-border bg-background">
+    <div ref={containerRef} className="relative min-h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
 
-      {/* Interactive Background */}
-      <IPAGrid />
+      {/* Subtle Academic Background Accent */}
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20 overflow-hidden">
+        <div className="absolute top-1/4 -right-1/4 w-[800px] h-[800px] bg-signal/10 rounded-full blur-[120px]" />
+        <div className="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-signal/5 rounded-full blur-[100px]" />
+      </div>
 
-      <Container className="relative z-10 pointer-events-none">
-        <motion.div style={{ opacity, scale, y }} className="max-w-6xl">
+      <Container className="relative z-10">
+        <motion.div style={{ opacity, y }} className="max-w-4xl mx-auto text-center">
 
-          {/* Meta Label */}
-          <div className="mb-8 flex items-center gap-4">
-            <div className="h-px w-12 bg-signal" />
-            <Text variant="caption" className="text-signal font-semibold bg-background/50 backdrop-blur-sm px-2 py-1 rounded">
-              Linguistic Preservation Initiative 2026
-            </Text>
-          </div>
+          {/* Academic Label */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="mb-8 flex justify-center"
+          >
+            <div className="flex items-center gap-3 px-4 py-1.5 rounded-full border border-signal/20 bg-signal/5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-signal"></span>
+              </span>
+              <Text variant="caption" className="text-signal font-semibold tracking-normal lowercase">
+                pilot program open for linguists
+              </Text>
+            </div>
+          </motion.div>
 
           {/* The Statement Headline */}
-          <div className="relative">
-            {/* Blur backing for legibility against grid */}
-            <div className="absolute inset-0 bg-background/60 blur-3xl -z-10 scale-125" />
-
-            <Headline as="h1" className="mb-8 mix-blend-multiply text-foreground">
-              The future of language <br />
-              is <span className="text-signal">verifiable</span> data.
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          >
+            <Headline as="h1" className="mb-8 text-foreground leading-[1.05]">
+              Where Language Comes <br />
+              <span className="text-signal italic serif-italic">Back to Life.</span>
             </Headline>
-          </div>
+          </motion.div>
 
           {/* Subtext */}
-          <div className="max-w-xl relative">
-            <div className="absolute inset-0 bg-background/60 blur-xl -z-10 scale-125" />
-            <Text variant="lead" className="text-foreground/80">
-              We build the open-source infrastructure for indigenous language revitalization.
-              Structured archives, immutable provenance, and community sovereignty.
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
+            className="max-w-2xl mx-auto mb-12"
+          >
+            <Text variant="lead" className="text-foreground/85">
+              Document faster. Teach sooner. Learn now. An ethical AI platform built with linguists and governed by communities.
             </Text>
-          </div>
+          </motion.div>
+
+          {/* CTA Row */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
+            className="flex flex-wrap items-center justify-center gap-6"
+          >
+            <button className="px-8 py-4 bg-signal text-white rounded-full font-medium hover:bg-signal/90 transition-all shadow-lg shadow-signal/20 active:scale-95 leading-none">
+              Join the Beta
+            </button>
+            <a href="#how-it-works" className="group flex items-center gap-2 py-2 text-foreground font-medium hover:text-signal transition-colors leading-none">
+              See How It Works
+              <span className="inline-block transition-transform group-hover:translate-y-1"><ArrowDown size={18} /></span>
+            </a>
+          </motion.div>
 
         </motion.div>
       </Container>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        style={{ opacity }}
-        className="absolute bottom-12 left-0 right-0 flex justify-center pointer-events-none"
-      >
-        <div className="flex flex-col items-center gap-2 text-muted-foreground bg-background/50 backdrop-blur-sm p-2 rounded-full">
-          <Text variant="caption" className="text-[10px]">Scroll to Explore</Text>
-          <ArrowDown className="animate-bounce" size={16} />
-        </div>
-      </motion.div>
     </div>
   );
 };

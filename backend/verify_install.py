@@ -25,17 +25,17 @@ failed = []
 for package in packages:
     try:
         importlib.import_module(package)
-        print(f"✅ {package} imported successfully")
+        print(f"[OK] {package} imported successfully")
     except ImportError as e:
-        print(f"❌ {package} failed to import: {e}")
+        print(f"[FAIL] {package} failed to import: {e}")
         failed.append(package)
 
 # Special check for allosaurus as it might be 'allosaurus' or something else
 try:
     import allosaurus
-    print("✅ allosaurus imported successfully")
+    print("[OK] allosaurus imported successfully")
 except ImportError:
-    print("❌ allosaurus failed to import")
+    print("[FAIL] allosaurus failed to import")
     failed.append("allosaurus")
 
 if failed:
