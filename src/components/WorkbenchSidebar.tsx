@@ -85,10 +85,16 @@ const WorkbenchSidebar = () => {
 
             {/* Footer Navigation */}
             <div className="p-4 border-t border-border space-y-1 mt-auto">
-                <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all">
-                    <Settings size={18} className="text-muted-foreground" />
+                <Link
+                    to="/workbench/settings"
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === "/workbench/settings"
+                            ? "bg-signal/10 text-signal shadow-inner"
+                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                        }`}
+                >
+                    <Settings size={18} className={location.pathname === "/workbench/settings" ? "text-signal" : "text-muted-foreground"} />
                     Settings
-                </button>
+                </Link>
             </div>
         </aside>
     );

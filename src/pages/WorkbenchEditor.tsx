@@ -1,5 +1,7 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
+import WaveformPlayer, { type WaveformPlayerHandle } from "@/components/WaveformPlayer";
+import { useAudioStore } from "@/hooks/useAudioStore";
 import {
     Play,
     Pause,
@@ -13,24 +15,113 @@ import {
     Save,
     Download,
     Plus,
-    Users
+    Users,
+    Upload,
+    Loader2,
+    Trash2,
+    X,
+    AlertCircle,
 } from "lucide-react";
 
 const WorkbenchEditor = () => {
+    const waveformRef = useRef<WaveformPlayerHandle>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [isDragOver, setIsDragOver] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState("ipa");
 
-    // Mock data for the annotation grid
-    const annotations = [
-        { id: 1, time: "00:01:23", speaker: "EF_01", text: "Hau, mitákuyepi.", ipa: "haʊ miˈtakuˌjepi", meaning: "Hello, my relatives.", conf: 98 },
-        { id: 2, time: "00:01:45", speaker: "EF_02", text: "Čhaŋté waštéya napéčhiyuzape.", ipa: "tʃʰãˈte waˈʃteja naˈpetʃʰijuˌzape", meaning: "I shake your hands with a good heart.", conf: 92 },
-        { id: 3, time: "00:02:10", speaker: "EF_01", text: "Tókša akhé waŋčhíyaŋkiŋ kte.", ipa: "ˈtokʃa aˈkʰe wãˈtʃʰijãkĩ kte", meaning: "I will see you again soon.", conf: 99 },
-    ];
+    // Zustand store
+    const {
+        audioFile,
+        audioUrl,
+        fileName,
+        segments,
+        isTranscribing,
+        transcriptionError,
+        loadAudioFile,
+        clearAudio,
+        transcribe,
+        updateSegment,
+        addSegment,
+        removeSegment,
+    } = useAudioStore();
+
+    // ── File handling ────────────────────────────────────────────────
+
+    const handleFileSelect = useCallback(
+        (file: File) => {
+            const allowedTypes = [
+                "audio/wav",
+                "audio/mpeg",
+                "audio/mp3",
+                "audio/ogg",
+                "audio/flac",
+                "audio/x-wav",
+                "audio/webm",
+                "video/webm",
+            ];
+            // Also accept by extension
+            const ext = file.name.split(".").pop()?.toLowerCase();
+            const allowedExts = ["wav", "mp3", "ogg", "flac", "webm", "m4a"];
+
+            if (
+                !allowedTypes.includes(file.type) &&
+                !allowedExts.includes(ext || "")
+            ) {
+                alert("Please upload an audio file (WAV, MP3, OGG, FLAC, WebM).");
+                return;
+            }
+            loadAudioFile(file);
+        },
+        [loadAudioFile]
+    );
+
+    const handleDrop = useCallback(
+        (e: React.DragEvent) => {
+            e.preventDefault();
+            setIsDragOver(false);
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileSelect(file);
+        },
+        [handleFileSelect]
+    );
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(true);
+    }, []);
+
+    const handleDragLeave = useCallback(() => {
+        setIsDragOver(false);
+    }, []);
+
+    const handleInputChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileSelect(file);
+        },
+        [handleFileSelect]
+    );
+
+    // ── Time formatting ──────────────────────────────────────────────
+
+    function formatDisplayTime(seconds: number): string {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+
+    // ── Highlight the row whose time range includes the current playhead ──
+    const activeSegmentId = segments.find(
+        (s) => currentTime >= s.startTime && currentTime <= s.endTime
+    )?.id;
 
     return (
         <WorkbenchLayout>
             <div className="h-full flex flex-col overflow-hidden">
-                {/* Editor Toolbar */}
+                {/* ─── Editor Toolbar ─────────────────────────────── */}
                 <div className="h-12 border-b border-border bg-card/80 backdrop-blur-sm flex items-center justify-between px-6 shrink-0 transition-colors duration-500">
                     <div className="flex items-center gap-4">
                         <div className="flex items-center gap-1 bg-background/50 p-1 rounded-lg border border-border">
@@ -43,16 +134,41 @@ const WorkbenchEditor = () => {
                         </div>
                         <div className="h-4 w-px bg-border mx-2" />
                         <div className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground/60">
-                            <span className="text-foreground/80 font-bold tracking-tighter">Lakota_Interview_01</span>
-                            <span className="mx-2">/</span>
-                            <span className="italic">Layer: Phonemic_Draft_04</span>
+                            <span className="text-foreground/80 font-bold tracking-tighter">
+                                {fileName || "No file loaded"}
+                            </span>
+                            {fileName && (
+                                <>
+                                    <span className="mx-2">/</span>
+                                    <span className="italic">Layer: Phonemic_Draft</span>
+                                </>
+                            )}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-2 px-3 py-1.5 bg-signal text-white rounded-lg text-xs font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20">
-                            <Save size={14} /> Save Changes
-                        </button>
+                        {/* Transcribe Button */}
+                        {audioFile && !isTranscribing && (
+                            <button
+                                onClick={() => transcribe(selectedLanguage)}
+                                className="flex items-center gap-2 px-4 py-1.5 bg-signal text-white rounded-lg text-xs font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20"
+                            >
+                                <Wand2 size={14} />
+                                Transcribe
+                            </button>
+                        )}
+                        {isTranscribing && (
+                            <div className="flex items-center gap-2 px-4 py-1.5 bg-signal/20 text-signal rounded-lg text-xs font-bold border border-signal/30">
+                                <Loader2 size={14} className="animate-spin" />
+                                Transcribing…
+                            </div>
+                        )}
+
+                        {segments.length > 0 && (
+                            <button className="flex items-center gap-2 px-3 py-1.5 bg-accent/50 text-foreground rounded-lg text-xs font-bold hover:bg-accent transition-all active:scale-95 border border-border">
+                                <Save size={14} /> Save
+                            </button>
+                        )}
                         <button className="p-1.5 text-muted-foreground hover:text-foreground rounded hover:bg-accent/50 transition-all">
                             <Download size={16} />
                         </button>
@@ -62,191 +178,494 @@ const WorkbenchEditor = () => {
                     </div>
                 </div>
 
-                {/* The Workspace Grid */}
+                {/* ─── The Workspace Grid ─────────────────────────── */}
                 <div className="flex-1 flex min-h-0">
-                    {/* Main Stage (Timeline + Annotations) */}
+                    {/* Main Stage */}
                     <div className="flex-1 flex flex-col min-w-0 border-r border-white/5 overflow-hidden">
 
-                        {/* Timeline / Waveform View */}
-                        <div className="h-64 bg-background/50 border-b border-border relative flex flex-col overflow-hidden shrink-0 transition-colors">
-                            <div className="flex-1 relative flex items-center justify-center bg-card shadow-inner">
-                                {/* Visual Audio Grid */}
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--signal),0.05)_0%,transparent_70%)]" />
-
-                                {/* Fake Waveform */}
-                                <svg className="w-full h-40 px-10 opacity-80" viewBox="0 0 1000 100" preserveAspectRatio="none">
-                                    <path
-                                        d="M0,50 Q20,20 40,50 T80,50 T120,20 T160,80 T200,50 L250,50 Q300,10 350,50 T450,50 T550,90 T650,10 L1000,50"
-                                        fill="none"
-                                        stroke="url(#wave-gradient)"
-                                        strokeWidth="2"
-                                        className="drop-shadow-[0_0_8px_rgba(var(--signal),0.3)]"
-                                    />
-                                    <defs>
-                                        <linearGradient id="wave-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                            <stop offset="0%" stopColor="hsl(var(--signal))" />
-                                            <stop offset="50%" stopColor="hsl(35 80% 60%)" />
-                                            <stop offset="100%" stopColor="hsl(var(--signal))" />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-
-                                {/* Playhead */}
-                                <div className="absolute top-0 bottom-0 left-1/3 w-px bg-signal shadow-[0_0_12px_hsl(var(--signal)/0.5)] z-20">
-                                    <div className="absolute -top-1 -left-1 w-2.5 h-2.5 bg-signal rounded-sm rotate-45" />
-                                </div>
-
-                                {/* Region Highlighting */}
-                                <div className="absolute top-0 bottom-0 left-[10%] right-[60%] bg-signal/5 border-x border-signal/20 z-10" />
-                            </div>
-
-                            {/* Playback Controls */}
-                            <div className="h-14 bg-card border-t border-border flex items-center px-6 gap-6 shrink-0 transition-colors">
-                                <div className="flex items-center gap-3">
-                                    <button
-                                        onClick={() => setIsPlaying(!isPlaying)}
-                                        className="w-10 h-10 rounded-full bg-signal text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-signal/30"
+                        {/* ─── Waveform / Upload Area ─────────────── */}
+                        {!audioFile ? (
+                            /* Empty State: Drop Zone */
+                            <div
+                                className={`h-64 border-b border-border relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shrink-0 ${isDragOver
+                                        ? "bg-signal/10 border-signal/40"
+                                        : "bg-background/50 hover:bg-card/50"
+                                    }`}
+                                onDrop={handleDrop}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="audio/*"
+                                    onChange={handleInputChange}
+                                    className="hidden"
+                                />
+                                <div
+                                    className={`flex flex-col items-center gap-4 transition-transform duration-300 ${isDragOver ? "scale-110" : ""
+                                        }`}
+                                >
+                                    <div
+                                        className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${isDragOver
+                                                ? "bg-signal/20 text-signal shadow-lg shadow-signal/20"
+                                                : "bg-card border border-border text-muted-foreground"
+                                            }`}
                                     >
-                                        {isPlaying ? <Pause size={18} fill="currentColor" /> : <Play size={18} fill="currentColor" className="ml-1" />}
-                                    </button>
-                                    <div className="font-mono text-xs text-muted-foreground font-bold tracking-tighter">00:01:23 / 00:15:42</div>
-                                </div>
-
-                                <div className="flex-1 flex items-center gap-3 max-w-sm">
-                                    <Settings size={14} className="text-muted-foreground" />
-                                    <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden shadow-inner">
-                                        <div className="h-full w-2/3 bg-signal/60 rounded-full" />
+                                        <Upload size={28} />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="text-sm font-semibold text-foreground mb-1">
+                                            {isDragOver
+                                                ? "Drop to load audio"
+                                                : "Drop audio file or click to upload"}
+                                        </p>
+                                        <p className="text-[10px] text-muted-foreground/60 font-mono uppercase tracking-widest">
+                                            WAV • MP3 • OGG • FLAC • WebM
+                                        </p>
                                     </div>
                                 </div>
+                                {/* Subtle grid pattern */}
+                                <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
+                                    style={{
+                                        backgroundImage: "radial-gradient(circle, currentColor 1px, transparent 1px)",
+                                        backgroundSize: "20px 20px",
+                                    }}
+                                />
+                            </div>
+                        ) : (
+                            /* Waveform View */
+                            <div className="h-64 bg-background/50 border-b border-border relative flex flex-col overflow-hidden shrink-0 transition-colors">
+                                {/* Clear button */}
+                                <button
+                                    onClick={clearAudio}
+                                    className="absolute top-3 right-3 z-30 p-1.5 text-muted-foreground/60 hover:text-foreground hover:bg-destructive/10 rounded-lg transition-all"
+                                    title="Remove audio"
+                                >
+                                    <X size={14} />
+                                </button>
 
-                                <div className="flex items-center gap-1 bg-background/50 px-2.5 py-1.5 rounded-lg border border-border font-mono text-[10px] text-muted-foreground">
-                                    <span className="text-signal uppercase font-bold">Speed:</span> 1.0x <ChevronDown size={10} />
+                                {/* Waveform */}
+                                <div className="flex-1 relative flex items-center bg-card shadow-inner">
+                                    <WaveformPlayer
+                                        ref={waveformRef}
+                                        audioUrl={audioUrl}
+                                        className="w-full h-full"
+                                        onTimeUpdate={setCurrentTime}
+                                        onReady={setDuration}
+                                        onPlay={() => setIsPlaying(true)}
+                                        onPause={() => setIsPlaying(false)}
+                                    />
+                                </div>
+
+                                {/* Playback Controls */}
+                                <div className="h-14 bg-card border-t border-border flex items-center px-6 gap-6 shrink-0 transition-colors">
+                                    <div className="flex items-center gap-3">
+                                        <button
+                                            onClick={() => waveformRef.current?.playPause()}
+                                            className="w-10 h-10 rounded-full bg-signal text-white flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-lg shadow-signal/30"
+                                        >
+                                            {isPlaying ? (
+                                                <Pause size={18} fill="currentColor" />
+                                            ) : (
+                                                <Play size={18} fill="currentColor" className="ml-1" />
+                                            )}
+                                        </button>
+                                        <div className="font-mono text-xs text-muted-foreground font-bold tracking-tighter">
+                                            {formatDisplayTime(currentTime)} /{" "}
+                                            {formatDisplayTime(duration)}
+                                        </div>
+                                    </div>
+
+                                    <div className="flex-1 flex items-center gap-3 max-w-sm">
+                                        <Settings size={14} className="text-muted-foreground" />
+                                        <div className="h-1.5 flex-1 bg-muted rounded-full overflow-hidden shadow-inner">
+                                            <div
+                                                className="h-full bg-signal/60 rounded-full transition-all duration-100"
+                                                style={{
+                                                    width: duration
+                                                        ? `${(currentTime / duration) * 100}%`
+                                                        : "0%",
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2">
+                                        <select
+                                            value={selectedLanguage}
+                                            onChange={(e) => setSelectedLanguage(e.target.value)}
+                                            className="bg-background/50 px-2.5 py-1.5 rounded-lg border border-border font-mono text-[10px] text-muted-foreground focus:outline-none focus:ring-1 focus:ring-signal/30"
+                                        >
+                                            <option value="ipa">Universal IPA</option>
+                                            <option value="que">Quechua</option>
+                                            <option value="mri">Māori</option>
+                                            <option value="lkt">Lakota</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
 
-                        {/* Annotation Grid */}
+                        {/* ─── Annotation Grid ────────────────────── */}
                         <div className="flex-1 overflow-y-auto bg-background/20 transition-colors">
-                            <table className="w-full border-collapse">
-                                <thead className="sticky top-0 bg-card/95 backdrop-blur-md border-b border-border shadow-sm z-20">
-                                    <tr className="text-left py-2">
-                                        <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border w-24">Timestamp</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border w-24">Speaker</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border">IPA Transcription</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border">English Translation</th>
-                                        <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground w-20">Conf.</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {annotations.map((row) => (
-                                        <tr key={row.id} className="border-b border-border/50 group hover:bg-accent/30 focus-within:bg-accent/40 transition-colors">
-                                            <td className="px-6 py-5 font-mono text-xs text-muted-foreground border-r border-border/50">
-                                                <div className="flex items-center gap-2">
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${row.conf > 95 ? 'bg-sage' : row.conf > 85 ? 'bg-signal/60' : 'bg-ochre'}`} />
-                                                    {row.time}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-5 font-bold text-xs text-foreground/80 border-r border-border/50">{row.speaker}</td>
-                                            <td className="px-6 py-5 border-r border-border/50">
-                                                <div className="font-serif text-lg text-foreground mb-1">{row.ipa}</div>
-                                                <div className="text-[10px] font-mono text-muted-foreground/60 group-hover:text-muted-foreground transition-colors italic">Draft 04 / Auto-Generated</div>
-                                            </td>
-                                            <td className="px-6 py-5 border-r border-border/50">
-                                                <input
-                                                    type="text"
-                                                    defaultValue={row.meaning}
-                                                    className="w-full bg-transparent border border-transparent rounded-md px-2 py-1 -mx-2 -my-1 text-muted-foreground hover:border-border/80 focus:border-signal/40 focus:bg-background/50 focus:text-foreground focus:outline-none focus:ring-1 focus:ring-signal/20 text-sm italic font-reading transition-all"
-                                                />
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                <div className="flex flex-col items-center">
-                                                    <span className={`text-[10px] font-mono font-bold mb-1 ${row.conf > 95 ? 'text-sage' : row.conf > 85 ? 'text-muted-foreground' : 'text-ochre'}`}>{row.conf}%</span>
-                                                    <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
-                                                        <div className={`h-full rounded-full transition-all ${row.conf > 95 ? 'bg-sage' : row.conf > 85 ? 'bg-signal/60' : 'bg-ochre'}`} style={{ width: `${row.conf}%` }} />
-                                                    </div>
-                                                </div>
-                                            </td>
+                            {/* Error banner */}
+                            {transcriptionError && (
+                                <div className="mx-6 mt-4 flex items-center gap-3 px-4 py-3 bg-ochre/10 border border-ochre/20 rounded-xl text-xs text-ochre">
+                                    <AlertCircle size={14} />
+                                    <span>
+                                        Backend unavailable — showing demo data.{" "}
+                                        <span className="text-muted-foreground italic">
+                                            ({transcriptionError})
+                                        </span>
+                                    </span>
+                                </div>
+                            )}
+
+                            {segments.length === 0 && !isTranscribing ? (
+                                /* Empty annotation state */
+                                <div className="flex flex-col items-center justify-center h-full text-center px-8 py-16">
+                                    <div className="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center text-muted-foreground/40 mb-4">
+                                        <FileText size={24} />
+                                    </div>
+                                    <p className="text-sm font-semibold text-foreground/60 mb-1">
+                                        No annotations yet
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground/40 font-mono uppercase tracking-widest max-w-xs">
+                                        {audioFile
+                                            ? 'Click "Transcribe" to analyze the audio'
+                                            : "Upload an audio file to get started"}
+                                    </p>
+                                </div>
+                            ) : (
+                                <table className="w-full border-collapse">
+                                    <thead className="sticky top-0 bg-card/95 backdrop-blur-md border-b border-border shadow-sm z-20">
+                                        <tr className="text-left">
+                                            <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border w-24">
+                                                Timestamp
+                                            </th>
+                                            <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border w-24">
+                                                Speaker
+                                            </th>
+                                            <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border">
+                                                IPA Transcription
+                                            </th>
+                                            <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground border-r border-border">
+                                                English Translation
+                                            </th>
+                                            <th className="px-6 py-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground w-20">
+                                                Conf.
+                                            </th>
+                                            <th className="px-3 py-3 w-10" />
                                         </tr>
-                                    ))}
-                                    <tr className="bg-signal/5 border-b border-border">
-                                        <td className="px-6 py-12 text-center" colSpan={5}>
-                                            <button className="inline-flex items-center gap-2 px-6 py-2.5 bg-signal/15 border border-signal/20 rounded-xl text-xs font-bold text-signal hover:bg-signal/20 transition-all shadow-inner">
-                                                <Plus className="animate-pulse" size={14} /> Add Segment
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        {/* Loading skeleton */}
+                                        {isTranscribing && segments.length === 0 && (
+                                            <>
+                                                {[1, 2, 3].map((i) => (
+                                                    <tr key={`skel_${i}`} className="border-b border-border/50">
+                                                        <td className="px-6 py-5 border-r border-border/50">
+                                                            <div className="h-4 w-16 bg-muted rounded animate-pulse" />
+                                                        </td>
+                                                        <td className="px-6 py-5 border-r border-border/50">
+                                                            <div className="h-4 w-12 bg-muted rounded animate-pulse" />
+                                                        </td>
+                                                        <td className="px-6 py-5 border-r border-border/50">
+                                                            <div className="h-6 w-48 bg-muted rounded animate-pulse mb-1" />
+                                                            <div className="h-3 w-32 bg-muted/50 rounded animate-pulse" />
+                                                        </td>
+                                                        <td className="px-6 py-5 border-r border-border/50">
+                                                            <div className="h-4 w-40 bg-muted rounded animate-pulse" />
+                                                        </td>
+                                                        <td className="px-6 py-5">
+                                                            <div className="h-4 w-10 bg-muted rounded animate-pulse mx-auto" />
+                                                        </td>
+                                                        <td className="px-3 py-5" />
+                                                    </tr>
+                                                ))}
+                                            </>
+                                        )}
+
+                                        {/* Actual segment rows */}
+                                        {segments.map((row) => (
+                                            <tr
+                                                key={row.id}
+                                                className={`border-b border-border/50 group hover:bg-accent/30 focus-within:bg-accent/40 transition-colors ${activeSegmentId === row.id
+                                                        ? "bg-signal/5 border-l-2 border-l-signal"
+                                                        : ""
+                                                    }`}
+                                            >
+                                                <td className="px-6 py-5 font-mono text-xs text-muted-foreground border-r border-border/50">
+                                                    <button
+                                                        className="flex items-center gap-2 hover:text-signal transition-colors"
+                                                        onClick={() => {
+                                                            if (duration > 0) {
+                                                                waveformRef.current?.seekTo(
+                                                                    row.startTime / duration
+                                                                );
+                                                            }
+                                                        }}
+                                                    >
+                                                        <div
+                                                            className={`w-1.5 h-1.5 rounded-full ${row.confidence > 95
+                                                                    ? "bg-sage"
+                                                                    : row.confidence > 85
+                                                                        ? "bg-signal/60"
+                                                                        : "bg-ochre"
+                                                                }`}
+                                                        />
+                                                        {row.time}
+                                                    </button>
+                                                </td>
+                                                <td className="px-6 py-5 border-r border-border/50">
+                                                    <input
+                                                        type="text"
+                                                        value={row.speaker}
+                                                        onChange={(e) =>
+                                                            updateSegment(row.id, {
+                                                                speaker: e.target.value,
+                                                            })
+                                                        }
+                                                        className="w-full bg-transparent font-bold text-xs text-foreground/80 border border-transparent rounded px-1 py-0.5 hover:border-border/60 focus:border-signal/40 focus:bg-background/50 focus:outline-none focus:ring-1 focus:ring-signal/20 transition-all"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-5 border-r border-border/50">
+                                                    <input
+                                                        type="text"
+                                                        value={row.ipa}
+                                                        onChange={(e) =>
+                                                            updateSegment(row.id, {
+                                                                ipa: e.target.value,
+                                                            })
+                                                        }
+                                                        className="w-full bg-transparent font-serif text-lg text-foreground border border-transparent rounded px-2 py-1 -mx-2 -my-1 hover:border-border/60 focus:border-signal/40 focus:bg-background/50 focus:outline-none focus:ring-1 focus:ring-signal/20 transition-all mb-1"
+                                                    />
+                                                    <div className="text-[10px] font-mono text-muted-foreground/60 group-hover:text-muted-foreground transition-colors italic">
+                                                        {row.confidence > 0
+                                                            ? "Auto-Generated"
+                                                            : "Manual Entry"}
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-5 border-r border-border/50">
+                                                    <input
+                                                        type="text"
+                                                        value={row.meaning}
+                                                        onChange={(e) =>
+                                                            updateSegment(row.id, {
+                                                                meaning: e.target.value,
+                                                            })
+                                                        }
+                                                        className="w-full bg-transparent border border-transparent rounded-md px-2 py-1 -mx-2 -my-1 text-muted-foreground hover:border-border/80 focus:border-signal/40 focus:bg-background/50 focus:text-foreground focus:outline-none focus:ring-1 focus:ring-signal/20 text-sm italic font-reading transition-all"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <div className="flex flex-col items-center">
+                                                        <span
+                                                            className={`text-[10px] font-mono font-bold mb-1 ${row.confidence > 95
+                                                                    ? "text-sage"
+                                                                    : row.confidence > 85
+                                                                        ? "text-muted-foreground"
+                                                                        : "text-ochre"
+                                                                }`}
+                                                        >
+                                                            {row.confidence > 0
+                                                                ? `${row.confidence}%`
+                                                                : "—"}
+                                                        </span>
+                                                        <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
+                                                            <div
+                                                                className={`h-full rounded-full transition-all ${row.confidence > 95
+                                                                        ? "bg-sage"
+                                                                        : row.confidence > 85
+                                                                            ? "bg-signal/60"
+                                                                            : "bg-ochre"
+                                                                    }`}
+                                                                style={{
+                                                                    width: `${row.confidence}%`,
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-3 py-5">
+                                                    <button
+                                                        onClick={() =>
+                                                            removeSegment(row.id)
+                                                        }
+                                                        className="p-1 text-muted-foreground/30 hover:text-destructive opacity-0 group-hover:opacity-100 transition-all rounded hover:bg-destructive/10"
+                                                    >
+                                                        <Trash2 size={12} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+
+                                        {/* Add segment row */}
+                                        {(segments.length > 0 || audioFile) && (
+                                            <tr className="bg-signal/5 border-b border-border">
+                                                <td className="px-6 py-12 text-center" colSpan={6}>
+                                                    <button
+                                                        onClick={addSegment}
+                                                        className="inline-flex items-center gap-2 px-6 py-2.5 bg-signal/15 border border-signal/20 rounded-xl text-xs font-bold text-signal hover:bg-signal/20 transition-all shadow-inner"
+                                                    >
+                                                        <Plus size={14} /> Add Segment
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            )}
                         </div>
                     </div>
 
-                    {/* AI / Inspector Sidebar */}
+                    {/* ─── AI / Inspector Sidebar ─────────────────── */}
                     <div className="w-80 bg-card border-l border-border flex flex-col overflow-hidden shrink-0 transition-colors">
                         <div className="p-6 border-b border-border flex items-center justify-between shrink-0">
-                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">AI Inspector</h3>
+                            <h3 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                                AI Inspector
+                            </h3>
                             <Sparkles size={14} className="text-signal" />
                         </div>
 
                         <div className="flex-1 overflow-y-auto p-6 space-y-8">
-                            {/* Contextual Suggestions */}
-                            <div>
-                                <h4 className="flex items-center gap-2 text-xs font-semibold mb-4 text-foreground/80">
-                                    <Wand2 size={14} className="text-signal" /> Phonetic Suggestions
-                                </h4>
-                                <div className="space-y-3">
-                                    {[{ sug: 'haʊ', pct: 99 }, { sug: 'hɑːʊ', pct: 94 }, { sug: 'haw', pct: 89 }].map((item, i) => (
-                                        <div key={i} className="p-3 bg-background/50 border border-border/50 rounded-xl hover:border-signal/30 transition-all cursor-pointer group shadow-sm">
-                                            <div className="flex items-center justify-between mb-1.5">
-                                                <span className="font-serif text-lg text-foreground">{item.sug}</span>
-                                                <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${item.pct > 95 ? 'bg-sage/15 text-sage' : item.pct > 90 ? 'bg-signal/15 text-signal' : 'bg-ochre/15 text-ochre'}`}>{item.pct}%</span>
+                            {/* Transcription Result */}
+                            {segments.length > 0 && (
+                                <div>
+                                    <h4 className="flex items-center gap-2 text-xs font-semibold mb-4 text-foreground/80">
+                                        <Wand2 size={14} className="text-signal" /> Phonetic
+                                        Suggestions
+                                    </h4>
+                                    <div className="space-y-3">
+                                        {segments.slice(0, 3).map((seg) => (
+                                            <div
+                                                key={seg.id}
+                                                className="p-3 bg-background/50 border border-border/50 rounded-xl hover:border-signal/30 transition-all cursor-pointer group shadow-sm"
+                                            >
+                                                <div className="flex items-center justify-between mb-1.5">
+                                                    <span className="font-serif text-base text-foreground truncate mr-2">
+                                                        {seg.ipa || "—"}
+                                                    </span>
+                                                    <span
+                                                        className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${seg.confidence > 95
+                                                                ? "bg-sage/15 text-sage"
+                                                                : seg.confidence > 90
+                                                                    ? "bg-signal/15 text-signal"
+                                                                    : "bg-ochre/15 text-ochre"
+                                                            }`}
+                                                    >
+                                                        {seg.confidence}%
+                                                    </span>
+                                                </div>
+                                                <div className="flex items-center justify-between">
+                                                    <div className="text-[8px] uppercase tracking-widest text-muted-foreground/40 font-bold italic">
+                                                        {seg.time} — {seg.speaker}
+                                                    </div>
+                                                    <button
+                                                        className="text-[9px] text-signal font-bold uppercase opacity-0 group-hover:opacity-100 transition-opacity hover:underline underline-offset-2"
+                                                        onClick={() => {
+                                                            if (duration > 0) {
+                                                                waveformRef.current?.seekTo(
+                                                                    seg.startTime / duration
+                                                                );
+                                                                waveformRef.current?.play();
+                                                            }
+                                                        }}
+                                                    >
+                                                        Play
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center justify-between">
-                                                <div className="text-[8px] uppercase tracking-widest text-muted-foreground/40 font-bold italic">Replacement for index 0</div>
-                                                <button className="text-[9px] text-signal font-bold uppercase opacity-0 group-hover:opacity-100 transition-opacity hover:underline underline-offset-2">Apply</button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
-                            </div>
+                            )}
 
-                            {/* ByT5 Transformation */}
+                            {/* ByT5 Synthesis Panel */}
                             <div>
                                 <h4 className="flex items-center gap-2 text-xs font-semibold mb-4 text-foreground/80">
-                                    <FileText size={14} className="text-signal/80" /> ByT5 Synthesis
+                                    <FileText size={14} className="text-signal/80" /> ByT5
+                                    Synthesis
                                 </h4>
                                 <div className="p-4 bg-gradient-to-br from-signal/15 to-signal/5 border border-signal/20 rounded-xl shadow-inner relative overflow-hidden">
                                     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(var(--signal),0.08)_0%,transparent_60%)]" />
-                                    <p className="text-xs text-muted-foreground mb-2 font-bold uppercase tracking-wider italic relative z-10">Predicted Orthography</p>
-                                    <p className="font-display text-xl text-foreground mb-4 italic relative z-10">Hau, mitákuyepi.</p>
+                                    <p className="text-xs text-muted-foreground mb-2 font-bold uppercase tracking-wider italic relative z-10">
+                                        Predicted Orthography
+                                    </p>
+                                    <p className="font-display text-xl text-foreground mb-4 italic relative z-10">
+                                        {segments.length > 0
+                                            ? segments[0].meaning || "Awaiting input…"
+                                            : "Awaiting transcription…"}
+                                    </p>
                                     <div className="flex items-center justify-between relative z-10">
                                         <div className="flex items-center gap-2">
-                                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-sage/15 text-sage">99.8%</span>
-                                            <span className="text-[10px] text-muted-foreground/70">confidence</span>
+                                            <span className="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-sage/15 text-sage">
+                                                {segments.length > 0
+                                                    ? `${segments[0].confidence}%`
+                                                    : "—"}
+                                            </span>
+                                            <span className="text-[10px] text-muted-foreground/70">
+                                                confidence
+                                            </span>
                                         </div>
-                                        <button className="text-[10px] text-signal font-bold uppercase px-2.5 py-1 rounded-md bg-signal/10 hover:bg-signal/20 transition-colors">Commit</button>
+                                        {segments.length > 0 && (
+                                            <button className="text-[10px] text-signal font-bold uppercase px-2.5 py-1 rounded-md bg-signal/10 hover:bg-signal/20 transition-colors">
+                                                Commit
+                                            </button>
+                                        )}
                                     </div>
                                 </div>
                             </div>
 
                             {/* Speaker Analysis */}
-                            <div className="p-6 bg-background/30 border border-border rounded-2xl shadow-sm">
-                                <h4 className="text-xs font-semibold mb-4 text-foreground/80 font-mono tracking-tighter">Speaker: EF_01</h4>
-                                <div className="flex items-center gap-4 mb-4">
-                                    <div className="h-12 w-12 rounded-xl bg-signal/15 border border-signal/20 flex items-center justify-center text-signal shadow-inner">
-                                        <Users size={24} />
+                            {segments.length > 0 && (
+                                <div className="p-6 bg-background/30 border border-border rounded-2xl shadow-sm">
+                                    <h4 className="text-xs font-semibold mb-4 text-foreground/80 font-mono tracking-tighter">
+                                        Speaker: {segments[0].speaker}
+                                    </h4>
+                                    <div className="flex items-center gap-4 mb-4">
+                                        <div className="h-12 w-12 rounded-xl bg-signal/15 border border-signal/20 flex items-center justify-center text-signal shadow-inner">
+                                            <Users size={24} />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-bold text-foreground">
+                                                {segments[0].speaker}
+                                            </p>
+                                            <p className="text-[10px] text-muted-foreground/80 uppercase font-mono italic">
+                                                {segments.filter(
+                                                    (s) =>
+                                                        s.speaker === segments[0].speaker
+                                                ).length}{" "}
+                                                segments detected
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-xs font-bold text-foreground">Elder Female 01</p>
-                                        <p className="text-[10px] text-muted-foreground/80 uppercase font-mono italic">Lakota Dialect: Western</p>
+                                    <div className="space-y-2">
+                                        <div className="h-2 bg-muted rounded-full overflow-hidden shadow-inner">
+                                            <div className="h-full w-4/5 bg-signal" />
+                                        </div>
+                                        <p className="text-[8px] text-muted-foreground/50 text-center uppercase tracking-[0.2em] font-bold">
+                                            Vocal Signature Matched
+                                        </p>
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <div className="h-2 bg-muted rounded-full overflow-hidden shadow-inner">
-                                        <div className="h-full w-4/5 bg-signal" />
-                                    </div>
-                                    <p className="text-[8px] text-muted-foreground/50 text-center uppercase tracking-[0.2em] font-bold">Vocal Signature Matched</p>
+                            )}
+
+                            {/* Empty sidebar state */}
+                            {segments.length === 0 && !isTranscribing && (
+                                <div className="flex flex-col items-center justify-center py-12 text-center">
+                                    <Sparkles
+                                        size={24}
+                                        className="text-muted-foreground/20 mb-4"
+                                    />
+                                    <p className="text-xs text-muted-foreground/40 max-w-[200px]">
+                                        Upload and transcribe audio to see AI-powered
+                                        phonetic analysis here
+                                    </p>
                                 </div>
-                            </div>
+                            )}
                         </div>
                     </div>
                 </div>

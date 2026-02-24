@@ -1,5 +1,8 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
+import { useAudioStore } from "@/hooks/useAudioStore";
 import {
     Users,
     FileAudio,
@@ -9,6 +12,19 @@ import {
 } from "lucide-react";
 
 const WorkbenchDashboard = () => {
+    const navigate = useNavigate();
+    const { backendStatus, backendMode, checkBackendHealth } = useAudioStore();
+
+    useEffect(() => {
+        checkBackendHealth();
+    }, [checkBackendHealth]);
+
+    const statusLabel = backendStatus === "online"
+        ? `Allosaurus Node: Online (${backendMode})`
+        : backendStatus === "checking"
+            ? "Checking…"
+            : "Backend Offline";
+
     return (
         <WorkbenchLayout>
             <div className="p-8 max-w-7xl mx-auto">
@@ -20,9 +36,11 @@ const WorkbenchDashboard = () => {
                     </div>
                     <div className="text-right">
                         <p className="text-xs text-muted-foreground/60 uppercase tracking-widest font-bold">System Status</p>
-                        <p className="text-sm text-signal font-mono flex items-center gap-2 justify-end font-bold">
-                            <span className="w-2 h-2 bg-signal rounded-full animate-pulse shadow-[0_0_8px_rgba(var(--signal),0.5)]" />
-                            Allosaurus Local Node: Online
+                        <p className={`text-sm font-mono flex items-center gap-2 justify-end font-bold ${backendStatus === "online" ? "text-signal" : backendStatus === "checking" ? "text-muted-foreground" : "text-ochre"
+                            }`}>
+                            <span className={`w-2 h-2 rounded-full ${backendStatus === "online" ? "bg-signal animate-pulse shadow-[0_0_8px_rgba(var(--signal),0.5)]" : backendStatus === "checking" ? "bg-muted-foreground animate-pulse" : "bg-ochre"
+                                }`} />
+                            {statusLabel}
                         </p>
                     </div>
                 </div>
@@ -96,7 +114,10 @@ const WorkbenchDashboard = () => {
                             <p className="text-sm text-white/80 mb-6 relative z-10 leading-relaxed font-medium">
                                 Start a new recording or upload a file to begin phonetic analysis with Allosaurus.
                             </p>
-                            <button className="w-full bg-background text-signal py-3 rounded-xl font-bold text-sm hover:bg-background/90 transition-all active:scale-95 shadow-lg relative z-10 border border-signal/10">
+                            <button
+                                onClick={() => navigate("/workbench/editor")}
+                                className="w-full bg-background text-signal py-3 rounded-xl font-bold text-sm hover:bg-background/90 transition-all active:scale-95 shadow-lg relative z-10 border border-signal/10"
+                            >
                                 Open New Session
                             </button>
                         </div>

@@ -8,6 +8,9 @@ import LinguistDashboard from "./pages/LinguistDashboard";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import WorkbenchDashboard from "./pages/WorkbenchDashboard";
 import WorkbenchEditor from "./pages/WorkbenchEditor";
+import CorpusLibrary from "./pages/CorpusLibrary";
+import SessionHistory from "./pages/SessionHistory";
+import WorkbenchSettings from "./pages/WorkbenchSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +32,9 @@ const App = () => (
             {/* Professional Workbench - Immersive App Routes */}
             <Route path="/workbench" element={<WorkbenchDashboard />} />
             <Route path="/workbench/editor" element={<WorkbenchEditor />} />
+            <Route path="/workbench/corpus" element={<CorpusLibrary />} />
+            <Route path="/workbench/history" element={<SessionHistory />} />
+            <Route path="/workbench/settings" element={<WorkbenchSettings />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
