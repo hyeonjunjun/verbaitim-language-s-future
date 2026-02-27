@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { transcribeAudio, checkHealth, type TranscriptionResult } from "@/lib/api";
 
 // ── Types ────────────────────────────────────────────────────────────
@@ -105,136 +106,148 @@ function generateMockSegments(fileName: string): Segment[] {
 
 // ── Store ─────────────────────────────────────────────────────────────
 
-export const useAudioStore = create<AudioState>((set, get) => ({
-    audioFile: null,
-    audioUrl: null,
-    fileName: "",
-    segments: [],
-    isTranscribing: false,
-    transcriptionError: null,
-    backendStatus: "checking",
-    backendMode: "",
-
-    loadAudioFile: (file: File) => {
-        // Revoke previous URL if any
-        const prev = get().audioUrl;
-        if (prev) URL.revokeObjectURL(prev);
-
-        const url = URL.createObjectURL(file);
-        set({
-            audioFile: file,
-            audioUrl: url,
-            fileName: file.name,
-            segments: [],
-            transcriptionError: null,
-        });
-    },
-
-    clearAudio: () => {
-        const prev = get().audioUrl;
-        if (prev) URL.revokeObjectURL(prev);
-        set({
+export const useAudioStore = create<AudioState>()(
+    persist(
+        (set, get) => ({
             audioFile: null,
             audioUrl: null,
             fileName: "",
             segments: [],
             isTranscribing: false,
             transcriptionError: null,
-        });
-    },
+            backendStatus: "checking",
+            backendMode: "",
 
-    transcribe: async (language = "ipa") => {
-        const { audioFile } = get();
-        if (!audioFile) return;
+            loadAudioFile: (file: File) => {
+                // Revoke previous URL if any
+                const prev = get().audioUrl;
+                if (prev) URL.revokeObjectURL(prev);
 
-        set({ isTranscribing: true, transcriptionError: null });
+                const url = URL.createObjectURL(file);
+                set({
+                    audioFile: file,
+                    audioUrl: url,
+                    fileName: file.name,
+                    segments: [],
+                    transcriptionError: null,
+                });
+            },
 
-        try {
-            // Try the real API first
-            const result: TranscriptionResult = await transcribeAudio(audioFile, language);
+            clearAudio: () => {
+                const prev = get().audioUrl;
+                if (prev) URL.revokeObjectURL(prev);
+                set({
+                    audioFile: null,
+                    audioUrl: null,
+                    fileName: "",
+                    segments: [],
+                    isTranscribing: false,
+                    transcriptionError: null,
+                });
+            },
 
-            // If the API returns segments, use them
-            if (result.segments && result.segments.length > 0) {
-                const segments: Segment[] = result.segments.map((s) => ({
-                    id: generateId(),
-                    time: formatTime(s.start_time),
-                    startTime: s.start_time,
-                    endTime: s.end_time,
-                    speaker: s.speaker,
-                    ipa: s.ipa,
-                    meaning: s.meaning,
-                    confidence: Math.round(s.confidence * 100),
-                }));
-                set({ segments, isTranscribing: false });
-            } else {
-                // Single-result fallback: wrap in one segment + add mock contextual segments
-                const mockSegments = generateMockSegments(audioFile.name);
-                // Override the first with the real API result
-                if (mockSegments.length > 0) {
-                    mockSegments[0].ipa = result.ipa;
-                    mockSegments[0].meaning = result.meaning;
+            transcribe: async (language = "ipa") => {
+                const { audioFile } = get();
+                if (!audioFile) return;
+
+                set({ isTranscribing: true, transcriptionError: null });
+
+                try {
+                    // Try the real API first
+                    const result: TranscriptionResult = await transcribeAudio(audioFile, language);
+
+                    // If the API returns segments, use them
+                    if (result.segments && result.segments.length > 0) {
+                        const segments: Segment[] = result.segments.map((s) => ({
+                            id: generateId(),
+                            time: formatTime(s.start_time),
+                            startTime: s.start_time,
+                            endTime: s.end_time,
+                            speaker: s.speaker,
+                            ipa: s.ipa,
+                            meaning: s.meaning,
+                            confidence: Math.round(s.confidence * 100),
+                        }));
+                        set({ segments, isTranscribing: false });
+                    } else {
+                        // Single-result fallback: wrap in one segment + add mock contextual segments
+                        const mockSegments = generateMockSegments(audioFile.name);
+                        // Override the first with the real API result
+                        if (mockSegments.length > 0) {
+                            mockSegments[0].ipa = result.ipa;
+                            mockSegments[0].meaning = result.meaning;
+                        }
+                        set({ segments: mockSegments, isTranscribing: false });
+                    }
+                } catch (error) {
+                    // If API is unreachable, use mock segments for demo
+                    console.warn("API transcription failed, using mock data:", error);
+                    const mockSegments = generateMockSegments(audioFile.name);
+                    set({
+                        segments: mockSegments,
+                        isTranscribing: false,
+                        transcriptionError:
+                            error instanceof Error ? error.message : "Transcription failed",
+                    });
                 }
-                set({ segments: mockSegments, isTranscribing: false });
-            }
-        } catch (error) {
-            // If API is unreachable, use mock segments for demo
-            console.warn("API transcription failed, using mock data:", error);
-            const mockSegments = generateMockSegments(audioFile.name);
-            set({
-                segments: mockSegments,
-                isTranscribing: false,
-                transcriptionError:
-                    error instanceof Error ? error.message : "Transcription failed",
-            });
+            },
+
+            updateSegment: (id, fields) => {
+                set((state) => ({
+                    segments: state.segments.map((s) =>
+                        s.id === id ? { ...s, ...fields } : s
+                    ),
+                }));
+            },
+
+            addSegment: () => {
+                const { segments } = get();
+                const lastSegment = segments[segments.length - 1];
+                const startTime = lastSegment ? lastSegment.endTime + 0.5 : 0;
+
+                set((state) => ({
+                    segments: [
+                        ...state.segments,
+                        {
+                            id: generateId(),
+                            time: formatTime(startTime),
+                            startTime,
+                            endTime: startTime + 3,
+                            speaker: "SP_01",
+                            ipa: "",
+                            meaning: "",
+                            confidence: 0,
+                        },
+                    ],
+                }));
+            },
+
+            removeSegment: (id) => {
+                set((state) => ({
+                    segments: state.segments.filter((s) => s.id !== id),
+                }));
+            },
+
+            checkBackendHealth: async () => {
+                set({ backendStatus: "checking" });
+                try {
+                    const health = await checkHealth();
+                    set({
+                        backendStatus: "online",
+                        backendMode: health.mode,
+                    });
+                } catch {
+                    set({ backendStatus: "offline", backendMode: "" });
+                }
+            },
+        }),
+        {
+            name: "verbaitim-storage",
+            // We cannot persist File objects or ObjectURLs to localStorage.
+            partialize: (state) => ({
+                fileName: state.fileName,
+                segments: state.segments,
+            }),
         }
-    },
-
-    updateSegment: (id, fields) => {
-        set((state) => ({
-            segments: state.segments.map((s) =>
-                s.id === id ? { ...s, ...fields } : s
-            ),
-        }));
-    },
-
-    addSegment: () => {
-        const { segments } = get();
-        const lastSegment = segments[segments.length - 1];
-        const startTime = lastSegment ? lastSegment.endTime + 0.5 : 0;
-
-        set((state) => ({
-            segments: [
-                ...state.segments,
-                {
-                    id: generateId(),
-                    time: formatTime(startTime),
-                    startTime,
-                    endTime: startTime + 3,
-                    speaker: "SP_01",
-                    ipa: "",
-                    meaning: "",
-                    confidence: 0,
-                },
-            ],
-        }));
-    },
-
-    removeSegment: (id) => {
-        set((state) => ({
-            segments: state.segments.filter((s) => s.id !== id),
-        }));
-    },
-
-    checkBackendHealth: async () => {
-        set({ backendStatus: "checking" });
-        try {
-            const health = await checkHealth();
-            set({
-                backendStatus: "online",
-                backendMode: health.mode,
-            });
-        } catch {
-            set({ backendStatus: "offline", backendMode: "" });
-        }
-    },
-}));
+    )
+);

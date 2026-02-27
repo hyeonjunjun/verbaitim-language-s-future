@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import WaveformLogo from "./WaveformLogo";
 import {
     LayoutDashboard,
+    Mic,
     Mic2,
     Database,
     History,
@@ -16,6 +17,7 @@ const WorkbenchSidebar = () => {
 
     const navItems = [
         { name: "Overview", icon: LayoutDashboard, path: "/workbench" },
+        { name: "Record Session", icon: Mic, path: "/workbench/record" },
         { name: "Live Editor", icon: Mic2, path: "/workbench/editor" },
         { name: "Corpus Library", icon: Database, path: "/workbench/corpus" },
         { name: "History", icon: History, path: "/workbench/history" },
@@ -88,8 +90,8 @@ const WorkbenchSidebar = () => {
                 <Link
                     to="/workbench/settings"
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${location.pathname === "/workbench/settings"
-                            ? "bg-signal/10 text-signal shadow-inner"
-                            : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                        ? "bg-signal/10 text-signal shadow-inner"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                         }`}
                 >
                     <Settings size={18} className={location.pathname === "/workbench/settings" ? "text-signal" : "text-muted-foreground"} />

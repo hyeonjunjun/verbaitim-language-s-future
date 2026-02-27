@@ -26,11 +26,30 @@ import {
 const WorkbenchEditor = () => {
     const waveformRef = useRef<WaveformPlayerHandle>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const ipaInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [isDragOver, setIsDragOver] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("ipa");
+
+    // Global keyboard listener for Spacebar play/pause
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Only toggle play if we are NOT typing inside an input/textarea
+            if (e.code === "Space" && e.target instanceof HTMLElement) {
+                if (e.target.tagName !== "INPUT" && e.target.tagName !== "TEXTAREA") {
+                    e.preventDefault();
+                    if (waveformRef.current) {
+                        waveformRef.current.playPause();
+                    }
+                }
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
     // Zustand store
     const {
@@ -188,8 +207,8 @@ const WorkbenchEditor = () => {
                             /* Empty State: Drop Zone */
                             <div
                                 className={`h-64 border-b border-border relative flex flex-col items-center justify-center cursor-pointer transition-all duration-300 shrink-0 ${isDragOver
-                                        ? "bg-signal/10 border-signal/40"
-                                        : "bg-background/50 hover:bg-card/50"
+                                    ? "bg-signal/10 border-signal/40"
+                                    : "bg-background/50 hover:bg-card/50"
                                     }`}
                                 onDrop={handleDrop}
                                 onDragOver={handleDragOver}
@@ -209,8 +228,8 @@ const WorkbenchEditor = () => {
                                 >
                                     <div
                                         className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-300 ${isDragOver
-                                                ? "bg-signal/20 text-signal shadow-lg shadow-signal/20"
-                                                : "bg-card border border-border text-muted-foreground"
+                                            ? "bg-signal/20 text-signal shadow-lg shadow-signal/20"
+                                            : "bg-card border border-border text-muted-foreground"
                                             }`}
                                     >
                                         <Upload size={28} />
@@ -393,8 +412,8 @@ const WorkbenchEditor = () => {
                                             <tr
                                                 key={row.id}
                                                 className={`border-b border-border/50 group hover:bg-accent/30 focus-within:bg-accent/40 transition-colors ${activeSegmentId === row.id
-                                                        ? "bg-signal/5 border-l-2 border-l-signal"
-                                                        : ""
+                                                    ? "bg-signal/5 border-l-2 border-l-signal"
+                                                    : ""
                                                     }`}
                                             >
                                                 <td className="px-6 py-5 font-mono text-xs text-muted-foreground border-r border-border/50">
@@ -410,10 +429,10 @@ const WorkbenchEditor = () => {
                                                     >
                                                         <div
                                                             className={`w-1.5 h-1.5 rounded-full ${row.confidence > 95
-                                                                    ? "bg-sage"
-                                                                    : row.confidence > 85
-                                                                        ? "bg-signal/60"
-                                                                        : "bg-ochre"
+                                                                ? "bg-sage"
+                                                                : row.confidence > 85
+                                                                    ? "bg-signal/60"
+                                                                    : "bg-ochre"
                                                                 }`}
                                                         />
                                                         {row.time}
@@ -433,6 +452,7 @@ const WorkbenchEditor = () => {
                                                 </td>
                                                 <td className="px-6 py-5 border-r border-border/50">
                                                     <input
+                                                        ref={(el) => { ipaInputRefs.current[row.id] = el; }}
                                                         type="text"
                                                         value={row.ipa}
                                                         onChange={(e) =>
@@ -440,6 +460,25 @@ const WorkbenchEditor = () => {
                                                                 ipa: e.target.value,
                                                             })
                                                         }
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === "Enter") {
+                                                                e.preventDefault();
+                                                                // Find the next segment index
+                                                                const currentIndex = segments.findIndex(s => s.id === row.id);
+                                                                if (currentIndex !== -1 && currentIndex < segments.length - 1) {
+                                                                    const nextSegmentId = segments[currentIndex + 1].id;
+                                                                    const nextInput = ipaInputRefs.current[nextSegmentId];
+                                                                    // Scroll and focus next input
+                                                                    if (nextInput) {
+                                                                        nextInput.focus();
+                                                                        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                                    }
+                                                                } else if (currentIndex === segments.length - 1) {
+                                                                    // If we are on the last one, maybe add a new segment and focus it
+                                                                    addSegment();
+                                                                }
+                                                            }
+                                                        }}
                                                         className="w-full bg-transparent font-serif text-lg text-foreground border border-transparent rounded px-2 py-1 -mx-2 -my-1 hover:border-border/60 focus:border-signal/40 focus:bg-background/50 focus:outline-none focus:ring-1 focus:ring-signal/20 transition-all mb-1"
                                                     />
                                                     <div className="text-[10px] font-mono text-muted-foreground/60 group-hover:text-muted-foreground transition-colors italic">
@@ -457,6 +496,21 @@ const WorkbenchEditor = () => {
                                                                 meaning: e.target.value,
                                                             })
                                                         }
+                                                        onKeyDown={(e) => {
+                                                            // On enter, cycle back to the next IPA input
+                                                            if (e.key === "Enter") {
+                                                                e.preventDefault();
+                                                                const currentIndex = segments.findIndex(s => s.id === row.id);
+                                                                if (currentIndex !== -1 && currentIndex < segments.length - 1) {
+                                                                    const nextSegmentId = segments[currentIndex + 1].id;
+                                                                    const nextInput = ipaInputRefs.current[nextSegmentId];
+                                                                    if (nextInput) {
+                                                                        nextInput.focus();
+                                                                        nextInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                                                    }
+                                                                }
+                                                            }
+                                                        }}
                                                         className="w-full bg-transparent border border-transparent rounded-md px-2 py-1 -mx-2 -my-1 text-muted-foreground hover:border-border/80 focus:border-signal/40 focus:bg-background/50 focus:text-foreground focus:outline-none focus:ring-1 focus:ring-signal/20 text-sm italic font-reading transition-all"
                                                     />
                                                 </td>
@@ -464,10 +518,10 @@ const WorkbenchEditor = () => {
                                                     <div className="flex flex-col items-center">
                                                         <span
                                                             className={`text-[10px] font-mono font-bold mb-1 ${row.confidence > 95
-                                                                    ? "text-sage"
-                                                                    : row.confidence > 85
-                                                                        ? "text-muted-foreground"
-                                                                        : "text-ochre"
+                                                                ? "text-sage"
+                                                                : row.confidence > 85
+                                                                    ? "text-muted-foreground"
+                                                                    : "text-ochre"
                                                                 }`}
                                                         >
                                                             {row.confidence > 0
@@ -477,10 +531,10 @@ const WorkbenchEditor = () => {
                                                         <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
                                                             <div
                                                                 className={`h-full rounded-full transition-all ${row.confidence > 95
-                                                                        ? "bg-sage"
-                                                                        : row.confidence > 85
-                                                                            ? "bg-signal/60"
-                                                                            : "bg-ochre"
+                                                                    ? "bg-sage"
+                                                                    : row.confidence > 85
+                                                                        ? "bg-signal/60"
+                                                                        : "bg-ochre"
                                                                     }`}
                                                                 style={{
                                                                     width: `${row.confidence}%`,
@@ -550,10 +604,10 @@ const WorkbenchEditor = () => {
                                                     </span>
                                                     <span
                                                         className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full shrink-0 ${seg.confidence > 95
-                                                                ? "bg-sage/15 text-sage"
-                                                                : seg.confidence > 90
-                                                                    ? "bg-signal/15 text-signal"
-                                                                    : "bg-ochre/15 text-ochre"
+                                                            ? "bg-sage/15 text-sage"
+                                                            : seg.confidence > 90
+                                                                ? "bg-signal/15 text-signal"
+                                                                : "bg-ochre/15 text-ochre"
                                                             }`}
                                                     >
                                                         {seg.confidence}%

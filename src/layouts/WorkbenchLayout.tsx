@@ -1,12 +1,15 @@
 import { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import WorkbenchSidebar from "../components/WorkbenchSidebar";
-import { Search, Bell, User } from "lucide-react";
+import { Search, Bell, User, Mic } from "lucide-react";
 
 interface WorkbenchLayoutProps {
     children: ReactNode;
 }
 
 const WorkbenchLayout = ({ children }: WorkbenchLayoutProps) => {
+    const navigate = useNavigate();
+
     return (
         <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
             {/* Sidebar - Fixed Chassis */}
@@ -28,13 +31,19 @@ const WorkbenchLayout = ({ children }: WorkbenchLayoutProps) => {
                     </div>
 
                     <div className="flex items-center gap-4 ml-4">
+                        <button
+                            onClick={() => navigate("/workbench/record")}
+                            className="hidden sm:flex items-center gap-2 bg-signal/15 text-signal hover:bg-signal/20 border border-signal/20 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
+                        >
+                            <Mic size={14} /> Record
+                        </button>
                         <button className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
                             <Bell size={20} />
                             <div className="absolute top-2 right-2 w-2 h-2 bg-signal rounded-full border-2 border-card" />
                         </button>
                         <div className="h-8 w-px bg-border mx-2" />
                         <div className="flex items-center gap-3">
-                            <div className="text-right hidden sm:block">
+                            <div className="text-right hidden md:block">
                                 <p className="text-xs font-semibold text-foreground">Dr. Sarah Chen</p>
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">Lead Linguist</p>
                             </div>
