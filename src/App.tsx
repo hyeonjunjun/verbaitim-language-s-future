@@ -11,6 +11,9 @@ import WorkbenchEditor from "./pages/WorkbenchEditor";
 import CorpusLibrary from "./pages/CorpusLibrary";
 import SessionHistory from "./pages/SessionHistory";
 import WorkbenchSettings from "./pages/WorkbenchSettings";
+import WorkbenchRecord from "./pages/WorkbenchRecord";
+import WorkbenchNotes from "./pages/WorkbenchNotes";
+import WorkbenchElicitation from "./pages/WorkbenchElicitation";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +38,9 @@ const App = () => (
             <Route path="/workbench/corpus" element={<CorpusLibrary />} />
             <Route path="/workbench/history" element={<SessionHistory />} />
             <Route path="/workbench/settings" element={<WorkbenchSettings />} />
+            <Route path="/workbench/record" element={<WorkbenchRecord />} />
+            <Route path="/workbench/notes" element={<WorkbenchNotes />} />
+            <Route path="/workbench/elicitation" element={<WorkbenchElicitation />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
