@@ -3,6 +3,7 @@ import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import WaveformPlayer, { type WaveformPlayerHandle } from "@/components/WaveformPlayer";
 import { useAudioStore } from "@/hooks/useAudioStore";
 import { toast } from "sonner";
+import { fetchPhoibleInventory, type PhoibleInventory } from "@/lib/datasets";
 import {
     Play,
     Pause,
@@ -11,6 +12,7 @@ import {
     Wand2,
     FileText,
     ChevronDown,
+    ChevronUp,
     Layers,
     Sparkles,
     Save,
@@ -24,6 +26,7 @@ import {
     AlertCircle,
     FileJson,
     FileSpreadsheet,
+    BookOpen,
 } from "lucide-react";
 
 const WorkbenchEditor = () => {
@@ -36,6 +39,10 @@ const WorkbenchEditor = () => {
     const [isDragOver, setIsDragOver] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("ipa");
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [phoibleData, setPhoibleData] = useState<PhoibleInventory | null>(null);
+    const [phoibleLoading, setPhoibleLoading] = useState(false);
+    const [showPhoiblePanel, setShowPhoiblePanel] = useState(false);
+    const activeIpaRef = useRef<string | null>(null); // tracks focused segment id
 
     // Global keyboard listener for Spacebar play/pause
     useEffect(() => {
@@ -53,6 +60,41 @@ const WorkbenchEditor = () => {
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
+
+    // Auto-fetch PHOIBLE phoneme inventory when language changes
+    useEffect(() => {
+        if (!selectedLanguage || selectedLanguage === "ipa") {
+            setPhoibleData(null);
+            return;
+        }
+        let cancelled = false;
+        setPhoibleLoading(true);
+        fetchPhoibleInventory(selectedLanguage).then((inv) => {
+            if (!cancelled) {
+                setPhoibleData(inv);
+                setPhoibleLoading(false);
+                if (inv && inv.phonemes.length > 0) setShowPhoiblePanel(true);
+            }
+        });
+        return () => { cancelled = true; };
+    }, [selectedLanguage]);
+
+    // Insert a phoneme chip into the active IPA input
+    const insertPhoneme = useCallback((phoneme: string) => {
+        const segId = activeIpaRef.current;
+        if (!segId) return;
+        const input = ipaInputRefs.current[segId];
+        if (!input) return;
+        const start = input.selectionStart ?? input.value.length;
+        const end = input.selectionEnd ?? input.value.length;
+        const newVal = input.value.slice(0, start) + phoneme + input.value.slice(end);
+        // Trigger react synthetic change so the store stays in sync
+        const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value")?.set;
+        nativeSetter?.call(input, newVal);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+        input.focus();
+        input.setSelectionRange(start + phoneme.length, start + phoneme.length);
     }, []);
 
     // Zustand store
@@ -310,6 +352,63 @@ const WorkbenchEditor = () => {
                     </div>
                 </div>
 
+                {/* ─── PHOIBLE Phoneme Reference Panel ───────────── */}
+                {(phoibleData || phoibleLoading) && (
+                    <div className="shrink-0 border-b border-border">
+                        <button
+                            onClick={() => setShowPhoiblePanel((v) => !v)}
+                            className="w-full flex items-center justify-between px-6 py-2 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 hover:text-foreground hover:bg-accent/30 transition-colors"
+                        >
+                            <span className="flex items-center gap-2">
+                                <BookOpen size={11} />
+                                PHOIBLE Phoneme Inventory — {phoibleData?.languageName ?? selectedLanguage.toUpperCase()}
+                                {phoibleData && (
+                                    <span className="text-signal font-mono">({phoibleData.phonemes.length} phones)</span>
+                                )}
+                            </span>
+                            {showPhoiblePanel ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                        </button>
+                        {showPhoiblePanel && (
+                            <div className="px-6 py-3 bg-background/30">
+                                {phoibleLoading ? (
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground/50 italic">
+                                        <Loader2 size={12} className="animate-spin" /> Loading from phoible.org…
+                                    </div>
+                                ) : phoibleData && phoibleData.phonemes.length > 0 ? (
+                                    <div className="space-y-2">
+                                        {["consonant", "vowel"].map((cls) => {
+                                            const phones = phoibleData.phonemes.filter((p) => p.class === cls);
+                                            if (!phones.length) return null;
+                                            return (
+                                                <div key={cls} className="flex items-start gap-3 flex-wrap">
+                                                    <span className="text-[9px] uppercase tracking-widest text-muted-foreground/40 font-bold w-16 pt-1 shrink-0">{cls}s</span>
+                                                    <div className="flex flex-wrap gap-1">
+                                                        {phones.map((p) => (
+                                                            <button
+                                                                key={p.phoneme}
+                                                                onClick={() => insertPhoneme(p.phoneme)}
+                                                                title={`Insert /${p.phoneme}/ (${p.class})`}
+                                                                className="px-2 py-0.5 rounded font-mono text-sm bg-card border border-border/60 text-foreground hover:bg-signal/10 hover:border-signal/30 hover:text-signal active:scale-95 transition-all"
+                                                            >
+                                                                {p.phoneme}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                        <p className="text-[9px] text-muted-foreground/30 font-mono italic pt-1">
+                                            Click a phone to insert it at the cursor position in the active IPA field. Source: PHOIBLE / {phoibleData.source}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-xs text-muted-foreground/40 italic">No phoneme data found for this language in PHOIBLE.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* ─── The Workspace Grid ─────────────────────────── */}
                 <div className="flex-1 flex min-h-0">
                     {/* Main Stage */}
@@ -542,10 +641,10 @@ const WorkbenchEditor = () => {
                                                     >
                                                         <div
                                                             className={`w-1.5 h-1.5 rounded-full ${confColor(row.confidence) === "sage"
-                                                                    ? "bg-sage"
-                                                                    : confColor(row.confidence) === "signal"
-                                                                        ? "bg-signal/60"
-                                                                        : "bg-ochre"
+                                                                ? "bg-sage"
+                                                                : confColor(row.confidence) === "signal"
+                                                                    ? "bg-signal/60"
+                                                                    : "bg-ochre"
                                                                 }`}
                                                         />
                                                         {row.time}
@@ -592,6 +691,7 @@ const WorkbenchEditor = () => {
                                                                 }
                                                             }
                                                         }}
+                                                        onFocus={() => { activeIpaRef.current = row.id; }}
                                                         className="w-full bg-transparent font-serif text-lg text-foreground border border-transparent rounded px-2 py-1 -mx-2 -my-1 hover:border-border/60 focus:border-signal/40 focus:bg-background/50 focus:outline-none focus:ring-1 focus:ring-signal/20 transition-all mb-1"
                                                     />
                                                     <div className="text-[10px] font-mono text-muted-foreground/60 group-hover:text-muted-foreground transition-colors italic">
@@ -631,10 +731,10 @@ const WorkbenchEditor = () => {
                                                     <div className="flex flex-col items-center">
                                                         <span
                                                             className={`text-[10px] font-mono font-bold mb-1 ${confColor(row.confidence) === "sage"
-                                                                    ? "text-sage"
-                                                                    : confColor(row.confidence) === "signal"
-                                                                        ? "text-muted-foreground"
-                                                                        : "text-ochre"
+                                                                ? "text-sage"
+                                                                : confColor(row.confidence) === "signal"
+                                                                    ? "text-muted-foreground"
+                                                                    : "text-ochre"
                                                                 }`}
                                                         >
                                                             {row.confidence > 0
@@ -644,10 +744,10 @@ const WorkbenchEditor = () => {
                                                         <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
                                                             <div
                                                                 className={`h-full rounded-full transition-all ${confColor(row.confidence) === "sage"
-                                                                        ? "bg-sage"
-                                                                        : confColor(row.confidence) === "signal"
-                                                                            ? "bg-signal/60"
-                                                                            : "bg-ochre"
+                                                                    ? "bg-sage"
+                                                                    : confColor(row.confidence) === "signal"
+                                                                        ? "bg-signal/60"
+                                                                        : "bg-ochre"
                                                                     }`}
                                                                 style={{
                                                                     width: `${row.confidence}%`,

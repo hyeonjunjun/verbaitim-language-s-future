@@ -1,7 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
+import {
+    fetchGlottologInfo,
+    ENDANGERMENT_COLOURS,
+    type GlottologLanguage,
+} from "@/lib/datasets";
 import {
     Search,
     Plus,
@@ -11,6 +16,8 @@ import {
     Calendar,
     ArrowUpRight,
     Filter,
+    Globe,
+    ShieldAlert,
 } from "lucide-react";
 
 // ── Mock Data ────────────────────────────────────────────────────────
@@ -112,12 +119,33 @@ const MOCK_CORPORA: Corpus[] = [
     },
 ];
 
+// ── Glottolog enrichment sub-hook ────────────────────────────────────
+
+function useGlottologBatch(codes: string[]) {
+    const [data, setData] = useState<Record<string, GlottologLanguage | null>>({});
+    const fetched = useRef(new Set<string>());
+
+    useEffect(() => {
+        codes.forEach(async (code) => {
+            if (fetched.current.has(code)) return;
+            fetched.current.add(code);
+            const info = await fetchGlottologInfo(code);
+            setData((prev) => ({ ...prev, [code]: info }));
+        });
+    }, [codes.join(",")]);
+
+    return data;
+}
+
 // ── Component ────────────────────────────────────────────────────────
 
 const CorpusLibrary = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState<"All" | CorpusStatus>("All");
+
+    // Fetch Glottolog data for all language codes in the library
+    const glottologData = useGlottologBatch(MOCK_CORPORA.map((c) => c.languageCode));
 
     const filters: ("All" | CorpusStatus)[] = ["All", "In Progress", "Reviewed", "Archived"];
 
@@ -183,8 +211,8 @@ const CorpusLibrary = () => {
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
                                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeFilter === filter
-                                        ? "bg-signal/15 text-signal border border-signal/30 shadow-inner"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                                    ? "bg-signal/15 text-signal border border-signal/30 shadow-inner"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
                                     }`}
                             >
                                 {filter}
@@ -229,6 +257,14 @@ const CorpusLibrary = () => {
                                                 <p className="text-[10px] text-muted-foreground/60 font-mono uppercase tracking-wider">
                                                     {corpus.language} · {corpus.languageCode}
                                                 </p>
+                                                {/* Glottolog endangerment badge */}
+                                                {glottologData[corpus.languageCode] && (
+                                                    <span className={`inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border mt-0.5 ${ENDANGERMENT_COLOURS[glottologData[corpus.languageCode]!.endangerment]
+                                                        }`}>
+                                                        <ShieldAlert size={8} />
+                                                        {glottologData[corpus.languageCode]!.endangerment}
+                                                    </span>
+                                                )}
                                             </div>
                                         </div>
                                         <ArrowUpRight
@@ -253,6 +289,11 @@ const CorpusLibrary = () => {
                                         <span className="flex items-center gap-1">
                                             <Calendar size={10} /> {corpus.lastModified}
                                         </span>
+                                        {glottologData[corpus.languageCode] && (
+                                            <span className="flex items-center gap-1 text-muted-foreground/40">
+                                                <Globe size={10} /> {glottologData[corpus.languageCode]!.family}
+                                            </span>
+                                        )}
                                     </div>
 
                                     {/* Progress */}

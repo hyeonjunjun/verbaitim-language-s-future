@@ -30,22 +30,7 @@ const Hero = () => {
         <motion.div style={{ opacity, y }} className="max-w-4xl mx-auto text-center">
 
           {/* Academic Label */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="mb-8 flex justify-center"
-          >
-            <div className="flex items-center gap-3 px-4 py-1.5 rounded-full border border-signal/20 bg-signal/5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-signal opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-signal"></span>
-              </span>
-              <Text variant="caption" className="text-signal font-semibold tracking-normal lowercase">
-                pilot program open for linguists
-              </Text>
-            </div>
-          </motion.div>
+
 
           {/* The Statement Headline */}
           <motion.div
@@ -67,7 +52,7 @@ const Hero = () => {
             className="max-w-2xl mx-auto mb-12"
           >
             <Text variant="lead" className="text-foreground/90">
-              Document faster. Teach sooner. Learn now. An ethical AI platform built with linguists and governed by communities.
+              Document faster. Teach sooner. Learn now.<br></br> An ethical AI platform built with linguists and governed by communities.
             </Text>
           </motion.div>
 
