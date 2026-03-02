@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import WaveformPlayer, { type WaveformPlayerHandle } from "@/components/WaveformPlayer";
 import { useAudioStore } from "@/hooks/useAudioStore";
+import { toast } from "sonner";
 import {
     Play,
     Pause,
@@ -21,6 +22,8 @@ import {
     Trash2,
     X,
     AlertCircle,
+    FileJson,
+    FileSpreadsheet,
 } from "lucide-react";
 
 const WorkbenchEditor = () => {
@@ -32,6 +35,7 @@ const WorkbenchEditor = () => {
     const [duration, setDuration] = useState(0);
     const [isDragOver, setIsDragOver] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("ipa");
+    const [showExportMenu, setShowExportMenu] = useState(false);
 
     // Global keyboard listener for Spacebar play/pause
     useEffect(() => {
@@ -65,6 +69,8 @@ const WorkbenchEditor = () => {
         updateSegment,
         addSegment,
         removeSegment,
+        confidenceThreshold,
+        defaultExport,
     } = useAudioStore();
 
     // ── File handling ────────────────────────────────────────────────
@@ -132,6 +138,69 @@ const WorkbenchEditor = () => {
         return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     }
 
+    // ── Confidence colour helper (respects persisted threshold) ──────────
+    function confColor(confidence: number) {
+        if (confidence >= 95) return "sage";
+        if (confidence >= confidenceThreshold) return "signal";
+        return "ochre";
+    }
+
+    // ── Export helpers ───────────────────────────────────────────────────
+
+    function exportJSON() {
+        const data = JSON.stringify(
+            segments.map((s) => ({
+                timestamp: s.time,
+                startTime: s.startTime,
+                endTime: s.endTime,
+                speaker: s.speaker,
+                ipa: s.ipa,
+                meaning: s.meaning,
+                confidence: s.confidence,
+            })),
+            null,
+            2
+        );
+        triggerDownload(data, `${fileName || "verbaitim-export"}.json`, "application/json");
+    }
+
+    function exportCSV() {
+        const header = "Timestamp,StartTime,EndTime,Speaker,IPA,Meaning,Confidence";
+        const rows = segments.map((s) =>
+            [
+                s.time,
+                s.startTime,
+                s.endTime,
+                `"${s.speaker}"`,
+                `"${s.ipa.replace(/"/g, "'")}"`,
+                `"${s.meaning.replace(/"/g, "'")}"`,
+                s.confidence,
+            ].join(",")
+        );
+        const data = [header, ...rows].join("\n");
+        triggerDownload(data, `${fileName || "verbaitim-export"}.csv`, "text/csv");
+    }
+
+    function triggerDownload(content: string, filename: string, mimeType: string) {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        setShowExportMenu(false);
+        toast.success(`Exported as ${filename.split(".").pop()?.toUpperCase()}`);
+    }
+
+    function handleSave() {
+        // Persist to localStorage via the store (already done via persist middleware).
+        // In the future this will POST to /api/sessions/:id/segments.
+        toast.success("Session saved", {
+            description: `${segments.length} segments stored locally.`,
+        });
+    }
+
     // ── Highlight the row whose time range includes the current playhead ──
     const activeSegmentId = segments.find(
         (s) => currentTime >= s.startTime && currentTime <= s.endTime
@@ -184,13 +253,57 @@ const WorkbenchEditor = () => {
                         )}
 
                         {segments.length > 0 && (
-                            <button className="flex items-center gap-2 px-3 py-1.5 bg-accent/50 text-foreground rounded-lg text-xs font-bold hover:bg-accent transition-all active:scale-95 border border-border">
+                            <button
+                                onClick={handleSave}
+                                className="flex items-center gap-2 px-3 py-1.5 bg-accent/50 text-foreground rounded-lg text-xs font-bold hover:bg-accent transition-all active:scale-95 border border-border"
+                            >
                                 <Save size={14} /> Save
                             </button>
                         )}
-                        <button className="p-1.5 text-muted-foreground hover:text-foreground rounded hover:bg-accent/50 transition-all">
-                            <Download size={16} />
-                        </button>
+
+                        {/* Export / Download menu */}
+                        {segments.length > 0 && (
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowExportMenu((v) => !v)}
+                                    className="p-1.5 text-muted-foreground hover:text-foreground rounded hover:bg-accent/50 transition-all"
+                                    title="Export segments"
+                                >
+                                    <Download size={16} />
+                                </button>
+                                {showExportMenu && (
+                                    <>
+                                        {/* Click-away backdrop */}
+                                        <div
+                                            className="fixed inset-0 z-40"
+                                            onClick={() => setShowExportMenu(false)}
+                                        />
+                                        <div className="absolute right-0 top-full mt-2 w-44 bg-card border border-border rounded-xl shadow-xl z-50 overflow-hidden">
+                                            <div className="px-3 py-2 border-b border-border">
+                                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">Export As</p>
+                                            </div>
+                                            <button
+                                                onClick={exportJSON}
+                                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-accent/50 transition-colors text-left"
+                                            >
+                                                <FileJson size={14} className="text-signal" />
+                                                <span className="font-semibold">JSON</span>
+                                                <span className="ml-auto text-[10px] text-muted-foreground/50">structured</span>
+                                            </button>
+                                            <button
+                                                onClick={exportCSV}
+                                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm hover:bg-accent/50 transition-colors text-left"
+                                            >
+                                                <FileSpreadsheet size={14} className="text-sage" />
+                                                <span className="font-semibold">CSV</span>
+                                                <span className="ml-auto text-[10px] text-muted-foreground/50">spreadsheet</span>
+                                            </button>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
                         <button className="p-1.5 text-muted-foreground hover:text-foreground rounded hover:bg-accent/50 transition-all">
                             <Settings size={16} />
                         </button>
@@ -428,11 +541,11 @@ const WorkbenchEditor = () => {
                                                         }}
                                                     >
                                                         <div
-                                                            className={`w-1.5 h-1.5 rounded-full ${row.confidence > 95
-                                                                ? "bg-sage"
-                                                                : row.confidence > 85
-                                                                    ? "bg-signal/60"
-                                                                    : "bg-ochre"
+                                                            className={`w-1.5 h-1.5 rounded-full ${confColor(row.confidence) === "sage"
+                                                                    ? "bg-sage"
+                                                                    : confColor(row.confidence) === "signal"
+                                                                        ? "bg-signal/60"
+                                                                        : "bg-ochre"
                                                                 }`}
                                                         />
                                                         {row.time}
@@ -517,11 +630,11 @@ const WorkbenchEditor = () => {
                                                 <td className="px-6 py-5">
                                                     <div className="flex flex-col items-center">
                                                         <span
-                                                            className={`text-[10px] font-mono font-bold mb-1 ${row.confidence > 95
-                                                                ? "text-sage"
-                                                                : row.confidence > 85
-                                                                    ? "text-muted-foreground"
-                                                                    : "text-ochre"
+                                                            className={`text-[10px] font-mono font-bold mb-1 ${confColor(row.confidence) === "sage"
+                                                                    ? "text-sage"
+                                                                    : confColor(row.confidence) === "signal"
+                                                                        ? "text-muted-foreground"
+                                                                        : "text-ochre"
                                                                 }`}
                                                         >
                                                             {row.confidence > 0
@@ -530,11 +643,11 @@ const WorkbenchEditor = () => {
                                                         </span>
                                                         <div className="w-10 h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
                                                             <div
-                                                                className={`h-full rounded-full transition-all ${row.confidence > 95
-                                                                    ? "bg-sage"
-                                                                    : row.confidence > 85
-                                                                        ? "bg-signal/60"
-                                                                        : "bg-ochre"
+                                                                className={`h-full rounded-full transition-all ${confColor(row.confidence) === "sage"
+                                                                        ? "bg-sage"
+                                                                        : confColor(row.confidence) === "signal"
+                                                                            ? "bg-signal/60"
+                                                                            : "bg-ochre"
                                                                     }`}
                                                                 style={{
                                                                     width: `${row.confidence}%`,

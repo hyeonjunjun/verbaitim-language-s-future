@@ -17,11 +17,8 @@ import {
 // ── Component ────────────────────────────────────────────────────────
 
 const WorkbenchSettings = () => {
-    const { backendStatus, backendMode, checkBackendHealth } = useAudioStore();
+    const { backendStatus, backendMode, checkBackendHealth, confidenceThreshold, playbackSpeed, defaultExport, updateSettings } = useAudioStore();
     const [apiUrl, setApiUrl] = useState("http://localhost:8001/api");
-    const [confidenceThreshold, setConfidenceThreshold] = useState(85);
-    const [defaultExport, setDefaultExport] = useState("json");
-    const [playbackSpeed, setPlaybackSpeed] = useState("1.0");
     const [displayName, setDisplayName] = useState("Dr. Sarah Chen");
     const [role, setRole] = useState("Lead Linguist");
 
@@ -94,7 +91,7 @@ const WorkbenchSettings = () => {
                                     max={99}
                                     value={confidenceThreshold}
                                     onChange={(e) =>
-                                        setConfidenceThreshold(Number(e.target.value))
+                                        updateSettings({ confidenceThreshold: Number(e.target.value) })
                                     }
                                     className="w-full h-2 bg-muted rounded-full appearance-none cursor-pointer accent-signal"
                                 />
@@ -148,10 +145,10 @@ const WorkbenchSettings = () => {
                                     {["0.5", "0.75", "1.0", "1.25", "1.5"].map((speed) => (
                                         <button
                                             key={speed}
-                                            onClick={() => setPlaybackSpeed(speed)}
+                                            onClick={() => updateSettings({ playbackSpeed: speed })}
                                             className={`px-3 py-2 rounded-lg text-xs font-bold transition-all ${playbackSpeed === speed
-                                                    ? "bg-signal/15 text-signal border border-signal/30 shadow-inner"
-                                                    : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                                                ? "bg-signal/15 text-signal border border-signal/30 shadow-inner"
+                                                : "bg-background border border-border text-muted-foreground hover:text-foreground hover:bg-accent/50"
                                                 }`}
                                         >
                                             {speed}x
@@ -186,16 +183,16 @@ const WorkbenchSettings = () => {
                             ].map((format) => (
                                 <button
                                     key={format.id}
-                                    onClick={() => setDefaultExport(format.id)}
+                                    onClick={() => updateSettings({ defaultExport: format.id })}
                                     className={`p-4 rounded-xl border text-left transition-all ${defaultExport === format.id
-                                            ? "bg-signal/10 border-signal/30 shadow-inner"
-                                            : "bg-background border-border hover:border-signal/20"
+                                        ? "bg-signal/10 border-signal/30 shadow-inner"
+                                        : "bg-background border-border hover:border-signal/20"
                                         }`}
                                 >
                                     <p
                                         className={`text-sm font-bold mb-1 ${defaultExport === format.id
-                                                ? "text-signal"
-                                                : "text-foreground"
+                                            ? "text-signal"
+                                            : "text-foreground"
                                             }`}
                                     >
                                         {format.label}

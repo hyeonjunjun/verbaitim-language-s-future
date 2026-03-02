@@ -1,147 +1,75 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
+import { useAudioStore } from "@/hooks/useAudioStore";
 import {
     Mic2,
     FileText,
     Download,
-    Edit3,
     Trash2,
-    CheckCircle2,
     Clock,
     Activity,
     Layers,
     TrendingUp,
+    Inbox,
+    Mic,
+    ArrowUpRight,
 } from "lucide-react";
+import { formatDistanceToNow, format } from "date-fns";
 
-// ── Mock Data ────────────────────────────────────────────────────────
+// ── Helpers ───────────────────────────────────────────────────────────
 
-interface HistoryEntry {
-    id: string;
-    action: "transcribe" | "edit" | "export" | "review" | "delete";
-    description: string;
-    corpus: string;
-    timestamp: string;
-    details?: string;
+function formatDuration(seconds: number): string {
+    if (seconds < 60) return `${Math.round(seconds)}s`;
+    const m = Math.floor(seconds / 60);
+    const s = Math.round(seconds % 60);
+    return s > 0 ? `${m}m ${s}s` : `${m}m`;
 }
 
-const MOCK_HISTORY: HistoryEntry[] = [
-    {
-        id: "h1",
-        action: "transcribe",
-        description: "Transcribed lakota_elder_interview_04.wav",
-        corpus: "Lakota_Corpus_Q4",
-        timestamp: "Today, 2:45 PM",
-        details: "4 segments · 94% avg confidence · Lakota (lkt)",
-    },
-    {
-        id: "h2",
-        action: "edit",
-        description: "Edited segment #2 IPA transcription",
-        corpus: "Lakota_Corpus_Q4",
-        timestamp: "Today, 2:30 PM",
-        details: "Changed haʊ → hɑːʊ · Speaker: EF_01",
-    },
-    {
-        id: "h3",
-        action: "transcribe",
-        description: "Transcribed ceremonial_chant_archive_B.wav",
-        corpus: "Lakota_Corpus_Q4",
-        timestamp: "Today, 11:20 AM",
-        details: "7 segments · 91% avg confidence · Lakota (lkt)",
-    },
-    {
-        id: "h4",
-        action: "export",
-        description: "Exported Quechua_Archive_01 as ELAN XML",
-        corpus: "Quechua_Archive_01",
-        timestamp: "Yesterday, 5:10 PM",
-        details: "196 segments · 28 recordings · Full corpus export",
-    },
-    {
-        id: "h5",
-        action: "review",
-        description: "Marked Quechua_Archive_01 as Reviewed",
-        corpus: "Quechua_Archive_01",
-        timestamp: "Yesterday, 5:05 PM",
-        details: "All 196 segments verified by Dr. Sarah Chen",
-    },
-    {
-        id: "h6",
-        action: "transcribe",
-        description: "Transcribed verb_morphology_session_01.mp3",
-        corpus: "Maori_Elders_2024",
-        timestamp: "Yesterday, 3:40 PM",
-        details: "12 segments · 88% avg confidence · Māori (mri)",
-    },
-    {
-        id: "h7",
-        action: "edit",
-        description: "Bulk-edited speaker labels for 15 segments",
-        corpus: "Maori_Elders_2024",
-        timestamp: "2 days ago",
-        details: "Renamed SP_01 → Elder_Hemi, SP_02 → Elder_Aroha",
-    },
-    {
-        id: "h8",
-        action: "transcribe",
-        description: "Transcribed origin_story_part3.wav",
-        corpus: "Navajo_Stories",
-        timestamp: "3 days ago",
-        details: "9 segments · 86% avg confidence · Navajo (nav)",
-    },
-    {
-        id: "h9",
-        action: "delete",
-        description: "Removed duplicate segment from Cherokee_Syllabary",
-        corpus: "Cherokee_Syllabary",
-        timestamp: "4 days ago",
-        details: "Segment 47 was a duplicate of segment 12",
-    },
-    {
-        id: "h10",
-        action: "export",
-        description: "Exported Cherokee_Syllabary as CSV",
-        corpus: "Cherokee_Syllabary",
-        timestamp: "1 week ago",
-        details: "120 segments · 15 recordings · Syllabary subset",
-    },
-];
-
-// ── Helpers ──────────────────────────────────────────────────────────
-
-function actionIcon(action: HistoryEntry["action"]) {
-    switch (action) {
-        case "transcribe":
-            return <Mic2 size={14} />;
-        case "edit":
-            return <Edit3 size={14} />;
-        case "export":
-            return <Download size={14} />;
-        case "review":
-            return <CheckCircle2 size={14} />;
-        case "delete":
-            return <Trash2 size={14} />;
-    }
+function formatTotalHours(totalSeconds: number): string {
+    const h = totalSeconds / 3600;
+    return h < 0.1 ? "<0.1h" : `${h.toFixed(1)}h`;
 }
 
-function actionColor(action: HistoryEntry["action"]) {
-    switch (action) {
-        case "transcribe":
-            return "bg-signal/15 text-signal border-signal/20";
-        case "edit":
-            return "bg-sky-500/10 text-sky-500 border-sky-500/20";
-        case "export":
-            return "bg-sage/15 text-sage border-sage/20";
-        case "review":
-            return "bg-sage/15 text-sage border-sage/20";
-        case "delete":
-            return "bg-ochre/10 text-ochre border-ochre/20";
-    }
-}
-
-// ── Component ────────────────────────────────────────────────────────
+// ── Component ─────────────────────────────────────────────────────────
 
 const SessionHistory = () => {
+    const navigate = useNavigate();
+    const { sessions, deleteSession, segments } = useAudioStore();
+    const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+
+    // ── Derive live summary stats ────────────────────────────────────
+    const totalSegments = sessions.reduce((s, sess) => s + sess.segmentCount, 0);
+    const totalDuration = sessions.reduce((s, sess) => s + sess.durationSeconds, 0);
+    const avgConf =
+        sessions.length === 0
+            ? 0
+            : Math.round(sessions.reduce((s, sess) => s + sess.avgConfidence, 0) / sessions.length);
+
+    // sessions in the last 7 days
+    const weekMs = 7 * 24 * 60 * 60 * 1000;
+    const sessionsThisWeek = sessions.filter(
+        (s) => Date.now() - new Date(s.createdAt).getTime() < weekMs
+    ).length;
+
+    const handleDelete = (id: string) => {
+        deleteSession(id);
+        setConfirmDelete(null);
+    };
+
+    const handleExportSession = (sessId: string) => {
+        const sess = sessions.find((s) => s.id === sessId);
+        if (!sess) return;
+        const blob = new Blob([JSON.stringify(sess, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${sess.fileName.replace(/\.[^.]+$/, "")}_session.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     return (
         <WorkbenchLayout>
             <div className="p-8 max-w-5xl mx-auto">
@@ -151,17 +79,17 @@ const SessionHistory = () => {
                         Session History
                     </Headline>
                     <Text className="text-muted-foreground/80">
-                        Track all transcription, editing, and export activity across your corpora.
+                        All transcription sessions from this device, stored locally.
                     </Text>
                 </div>
 
-                {/* Stats Summary */}
+                {/* Live Stats */}
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
                     {[
-                        { label: "Sessions This Week", value: "18", icon: Layers },
-                        { label: "Segments Processed", value: "247", icon: FileText },
-                        { label: "Avg Confidence", value: "91.3%", icon: TrendingUp },
-                        { label: "Hours Logged", value: "12.4h", icon: Clock },
+                        { label: "Sessions This Week", value: sessionsThisWeek > 0 ? String(sessionsThisWeek) : "—", icon: Layers },
+                        { label: "Segments Processed", value: totalSegments > 0 ? String(totalSegments) : "—", icon: FileText },
+                        { label: "Avg Confidence", value: avgConf > 0 ? `${avgConf}%` : "—", icon: TrendingUp },
+                        { label: "Audio Logged", value: totalDuration > 0 ? formatTotalHours(totalDuration) : "—", icon: Clock },
                     ].map((stat) => (
                         <div
                             key={stat.label}
@@ -172,78 +100,142 @@ const SessionHistory = () => {
                             </div>
                             <div>
                                 <p className="text-lg font-bold text-foreground tracking-tight">{stat.value}</p>
-                                <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-medium">
-                                    {stat.label}
-                                </p>
+                                <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-medium">{stat.label}</p>
                             </div>
                         </div>
                     ))}
                 </div>
 
-                {/* Activity Feed */}
-                <div className="bg-card border border-border rounded-2xl overflow-hidden">
-                    <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-                        <h2 className="font-display font-bold text-sm text-foreground">Recent Activity</h2>
-                        <div className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground/50">
-                            <Activity size={10} />
-                            <span>{MOCK_HISTORY.length} events</span>
+                {/* Session List */}
+                {sessions.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-24 border border-dashed border-border rounded-2xl text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-muted-foreground/25 mb-5">
+                            <Inbox size={30} />
                         </div>
-                    </div>
-
-                    <div className="divide-y divide-border/50">
-                        {MOCK_HISTORY.map((entry, idx) => (
-                            <div
-                                key={entry.id}
-                                className="flex items-start gap-4 px-6 py-5 hover:bg-accent/20 transition-colors group"
-                            >
-                                {/* Timeline dot + line */}
-                                <div className="flex flex-col items-center pt-0.5">
-                                    <div
-                                        className={`w-8 h-8 rounded-lg flex items-center justify-center border shrink-0 ${actionColor(
-                                            entry.action
-                                        )}`}
-                                    >
-                                        {actionIcon(entry.action)}
-                                    </div>
-                                    {idx < MOCK_HISTORY.length - 1 && (
-                                        <div className="w-px flex-1 bg-border/50 mt-2 min-h-[16px]" />
-                                    )}
-                                </div>
-
-                                {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div>
-                                            <p className="text-sm font-semibold text-foreground mb-0.5">
-                                                {entry.description}
-                                            </p>
-                                            {entry.details && (
-                                                <p className="text-xs text-muted-foreground/60 italic">
-                                                    {entry.details}
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className="text-right shrink-0">
-                                            <p className="text-[10px] text-muted-foreground/50 font-mono whitespace-nowrap">
-                                                {entry.timestamp}
-                                            </p>
-                                            <p className="text-[10px] text-signal/60 font-bold uppercase tracking-wider mt-0.5">
-                                                {entry.corpus}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Load More */}
-                    <div className="px-6 py-6 border-t border-border text-center">
-                        <button className="text-xs font-bold text-signal hover:text-signal/80 transition-colors uppercase tracking-widest">
-                            Load Older Activity
+                        <p className="text-base font-bold text-foreground/50 mb-1">No sessions yet</p>
+                        <p className="text-sm text-muted-foreground/40 mb-6 max-w-xs">
+                            Once you record and transcribe audio, your sessions will appear here for review and export.
+                        </p>
+                        <button
+                            onClick={() => navigate("/workbench/record")}
+                            className="flex items-center gap-2 px-5 py-2.5 bg-signal text-white rounded-xl text-sm font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20"
+                        >
+                            <Mic size={15} /> Start Recording
                         </button>
                     </div>
-                </div>
+                ) : (
+                    <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                        <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+                            <h2 className="font-display font-bold text-sm text-foreground">
+                                All Sessions
+                            </h2>
+                            <div className="flex items-center gap-1 text-[10px] font-mono text-muted-foreground/50">
+                                <Activity size={10} />
+                                <span>{sessions.length} total</span>
+                            </div>
+                        </div>
+
+                        <div className="divide-y divide-border/50">
+                            {sessions.map((sess, idx) => (
+                                <div
+                                    key={sess.id}
+                                    className="flex items-center gap-4 px-6 py-5 hover:bg-accent/20 transition-colors group"
+                                >
+                                    {/* Timeline icon */}
+                                    <div className="flex flex-col items-center shrink-0">
+                                        <div className="w-9 h-9 rounded-xl flex items-center justify-center border bg-signal/10 text-signal border-signal/20 shadow-inner">
+                                            <Mic2 size={15} />
+                                        </div>
+                                        {idx < sessions.length - 1 && (
+                                            <div className="w-px flex-1 bg-border/40 mt-2 min-h-[16px]" />
+                                        )}
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-3">
+                                            <div className="min-w-0">
+                                                <p className="text-sm font-semibold text-foreground truncate leading-tight">
+                                                    {sess.fileName}
+                                                </p>
+                                                <p className="text-[11px] text-muted-foreground/60 font-mono mt-0.5">
+                                                    {sess.segmentCount} segment{sess.segmentCount !== 1 ? "s" : ""} ·{" "}
+                                                    {sess.avgConfidence}% conf · {formatDuration(sess.durationSeconds)} ·{" "}
+                                                    {sess.language.toUpperCase()}
+                                                </p>
+                                                <p className="text-[10px] text-muted-foreground/40 font-mono mt-0.5 italic">
+                                                    {sess.model}
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-col items-end gap-2 shrink-0">
+                                                {/* Timestamp */}
+                                                <div className="text-right">
+                                                    <p className="text-[10px] text-muted-foreground/50 font-mono whitespace-nowrap">
+                                                        {formatDistanceToNow(new Date(sess.createdAt), { addSuffix: true })}
+                                                    </p>
+                                                    <p className="text-[9px] text-muted-foreground/30 font-mono">
+                                                        {format(new Date(sess.createdAt), "MMM d, yyyy · h:mm a")}
+                                                    </p>
+                                                </div>
+
+                                                {/* Model badge */}
+                                                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${sess.model.includes("Mock")
+                                                        ? "bg-ochre/10 text-ochre border-ochre/20"
+                                                        : "bg-sage/10 text-sage border-sage/20"
+                                                    }`}>
+                                                    {sess.model.includes("Mock") ? "Lite" : "Full"}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Actions */}
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                        <button
+                                            title="Open in editor"
+                                            onClick={() => navigate("/workbench/editor")}
+                                            className="p-2 rounded-lg hover:bg-signal/10 text-muted-foreground hover:text-signal transition-colors"
+                                        >
+                                            <ArrowUpRight size={15} />
+                                        </button>
+                                        <button
+                                            title="Download session JSON"
+                                            onClick={() => handleExportSession(sess.id)}
+                                            className="p-2 rounded-lg hover:bg-sage/10 text-muted-foreground hover:text-sage transition-colors"
+                                        >
+                                            <Download size={15} />
+                                        </button>
+                                        {confirmDelete === sess.id ? (
+                                            <div className="flex items-center gap-1">
+                                                <button
+                                                    onClick={() => handleDelete(sess.id)}
+                                                    className="px-2 py-1 rounded-lg bg-destructive/10 text-destructive text-[10px] font-bold hover:bg-destructive/20 transition-colors"
+                                                >
+                                                    Delete
+                                                </button>
+                                                <button
+                                                    onClick={() => setConfirmDelete(null)}
+                                                    className="px-2 py-1 rounded-lg text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                title="Delete session"
+                                                onClick={() => setConfirmDelete(sess.id)}
+                                                className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                                            >
+                                                <Trash2 size={15} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
         </WorkbenchLayout>
     );

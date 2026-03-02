@@ -5,16 +5,23 @@ import { Headline, Text } from "@/design-system/Typography";
 import { Mic, Square, ShieldCheck, Settings2, Languages, UserCircle, Tag, FileAudio, BookOpen, RotateCcw } from "lucide-react";
 import { useAudioStore } from "@/hooks/useAudioStore";
 
+const BAR_COUNT = 40;
+
 const WorkbenchRecord = () => {
     const navigate = useNavigate();
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
     const [showPostAction, setShowPostAction] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState("ipa");
+    const [barAmplitudes, setBarAmplitudes] = useState<number[]>(Array(BAR_COUNT).fill(4));
 
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<BlobPart[]>([]);
     const streamRef = useRef<MediaStream | null>(null);
+    // Web Audio API refs for real visualizer
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const analyserRef = useRef<AnalyserNode | null>(null);
+    const animFrameRef = useRef<number | null>(null);
     const { loadAudioFile, transcribe } = useAudioStore();
 
     // Timer logic for UI purposes
@@ -30,39 +37,74 @@ const WorkbenchRecord = () => {
         return () => clearInterval(interval);
     }, [isRecording]);
 
-    // Cleanup tracks on unmount
+    // Cleanup tracks and audio context on unmount
     useEffect(() => {
         return () => {
-            if (isRecording && mediaRecorderRef.current) {
-                mediaRecorderRef.current.stop();
-            }
-            if (streamRef.current) {
-                streamRef.current.getTracks().forEach(track => track.stop());
-            }
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+            if (mediaRecorderRef.current && isRecording) mediaRecorderRef.current.stop();
+            if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+            if (audioContextRef.current) audioContextRef.current.close();
         };
     }, [isRecording]);
+
+    // ── Drive the visualizer bars from the AnalyserNode ───────────────────────
+    const startVisualizer = (analyser: AnalyserNode) => {
+        const bufferLength = analyser.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLength);
+
+        const draw = () => {
+            animFrameRef.current = requestAnimationFrame(draw);
+            analyser.getByteFrequencyData(dataArray);
+
+            // Sample BAR_COUNT evenly-spaced buckets from the frequency data
+            const step = Math.floor(bufferLength / BAR_COUNT);
+            const amplitudes = Array.from({ length: BAR_COUNT }, (_, i) => {
+                const bucket = dataArray[i * step] ?? 0;
+                // Map 0–255 to 4–48px
+                return Math.max(4, (bucket / 255) * 48);
+            });
+            setBarAmplitudes(amplitudes);
+        };
+        draw();
+    };
+
+    const stopVisualizer = () => {
+        if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
+        setBarAmplitudes(Array(BAR_COUNT).fill(4));
+    };
 
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             streamRef.current = stream;
+
+            // ── Set up Web Audio visualizer ─────────────────
+            const audioCtx = new AudioContext();
+            audioContextRef.current = audioCtx;
+            const source = audioCtx.createMediaStreamSource(stream);
+            const analyser = audioCtx.createAnalyser();
+            analyser.fftSize = 128;
+            source.connect(analyser);
+            analyserRef.current = analyser;
+            startVisualizer(analyser);
+
+            // ── Set up MediaRecorder ─────────────────────
             const mediaRecorder = new MediaRecorder(stream);
             mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
 
             mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) {
-                    chunksRef.current.push(e.data);
-                }
+                if (e.data.size > 0) chunksRef.current.push(e.data);
             };
 
             mediaRecorder.onstop = () => {
+                // Stop visualizer and close audio context
+                stopVisualizer();
+                audioCtx.close();
+
                 const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
                 const file = new File([blob], `Session_${Date.now()}.webm`, { type: 'audio/webm' });
-
-                // Add to audio store
                 loadAudioFile(file);
-                // Auto-transcribe using the currently selected language
                 transcribe(selectedLanguage);
 
                 if (streamRef.current) {
@@ -174,16 +216,14 @@ const WorkbenchRecord = () => {
                         </p>
                     </div>
 
-                    {/* Audio visualizer skeleton */}
-                    <div className="w-full max-w-md h-12 flex items-center justify-center gap-1 mt-8 opacity-40">
-                        {Array.from({ length: 40 }).map((_, i) => (
+                    {/* Real audio visualizer driven by AnalyserNode */}
+                    <div className="w-full max-w-md h-12 flex items-end justify-center gap-[2px] mt-8">
+                        {barAmplitudes.map((height, i) => (
                             <div
                                 key={i}
-                                className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-signal' : 'bg-muted-foreground/30'}`}
-                                style={{
-                                    height: isRecording ? `${Math.max(10, Math.random() * 40 + 8)}px` : '4px',
-                                    opacity: isRecording ? Math.random() * 0.5 + 0.5 : 0.5
-                                }}
+                                className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-signal' : 'bg-muted-foreground/20'
+                                    }`}
+                                style={{ height: `${height}px` }}
                             />
                         ))}
                     </div>
@@ -202,7 +242,6 @@ const WorkbenchRecord = () => {
                         {/* Fade mask at top */}
                         <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-card to-transparent z-10 pointer-events-none" />
 
-                        {/* Shows post-action modal when recording is stopped, otherwise shows the feed */}
                         {showPostAction ? (
                             <div className="h-full flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-500 z-20">
                                 <h4 className="text-xl font-display font-bold text-foreground mb-6">Session Captured</h4>
@@ -234,7 +273,6 @@ const WorkbenchRecord = () => {
                                     <button
                                         onClick={() => {
                                             setShowPostAction(false);
-                                            // Optional: reset audio store
                                             useAudioStore.getState().clearAudio();
                                         }}
                                         className="bg-card border border-border p-4 flex flex-col items-center gap-3 rounded-xl hover:border-signal/50 hover:bg-signal/5 transition-all group"
@@ -250,34 +288,19 @@ const WorkbenchRecord = () => {
                                 </div>
                             </div>
                         ) : (
-                            <>
-                                {/* Mock segments */}
-                                <div className="p-3 rounded-lg border border-border bg-background/50 opacity-40 translate-y-2">
-                                    <p className="font-mono text-sm text-muted-foreground">kwinʃ...</p>
-                                </div>
-                                <div className="p-4 rounded-xl border border-border bg-background shadow-sm hover:border-signal/30 transition-colors group">
-                                    <div className="flex justify-between items-start mb-1">
-                                        <span className="text-[10px] font-bold uppercase text-muted-foreground">00:12 - 00:15</span>
-                                        <span className="text-[10px] bg-sage/10 text-sage px-2 py-0.5 rounded-full font-bold border border-sage/20">✅ Verified</span>
-                                    </div>
-                                    <p className="font-mono text-lg text-foreground mb-1">kwinʃa tu nuu</p>
-                                    <p className="text-sm text-muted-foreground/80 italic">There was a man...</p>
-                                </div>
-                                {isRecording && (
-                                    <div className="p-4 rounded-xl border border-signal/30 bg-signal/5 animate-pulse">
+                            <div className="h-full flex items-center justify-center">
+                                {isRecording ? (
+                                    <div className="p-4 rounded-xl border border-signal/30 bg-signal/5 animate-pulse w-full">
                                         <span className="text-[10px] font-bold uppercase text-signal flex items-center gap-2 mb-1">
                                             <div className="w-3 h-3 border-2 border-signal border-t-transparent rounded-full animate-spin" />
                                             Processing
                                         </span>
-                                        <p className="font-mono text-lg text-foreground/50">waiting for signal...</p>
+                                        <p className="font-mono text-lg text-foreground/50">Transcription will appear in the editor after recording stops.</p>
                                     </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground italic tracking-wide">Transcription feed will appear here after you record.</p>
                                 )}
-                                {!isRecording && (
-                                    <div className="h-full flex items-center justify-center">
-                                        <p className="text-sm text-muted-foreground italic tracking-wide">Transcription feed will appear here.</p>
-                                    </div>
-                                )}
-                            </>
+                            </div>
                         )}
                     </div>
                 </div>

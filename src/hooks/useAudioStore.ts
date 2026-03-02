@@ -15,20 +15,42 @@ export interface Segment {
     confidence: number;
 }
 
+/** A completed transcription session stored in history */
+export interface StoredSession {
+    id: string;
+    fileName: string;
+    language: string;
+    segmentCount: number;
+    avgConfidence: number;          // 0–100
+    durationSeconds: number;        // from last segment's endTime
+    model: string;                  // "uni2005" | "MockRecognizer (Lite)"
+    createdAt: string;              // ISO timestamp
+    segments: Segment[];
+}
+
 interface AudioState {
-    // Audio file state
+    // Active audio file
     audioFile: File | null;
     audioUrl: string | null;
     fileName: string;
 
-    // Transcription state
+    // Active transcription state
     segments: Segment[];
     isTranscribing: boolean;
     transcriptionError: string | null;
+    lastTranscriptionModel: string;
 
-    // Backend state
+    // Completed session history (persisted)
+    sessions: StoredSession[];
+
+    // Backend status
     backendStatus: "online" | "offline" | "checking";
     backendMode: string;
+
+    // Persisted user settings
+    confidenceThreshold: number;
+    playbackSpeed: string;
+    defaultExport: string;
 
     // Actions
     loadAudioFile: (file: File) => void;
@@ -37,7 +59,9 @@ interface AudioState {
     updateSegment: (id: string, fields: Partial<Segment>) => void;
     addSegment: () => void;
     removeSegment: (id: string) => void;
+    deleteSession: (id: string) => void;
     checkBackendHealth: () => Promise<void>;
+    updateSettings: (settings: Partial<Pick<AudioState, "confidenceThreshold" | "playbackSpeed" | "defaultExport">>) => void;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -48,6 +72,10 @@ function generateId(): string {
     return `seg_${Date.now()}_${++segmentCounter}`;
 }
 
+function generateSessionId(): string {
+    return `session_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+}
+
 function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
@@ -55,52 +83,24 @@ function formatTime(seconds: number): string {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}.${String(ms).padStart(2, "0")}`;
 }
 
-// Mock segment data for the MockRecognizer (simulates multi-utterance return)
-function generateMockSegments(fileName: string): Segment[] {
-    const mockData = [
-        {
-            startTime: 1.2,
-            endTime: 3.8,
-            speaker: "SP_01",
-            ipa: "haʊ miˈtakuˌjepi",
-            meaning: "Hello, my relatives.",
-            confidence: 98,
-        },
-        {
-            startTime: 4.5,
-            endTime: 8.2,
-            speaker: "SP_02",
-            ipa: "tʃʰãˈte waˈʃteja naˈpetʃʰijuˌzape",
-            meaning: "I shake your hands with a good heart.",
-            confidence: 92,
-        },
-        {
-            startTime: 9.0,
-            endTime: 12.4,
-            speaker: "SP_01",
-            ipa: "ˈtokʃa aˈkʰe wãˈtʃʰijãkĩ kte",
-            meaning: "I will see you again soon.",
-            confidence: 95,
-        },
-        {
-            startTime: 13.1,
-            endTime: 15.6,
-            speaker: "SP_01",
-            ipa: "piˈla.ma.ja.je.lo",
-            meaning: "Thank you.",
-            confidence: 99,
-        },
-    ];
+function avgConfidence(segs: Segment[]): number {
+    if (!segs.length) return 0;
+    const sum = segs.reduce((acc, s) => acc + s.confidence, 0);
+    return Math.round(sum / segs.length);
+}
 
+// Fallback mock segments (only used when backend is unreachable)
+function generateMockSegments(): Segment[] {
+    const mockData = [
+        { startTime: 1.2, endTime: 3.8, speaker: "SP_01", ipa: "haʊ miˈtakuˌjepi", meaning: "Hello, my relatives.", confidence: 98 },
+        { startTime: 4.5, endTime: 8.2, speaker: "SP_02", ipa: "tʃʰãˈte waˈʃteja naˈpetʃʰijuˌzape", meaning: "I shake your hands with a good heart.", confidence: 92 },
+        { startTime: 9.0, endTime: 12.4, speaker: "SP_01", ipa: "ˈtokʃa aˈkʰe wãˈtʃʰijãkĩ kte", meaning: "I will see you again soon.", confidence: 95 },
+        { startTime: 13.1, endTime: 15.6, speaker: "SP_01", ipa: "piˈla.ma.ja.je.lo", meaning: "Thank you.", confidence: 99 },
+    ];
     return mockData.map((d) => ({
         id: generateId(),
         time: formatTime(d.startTime),
-        startTime: d.startTime,
-        endTime: d.endTime,
-        speaker: d.speaker,
-        ipa: d.ipa,
-        meaning: d.meaning,
-        confidence: d.confidence,
+        ...d,
     }));
 }
 
@@ -115,21 +115,24 @@ export const useAudioStore = create<AudioState>()(
             segments: [],
             isTranscribing: false,
             transcriptionError: null,
+            lastTranscriptionModel: "",
+            sessions: [],
             backendStatus: "checking",
             backendMode: "",
+            confidenceThreshold: 85,
+            playbackSpeed: "1.0",
+            defaultExport: "json",
 
             loadAudioFile: (file: File) => {
-                // Revoke previous URL if any
                 const prev = get().audioUrl;
                 if (prev) URL.revokeObjectURL(prev);
-
-                const url = URL.createObjectURL(file);
                 set({
                     audioFile: file,
-                    audioUrl: url,
+                    audioUrl: URL.createObjectURL(file),
                     fileName: file.name,
                     segments: [],
                     transcriptionError: null,
+                    lastTranscriptionModel: "",
                 });
             },
 
@@ -143,22 +146,25 @@ export const useAudioStore = create<AudioState>()(
                     segments: [],
                     isTranscribing: false,
                     transcriptionError: null,
+                    lastTranscriptionModel: "",
                 });
             },
 
             transcribe: async (language = "ipa") => {
-                const { audioFile } = get();
+                const { audioFile, fileName } = get();
                 if (!audioFile) return;
 
                 set({ isTranscribing: true, transcriptionError: null });
 
-                try {
-                    // Try the real API first
-                    const result: TranscriptionResult = await transcribeAudio(audioFile, language);
+                let finalSegments: Segment[] = [];
+                let modelUsed = "unknown";
 
-                    // If the API returns segments, use them
+                try {
+                    const result: TranscriptionResult = await transcribeAudio(audioFile, language);
+                    modelUsed = result.model ?? "uni2005";
+
                     if (result.segments && result.segments.length > 0) {
-                        const segments: Segment[] = result.segments.map((s) => ({
+                        finalSegments = result.segments.map((s) => ({
                             id: generateId(),
                             time: formatTime(s.start_time),
                             startTime: s.start_time,
@@ -168,28 +174,43 @@ export const useAudioStore = create<AudioState>()(
                             meaning: s.meaning,
                             confidence: Math.round(s.confidence * 100),
                         }));
-                        set({ segments, isTranscribing: false });
                     } else {
-                        // Single-result fallback: wrap in one segment + add mock contextual segments
-                        const mockSegments = generateMockSegments(audioFile.name);
-                        // Override the first with the real API result
-                        if (mockSegments.length > 0) {
-                            mockSegments[0].ipa = result.ipa;
-                            mockSegments[0].meaning = result.meaning;
+                        // Single-result: wrap + mock padding
+                        const mock = generateMockSegments();
+                        if (mock.length > 0 && result.ipa) {
+                            mock[0].ipa = result.ipa;
+                            mock[0].meaning = result.meaning;
                         }
-                        set({ segments: mockSegments, isTranscribing: false });
+                        finalSegments = mock;
                     }
-                } catch (error) {
-                    // If API is unreachable, use mock segments for demo
-                    console.warn("API transcription failed, using mock data:", error);
-                    const mockSegments = generateMockSegments(audioFile.name);
-                    set({
-                        segments: mockSegments,
-                        isTranscribing: false,
-                        transcriptionError:
-                            error instanceof Error ? error.message : "Transcription failed",
-                    });
+                } catch (err) {
+                    console.warn("API transcription failed — using mock data:", err);
+                    finalSegments = generateMockSegments();
+                    modelUsed = "MockRecognizer (offline)";
+                    set({ transcriptionError: err instanceof Error ? err.message : "Transcription failed" });
                 }
+
+                // ── Push completed session to history ─────────────────
+                const duration = finalSegments.at(-1)?.endTime ?? 0;
+                const newSession: StoredSession = {
+                    id: generateSessionId(),
+                    fileName,
+                    language,
+                    segmentCount: finalSegments.length,
+                    avgConfidence: avgConfidence(finalSegments),
+                    durationSeconds: duration,
+                    model: modelUsed,
+                    createdAt: new Date().toISOString(),
+                    segments: finalSegments,
+                };
+
+                set((state) => ({
+                    segments: finalSegments,
+                    isTranscribing: false,
+                    lastTranscriptionModel: modelUsed,
+                    // Prepend so newest is first; cap at 100 entries
+                    sessions: [newSession, ...state.sessions].slice(0, 100),
+                }));
             },
 
             updateSegment: (id, fields) => {
@@ -202,9 +223,8 @@ export const useAudioStore = create<AudioState>()(
 
             addSegment: () => {
                 const { segments } = get();
-                const lastSegment = segments[segments.length - 1];
-                const startTime = lastSegment ? lastSegment.endTime + 0.5 : 0;
-
+                const last = segments[segments.length - 1];
+                const startTime = last ? last.endTime + 0.5 : 0;
                 set((state) => ({
                     segments: [
                         ...state.segments,
@@ -228,14 +248,21 @@ export const useAudioStore = create<AudioState>()(
                 }));
             },
 
+            deleteSession: (id) => {
+                set((state) => ({
+                    sessions: state.sessions.filter((s) => s.id !== id),
+                }));
+            },
+
+            updateSettings: (settings) => {
+                set(settings);
+            },
+
             checkBackendHealth: async () => {
                 set({ backendStatus: "checking" });
                 try {
                     const health = await checkHealth();
-                    set({
-                        backendStatus: "online",
-                        backendMode: health.mode,
-                    });
+                    set({ backendStatus: "online", backendMode: health.mode });
                 } catch {
                     set({ backendStatus: "offline", backendMode: "" });
                 }
@@ -243,10 +270,13 @@ export const useAudioStore = create<AudioState>()(
         }),
         {
             name: "verbaitim-storage",
-            // We cannot persist File objects or ObjectURLs to localStorage.
             partialize: (state) => ({
                 fileName: state.fileName,
                 segments: state.segments,
+                sessions: state.sessions,
+                confidenceThreshold: state.confidenceThreshold,
+                playbackSpeed: state.playbackSpeed,
+                defaultExport: state.defaultExport,
             }),
         }
     )

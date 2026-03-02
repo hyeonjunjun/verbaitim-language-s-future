@@ -1,15 +1,29 @@
-# Core "Lite" Requirements
-fastapi
-uvicorn
-python-multipart
-psycopg2-binary
-pgvector
-pydantic
-boto3
-supabase
-websockets
-numpy
+# VerbAItim Backend — Python Dependencies
+# ========================================
+# Install with:
+#   pip install -r requirements.txt
+#
+# NOTE: torch CPU build is recommended for most development machines.
+# If you have an NVIDIA GPU, replace the torch line with the CUDA version
+# from https://pytorch.org/get-started/locally/
 
-# Note: Heavy ML dependencies (torch, transformers, allosaurus) 
-# have been moved to requirements-full.txt to keep the 
-# base installation accessible.
+# ── Web framework ──────────────────────────────────────────────────────
+fastapi>=0.110.0
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9        # required for file uploads
+
+# ── Audio conversion (WebM/OGG/MP4 → WAV) ─────────────────────────────
+# Also requires ffmpeg to be installed on your system PATH:
+#   Windows: winget install ffmpeg
+#   macOS:   brew install ffmpeg
+#   Linux:   sudo apt install ffmpeg
+pydub>=0.25.1
+
+# ── Voice activity detection (speech segmentation) ────────────────────
+webrtcvad>=2.0.10
+
+# ── Phonetic transcription — Allosaurus ───────────────────────────────
+# torch must be installed BEFORE allosaurus
+torch>=2.0.0 --index-url https://download.pytorch.org/whl/cpu
+torchaudio>=2.0.0 --index-url https://download.pytorch.org/whl/cpu
+allosaurus>=1.0.2

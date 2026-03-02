@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
@@ -12,181 +12,314 @@ import {
     Mic,
     BookOpen,
     MessageSquarePlus,
-    Upload
+    Upload,
+    Wand2,
+    Inbox,
 } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+
+// ── Helpers ───────────────────────────────────────────────────────────
+
+function formatDuration(seconds: number): string {
+    if (seconds < 60) return `${Math.round(seconds)}s`;
+    const m = Math.floor(seconds / 60);
+    const s = Math.round(seconds % 60);
+    return s > 0 ? `${m}m ${s}s` : `${m}m`;
+}
+
+function formatHours(totalSeconds: number): string {
+    const h = totalSeconds / 3600;
+    if (h < 1) return `<1h`;
+    return `${h.toFixed(1)}h`;
+}
+
+// ── Component ─────────────────────────────────────────────────────────
 
 const WorkbenchDashboard = () => {
     const navigate = useNavigate();
-    const { backendStatus, backendMode, checkBackendHealth } = useAudioStore();
+    const {
+        backendStatus,
+        backendMode,
+        checkBackendHealth,
+        sessions,
+        segments,
+        fileName,
+    } = useAudioStore();
 
     useEffect(() => {
         checkBackendHealth();
+        // Poll every 30s so the status indicator stays live
+        const interval = setInterval(checkBackendHealth, 30_000);
+        return () => clearInterval(interval);
     }, [checkBackendHealth]);
 
-    const statusLabel = backendStatus === "online"
-        ? `Allosaurus Node: Online (${backendMode})`
-        : backendStatus === "checking"
-            ? "Checking…"
-            : "Backend Offline";
+    // ── Derive live stats from session history ────────────────────────
+    const stats = useMemo(() => {
+        const totalSegments = sessions.reduce((s, sess) => s + sess.segmentCount, 0);
+        const totalDuration = sessions.reduce((s, sess) => s + sess.durationSeconds, 0);
+        const speakers = new Set(
+            sessions.flatMap((sess) =>
+                sess.segments.map((sg) => sg.speaker)
+            )
+        ).size;
+        const avgConf =
+            sessions.length === 0
+                ? 0
+                : Math.round(
+                    sessions.reduce((s, sess) => s + sess.avgConfidence, 0) /
+                    sessions.length
+                );
+
+        return { totalSegments, totalDuration, speakers, avgConf };
+    }, [sessions]);
+
+    const statusLabel =
+        backendStatus === "online"
+            ? `Allosaurus Node: Online (${backendMode})`
+            : backendStatus === "checking"
+                ? "Checking…"
+                : "Backend Offline — start the server";
+
+    const recentSessions = sessions.slice(0, 5);
+    const hasActiveFile = !!fileName;
 
     return (
         <WorkbenchLayout>
             <div className="p-8 max-w-7xl mx-auto">
-                {/* Welcome Section */}
+                {/* Header */}
                 <div className="mb-10 flex items-end justify-between">
                     <div>
-                        <Headline as="h1" className="text-3xl font-display mb-2 text-foreground">Project Overview</Headline>
-                        <Text className="text-muted-foreground/80">Manage your language corpora and collaborative sessions.</Text>
+                        <Headline as="h1" className="text-3xl font-display mb-2 text-foreground">
+                            Project Overview
+                        </Headline>
+                        <Text className="text-muted-foreground/80">
+                            {sessions.length > 0
+                                ? `${sessions.length} session${sessions.length !== 1 ? "s" : ""} recorded · ${stats.totalSegments} segments transcribed`
+                                : "Record your first session to get started."}
+                        </Text>
                     </div>
+                    {/* Live backend status */}
                     <div className="text-right">
                         <p className="text-xs text-muted-foreground/60 uppercase tracking-widest font-bold">System Status</p>
-                        <p className={`text-sm font-mono flex items-center gap-2 justify-end font-bold ${backendStatus === "online" ? "text-signal" : backendStatus === "checking" ? "text-muted-foreground" : "text-ochre"
+                        <p className={`text-sm font-mono flex items-center gap-2 justify-end font-bold mt-1 ${backendStatus === "online" ? "text-signal"
+                                : backendStatus === "checking" ? "text-muted-foreground"
+                                    : "text-ochre"
                             }`}>
-                            <span className={`w-2 h-2 rounded-full ${backendStatus === "online" ? "bg-signal animate-pulse shadow-[0_0_8px_rgba(var(--signal),0.5)]" : backendStatus === "checking" ? "bg-muted-foreground animate-pulse" : "bg-ochre"
+                            <span className={`w-2 h-2 rounded-full ${backendStatus === "online" ? "bg-signal animate-pulse shadow-[0_0_8px_rgba(var(--signal),0.5)]"
+                                    : backendStatus === "checking" ? "bg-muted-foreground animate-pulse"
+                                        : "bg-ochre"
                                 }`} />
                             {statusLabel}
                         </p>
                     </div>
                 </div>
 
-                {/* Stats Grid */}
+                {/* ── Live Stats Grid ─────────────────────────────────── */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     {[
-                        { label: "Active Speakers", value: "12", icon: Users, trend: "+2 this week" },
-                        { label: "Total Recordings", value: "142", icon: FileAudio, trend: "4.2 GB used" },
-                        { label: "Transcription Rate", value: "89%", icon: Activity, trend: "Avg Confidence" },
-                        { label: "Lab Hours", value: "324h", icon: Clock, trend: "This quarter" },
+                        {
+                            label: "Unique Speakers",
+                            value: stats.speakers > 0 ? String(stats.speakers) : "—",
+                            icon: Users,
+                            trend: sessions.length > 0 ? `${sessions.length} sessions` : "No sessions yet",
+                        },
+                        {
+                            label: "Total Recordings",
+                            value: sessions.length > 0 ? String(sessions.length) : "—",
+                            icon: FileAudio,
+                            trend: stats.totalSegments > 0 ? `${stats.totalSegments} segments` : "No recordings yet",
+                        },
+                        {
+                            label: "Avg Confidence",
+                            value: stats.avgConf > 0 ? `${stats.avgConf}%` : "—",
+                            icon: Activity,
+                            trend: backendMode || "Run transcription first",
+                        },
+                        {
+                            label: "Audio Logged",
+                            value: stats.totalDuration > 0 ? formatHours(stats.totalDuration) : "—",
+                            icon: Clock,
+                            trend: stats.totalDuration > 0 ? formatDuration(stats.totalDuration) + " total" : "No audio yet",
+                        },
                     ].map((stat) => (
-                        <div key={stat.label} className="bg-card border border-border p-6 rounded-2xl shadow-sm hover:border-signal/30 transition-all group">
-                            <div className="flex items-center justify-between mb-4">
-                                <div className="p-2 bg-signal/10 text-signal rounded-lg group-hover:scale-110 transition-transform shadow-inner">
-                                    <stat.icon size={20} />
+                        <div
+                            key={stat.label}
+                            className="relative bg-card border border-border p-6 rounded-2xl shadow-sm hover:border-signal/30 hover:shadow-md hover:shadow-signal/5 transition-all duration-300 group overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-br from-signal/4 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
+                            <div className="flex items-center justify-between mb-4 relative z-10">
+                                <div className="p-2.5 bg-signal/10 text-signal rounded-xl group-hover:scale-110 group-hover:bg-signal/15 transition-all shadow-inner">
+                                    <stat.icon size={19} />
                                 </div>
-                                <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider">{stat.trend}</div>
+                                <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider text-right max-w-[80px] leading-tight">
+                                    {stat.trend}
+                                </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-foreground mb-1 tracking-tight">{stat.value}</h3>
-                            <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
+                            <h3 className="text-2xl font-bold text-foreground mb-1 tracking-tight relative z-10">
+                                {stat.value}
+                            </h3>
+                            <p className="text-xs text-muted-foreground font-medium relative z-10">{stat.label}</p>
                         </div>
                     ))}
                 </div>
 
-                {/* Main Content Split */}
+                {/* ── Main Content Split ──────────────────────────────── */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Main Content Area */}
+                    {/* Left: Recent Sessions + Active File */}
                     <div className="lg:col-span-2 space-y-8">
-                        {/* Active Projects */}
+
+                        {/* Active file banner */}
+                        {hasActiveFile && (
+                            <div
+                                className="flex items-center justify-between p-4 bg-signal/8 border border-signal/20 rounded-xl cursor-pointer hover:bg-signal/12 transition-all group"
+                                onClick={() => navigate("/workbench/editor")}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 rounded-lg bg-signal/15 text-signal flex items-center justify-center">
+                                        <Wand2 size={16} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-bold text-foreground">{fileName}</p>
+                                        <p className="text-[10px] text-signal/70 uppercase tracking-wider">Active file · Click to open in editor</p>
+                                    </div>
+                                </div>
+                                <ArrowUpRight size={16} className="text-signal/50 group-hover:text-signal transition-colors" />
+                            </div>
+                        )}
+
+                        {/* Recent Sessions */}
                         <div>
                             <div className="flex items-center justify-between mb-4">
-                                <h2 className="font-display font-bold text-lg text-foreground">Active Projects</h2>
-                                <button className="text-xs text-muted-foreground hover:text-signal transition-colors font-medium">
-                                    View All Projects
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                {[
-                                    { name: "Mixtec - San Juan", progress: 68, sessions: 24, lastActive: "2 hrs ago" },
-                                    { name: "Zapotec - Tlacolula", progress: 42, sessions: 12, lastActive: "1 day ago" }
-                                ].map(project => (
-                                    <div key={project.name} className="p-5 bg-card border border-border rounded-xl hover:border-signal/30 transition-all cursor-pointer group shadow-sm hover:shadow-md hover:shadow-signal/10">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div>
-                                                <h3 className="font-bold text-foreground text-sm mb-1 group-hover:text-signal transition-colors">{project.name}</h3>
-                                                <p className="text-xs text-muted-foreground">{project.sessions} sessions</p>
-                                            </div>
-                                            <span className="text-xs font-mono font-bold text-signal bg-signal/10 px-2 py-1 rounded-md border border-signal/20">{project.progress}%</span>
-                                        </div>
-                                        <div className="h-1.5 bg-muted rounded-full overflow-hidden mb-2 shadow-inner">
-                                            <div className="h-full bg-signal" style={{ width: `${project.progress}%` }} />
-                                        </div>
-                                        <p className="text-[10px] text-muted-foreground/60 text-right uppercase tracking-wider font-bold">Active {project.lastActive}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Recent Sessions Feed */}
-                        <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-                            <div className="flex items-center justify-between mb-6">
                                 <h2 className="font-display font-bold text-lg text-foreground">Recent Sessions</h2>
-                                <button className="text-xs text-signal hover:underline flex items-center gap-1 font-bold italic">
-                                    View Full History <ArrowUpRight size={14} />
-                                </button>
+                                {sessions.length > 0 && (
+                                    <button
+                                        onClick={() => navigate("/workbench/history")}
+                                        className="text-xs text-muted-foreground hover:text-signal transition-colors font-medium flex items-center gap-1"
+                                    >
+                                        View All <ArrowUpRight size={12} />
+                                    </button>
+                                )}
                             </div>
 
-                            <div className="space-y-4">
-                                {[
-                                    { title: "lakota_elder_interview_04", language: "Lakota", date: "2 hours ago", status: "Needs Review", typIcon: Mic },
-                                    { title: "Plant names — field walk", language: "Zapotec", date: "Yesterday", status: "Notes", typIcon: BookOpen },
-                                    { title: "Kinship terms with María", language: "Mixtec", date: "3 days ago", status: "Verified", typIcon: MessageSquarePlus },
-                                ].map((item) => (
-                                    <div key={item.title} className="flex items-center justify-between p-4 bg-background/50 border border-border/50 rounded-xl hover:bg-background hover:border-signal/30 transition-all cursor-pointer group/row">
-                                        <div className="flex items-center gap-4">
-                                            <div className="h-10 w-10 bg-card flex items-center justify-center rounded-lg border border-border text-muted-foreground group-hover/row:text-signal transition-colors shadow-sm">
-                                                <item.typIcon size={20} />
-                                            </div>
-                                            <div>
-                                                <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                                                <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">{item.language} • {item.date}</p>
-                                            </div>
-                                        </div>
-                                        <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${item.status === 'Needs Review' ? 'bg-ochre/10 text-ochre border border-ochre/20' :
-                                            item.status === 'Verified' ? 'bg-sage/10 text-sage border border-sage/20' :
-                                                'bg-clay/10 text-clay border border-clay/20'
-                                            }`}>
-                                            {item.status}
-                                        </div>
+                            {recentSessions.length === 0 ? (
+                                /* Empty state */
+                                <div className="flex flex-col items-center justify-center py-16 border border-dashed border-border rounded-2xl text-center">
+                                    <div className="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center text-muted-foreground/30 mb-4">
+                                        <Inbox size={26} />
                                     </div>
-                                ))}
-                            </div>
+                                    <p className="text-sm font-semibold text-foreground/60 mb-1">No sessions yet</p>
+                                    <p className="text-xs text-muted-foreground/40 mb-4">
+                                        Record and transcribe your first session to see it here.
+                                    </p>
+                                    <button
+                                        onClick={() => navigate("/workbench/record")}
+                                        className="flex items-center gap-2 px-4 py-2 bg-signal text-white rounded-xl text-xs font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20"
+                                    >
+                                        <Mic size={13} /> Start Recording
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {recentSessions.map((sess) => (
+                                        <div
+                                            key={sess.id}
+                                            onClick={() => navigate("/workbench/editor")}
+                                            className="flex items-center justify-between p-4 bg-card border border-border/70 rounded-xl hover:bg-background hover:border-signal/30 transition-all cursor-pointer group"
+                                        >
+                                            <div className="flex items-center gap-4 min-w-0">
+                                                <div className="h-10 w-10 bg-signal/8 border border-signal/15 flex items-center justify-center rounded-xl text-signal shrink-0 group-hover:scale-105 transition-transform">
+                                                    <Mic size={16} />
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="text-sm font-semibold text-foreground truncate">{sess.fileName}</p>
+                                                    <p className="text-[10px] text-muted-foreground/60 uppercase tracking-tighter font-mono">
+                                                        {sess.language.toUpperCase()} · {sess.segmentCount} seg · {sess.avgConfidence}% conf · {formatDuration(sess.durationSeconds)}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right shrink-0 ml-3">
+                                                <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border mb-1 ${sess.model.includes("Mock")
+                                                        ? "bg-ochre/10 text-ochre border-ochre/20"
+                                                        : "bg-sage/10 text-sage border-sage/20"
+                                                    }`}>
+                                                    {sess.model.includes("Mock") ? "Lite" : "Full"}
+                                                </div>
+                                                <p className="text-[10px] text-muted-foreground/50 font-mono">
+                                                    {formatDistanceToNow(new Date(sess.createdAt), { addSuffix: true })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Quick Tasks / Sidebar */}
+                    {/* Right: Quick Actions + System */}
                     <div className="space-y-6">
-                        <div className="mb-2">
-                            <h3 className="font-display font-bold text-lg text-foreground">Quick Actions</h3>
-                        </div>
-                        <div className="grid grid-cols-2 gap-3">
-                            {[
-                                { label: "Record", icon: Mic, path: "/workbench/record", desc: "Live capture", primary: true },
-                                { label: "Notes", icon: BookOpen, path: "/workbench/notes", desc: "Observations", primary: false },
-                                { label: "Elicit", icon: MessageSquarePlus, path: "/workbench/elicitation", desc: "Structured", primary: false },
-                                { label: "Upload", icon: Upload, path: "/workbench/editor", desc: "Transcribe", primary: false }
-                            ].map((action) => (
-                                <button
-                                    key={action.label}
-                                    onClick={() => navigate(action.path)}
-                                    className={`flex flex-col items-start p-4 border rounded-xl transition-all text-left group active:scale-95 ${action.primary ? 'bg-signal text-signal-foreground border-signal/20 shadow-lg shadow-signal/20 hover:shadow-xl hover:shadow-signal/30' : 'bg-card border-border hover:border-signal/50 hover:bg-signal/5'}`}
-                                >
-                                    <div className={`mb-3 transition-colors ${action.primary ? 'text-white/80 group-hover:text-white' : 'text-muted-foreground group-hover:text-signal'}`}>
-                                        <action.icon size={20} />
-                                    </div>
-                                    <p className={`font-bold text-sm mb-1 ${action.primary ? 'text-white' : 'text-foreground'}`}>{action.label}</p>
-                                    <p className={`text-[10px] ${action.primary ? 'text-white/70' : 'text-muted-foreground'}`}>{action.desc}</p>
-                                </button>
-                            ))}
-                        </div>
-
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <h3 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground/60 mb-6">Network Health</h3>
-                            <div className="space-y-4">
+                        <div>
+                            <h3 className="font-display font-bold text-lg text-foreground mb-3">Quick Actions</h3>
+                            <div className="grid grid-cols-2 gap-3">
                                 {[
-                                    { label: "Storage Capacity", value: "72%", sub: "4.2GB / 10GB" },
-                                    { label: "Sync Status", value: "Optimal", sub: "Last sync 5m ago" },
-                                ].map((metric) => (
-                                    <div key={metric.label}>
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-xs font-semibold text-foreground">{metric.label}</span>
-                                            <span className="text-xs text-signal font-mono font-bold tracking-tighter">{metric.value}</span>
+                                    { label: "Record", icon: Mic, path: "/workbench/record", desc: "Live capture", primary: true },
+                                    { label: "Notes", icon: BookOpen, path: "/workbench/notes", desc: "Observations", primary: false },
+                                    { label: "Elicit", icon: MessageSquarePlus, path: "/workbench/elicitation", desc: "Structured", primary: false },
+                                    { label: "Upload", icon: Upload, path: "/workbench/editor", desc: "Transcribe", primary: false },
+                                ].map((action) => (
+                                    <button
+                                        key={action.label}
+                                        onClick={() => navigate(action.path)}
+                                        className={`relative overflow-hidden flex flex-col items-start p-4 border rounded-xl transition-all text-left group active:scale-95 ${action.primary
+                                                ? "bg-signal text-signal-foreground border-signal/20 shadow-lg shadow-signal/20 hover:shadow-xl hover:shadow-signal/30"
+                                                : "bg-card border-border hover:border-signal/40 hover:bg-signal/5"
+                                            }`}
+                                    >
+                                        <span className={`absolute inset-0 shimmer ${action.primary ? "opacity-30 group-hover:opacity-60" : "opacity-0 group-hover:opacity-100"} transition-opacity`} />
+                                        <div className={`mb-3 transition-colors relative z-10 ${action.primary ? "text-white/80 group-hover:text-white" : "text-muted-foreground group-hover:text-signal"}`}>
+                                            <action.icon size={20} />
                                         </div>
-                                        <div className="h-2 bg-muted rounded-full overflow-hidden shadow-inner">
-                                            <div className="h-full bg-signal shadow-[0_0_8px_rgba(var(--signal),0.4)]" style={{ width: metric.value === 'Optimal' ? '100%' : metric.value }} />
-                                        </div>
-                                        <p className="text-[10px] text-muted-foreground/60 mt-2 font-mono uppercase italic tracking-tighter">{metric.sub}</p>
-                                    </div>
+                                        <p className={`font-bold text-sm mb-1 relative z-10 ${action.primary ? "text-white" : "text-foreground"}`}>{action.label}</p>
+                                        <p className={`text-[10px] relative z-10 ${action.primary ? "text-white/70" : "text-muted-foreground"}`}>{action.desc}</p>
+                                    </button>
                                 ))}
                             </div>
                         </div>
+
+                        {/* Session model breakdown */}
+                        {sessions.length > 0 && (
+                            <div className="bg-card border border-border rounded-2xl p-5">
+                                <h3 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground/60 mb-5">Session Breakdown</h3>
+                                <div className="space-y-4">
+                                    {(() => {
+                                        const fullCount = sessions.filter(s => !s.model.includes("Mock")).length;
+                                        const liteCount = sessions.length - fullCount;
+                                        const fullPct = sessions.length > 0 ? Math.round((fullCount / sessions.length) * 100) : 0;
+                                        return [
+                                            { label: "Full (Allosaurus)", value: `${fullCount}`, pct: fullPct },
+                                            { label: "Lite (Mock / Offline)", value: `${liteCount}`, pct: 100 - fullPct },
+                                        ];
+                                    })().map((row) => (
+                                        <div key={row.label}>
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <span className="text-xs font-semibold text-foreground">{row.label}</span>
+                                                <span className="text-xs text-signal font-mono font-bold">{row.value}</span>
+                                            </div>
+                                            <div className="h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
+                                                <div
+                                                    className="h-full bg-gradient-to-r from-signal to-signal/60 rounded-full transition-all duration-700"
+                                                    style={{ width: `${row.pct}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <p className="text-[10px] text-muted-foreground/50 font-mono italic mt-2">
+                                        Start the Python backend to get Full mode transcriptions.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

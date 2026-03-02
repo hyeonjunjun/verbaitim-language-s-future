@@ -12,51 +12,66 @@ const WorkbenchLayout = ({ children }: WorkbenchLayoutProps) => {
 
     return (
         <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
-            {/* Sidebar - Fixed Chassis */}
+            {/* Sidebar */}
             <WorkbenchSidebar />
 
             {/* Main Content Area */}
             <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
-                {/* Top Header */}
-                <header className="h-14 border-b border-border bg-card flex items-center justify-between px-6 shrink-0 transition-colors">
+
+                {/* ── Glassmorphism top header ───────────────────── */}
+                <header className="h-14 border-b border-border/80 bg-card/70 backdrop-blur-md flex items-center justify-between px-6 shrink-0 transition-all relative">
+                    {/* Warm gradient underline */}
+                    <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent" />
+
                     <div className="flex items-center gap-4 flex-1 max-w-xl">
                         <div className="relative w-full">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/60" size={15} />
                             <input
                                 type="text"
-                                placeholder="Search corpus, speakers, or annotations..."
-                                className="w-full bg-secondary border border-border rounded-lg py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-signal/50 transition-all"
+                                placeholder="Search corpus, speakers, or annotations…"
+                                className="w-full bg-background/60 border border-border/70 rounded-xl py-1.5 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-signal/25 focus:border-signal/30 focus:bg-background transition-all"
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-4 ml-4">
+                    <div className="flex items-center gap-3 ml-4">
+                        {/* Record shortcut — shimmer on hover */}
                         <button
                             onClick={() => navigate("/workbench/record")}
-                            className="hidden sm:flex items-center gap-2 bg-signal/15 text-signal hover:bg-signal/20 border border-signal/20 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-95"
+                            className="hidden sm:flex items-center gap-2 relative overflow-hidden bg-signal/12 text-signal hover:bg-signal/18 border border-signal/20 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all active:scale-95 group"
                         >
-                            <Mic size={14} /> Record
+                            <span className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <Mic size={13} className="relative z-10" />
+                            <span className="relative z-10">Record</span>
                         </button>
+
+                        {/* Notification bell with glowing dot */}
                         <button className="p-2 text-muted-foreground hover:text-foreground transition-colors relative">
-                            <Bell size={20} />
-                            <div className="absolute top-2 right-2 w-2 h-2 bg-signal rounded-full border-2 border-card" />
+                            <Bell size={19} />
+                            <div className="absolute top-1.5 right-1.5 w-2 h-2 bg-signal rounded-full border-2 border-card glow-signal" />
                         </button>
-                        <div className="h-8 w-px bg-border mx-2" />
+
+                        <div className="h-7 w-px bg-border/60 mx-1" />
+
+                        {/* User chip */}
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden md:block">
-                                <p className="text-xs font-semibold text-foreground">Dr. Sarah Chen</p>
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">Lead Linguist</p>
+                                <p className="text-xs font-semibold text-foreground leading-tight">Dr. Sarah Chen</p>
+                                <p className="text-[10px] text-muted-foreground/70 uppercase tracking-tighter">Lead Linguist</p>
                             </div>
-                            <div className="h-9 w-9 rounded-full bg-gradient-to-br from-signal/20 to-signal/10 border border-border flex items-center justify-center text-signal">
-                                <User size={20} />
+                            <div className="h-8 w-8 rounded-full bg-gradient-to-br from-signal/30 to-signal/10 border border-signal/20 shadow-sm flex items-center justify-center text-signal hover:scale-105 transition-transform cursor-pointer">
+                                <User size={17} />
                             </div>
                         </div>
                     </div>
                 </header>
 
-                {/* Content Scroll Area */}
-                <main className="flex-1 overflow-y-auto bg-background">
-                    {children}
+                {/* Content scroll area — dot-grid overlay for depth */}
+                <main className="flex-1 overflow-y-auto relative">
+                    <div className="absolute inset-0 dot-grid pointer-events-none opacity-40" />
+                    <div className="relative z-10">
+                        {children}
+                    </div>
                 </main>
             </div>
         </div>

@@ -6,9 +6,7 @@
   :root {
     /* Base - "The Parchment" */
     --background: 35 30% 96%;
-    /* Deep Warm Cream */
     --foreground: 25 15% 15%;
-    /* Umber Rich Black */
 
     /* Typography - "The Ink" */
     --font-display: 'Fraunces', serif;
@@ -17,7 +15,6 @@
 
     /* Accents - "The Earth" */
     --signal: 25 45% 45%;
-    /* Grounded Terracotta */
     --signal-foreground: 0 0% 100%;
 
     /* UI Shell */
@@ -56,14 +53,10 @@
   }
 
   .dark {
-    /* Base - "The Earth's Core" */
     --background: 25 15% 5%;
-    /* Deep Umber */
     --foreground: 35 20% 90%;
-    /* Soft Parchment */
 
     --signal: 25 60% 60%;
-    /* Vibrant Terracotta */
     --signal-foreground: 25 15% 5%;
 
     --card: 25 10% 8%;
@@ -87,7 +80,6 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    /* Semantic Status Colors - "Deep Garden" */
     --sage: 142 35% 55%;
     --sage-foreground: 25 15% 5%;
     --clay: 210 30% 60%;
@@ -109,9 +101,10 @@
   body {
     @apply bg-background text-foreground font-body antialiased selection:bg-signal/30 selection:text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    /* Subtle noise grain — gives the parchment some texture */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
   }
 
-  /* Editorial Typography Reset */
   h1,
   h2,
   h3,
@@ -120,11 +113,95 @@
   h6 {
     @apply font-display tracking-tight text-foreground;
   }
+
+  /* Branded thin scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 99px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--signal) / 0.4);
+  }
 }
 
-/* Editorial Typography Reset */
 @layer utilities {
   .text-shadow-sm {
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
+
+  /* Subtle dot-grid for empty states / drop zones */
+  .dot-grid {
+    background-image: radial-gradient(circle, hsl(var(--foreground) / 0.08) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  /* Glowing signal ring pulse */
+  .glow-signal {
+    animation: glow-pulse 2.4s ease-in-out infinite;
+  }
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────── */
+@keyframes shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--signal) / 0);
+  }
+
+  50% {
+    box-shadow: 0 0 20px 4px hsl(var(--signal) / 0.22);
+  }
+}
+
+@keyframes ipa-float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.04;
+  }
+
+  50% {
+    transform: translateY(-8px) rotate(2deg);
+    opacity: 0.08;
+  }
+
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.04;
+  }
+}
+
+/* Horizontal shimmer sweep — apply to loading / accent elements */
+.shimmer {
+  background: linear-gradient(90deg,
+      transparent 0%,
+      hsl(var(--signal) / 0.1) 50%,
+      transparent 100%);
+  background-size: 400px 100%;
+  animation: shimmer 2.4s linear infinite;
+}
+
+/* Slow floating IPA characters for decorative use */
+.ipa-float {
+  animation: ipa-float 6s ease-in-out infinite;
 }
