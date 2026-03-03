@@ -15,9 +15,9 @@ const Index = () => {
     <Shell>
       <Navbar />
       <Hero />
-      <HowItWorks />
       <Problem />
       <Solution />
+      <HowItWorks />
       <ForLinguists />
       <ForLearners />
       <WhyVerbaitim />

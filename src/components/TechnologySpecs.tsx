@@ -7,7 +7,7 @@ const specs = [
         model: "Allosaurus-v2.4",
         architecture: "Bi-LSTM + CTC",
         latency: "12ms / token",
-        accuracy: "94.2% (Zero-shot)"
+        accuracy: "94.2% (Instant)"
     },
     {
         category: "Grapheme Synthesis",
@@ -42,7 +42,7 @@ const TechnologySpecs = () => {
                                 infrastructure.
                             </Headline>
                             <Text>
-                                Our pipeline is built on state-of-the-art foundation models, fine-tuned for
+                                Our pipeline is built on foundation models fine-tuned for
                                 low-resource languages and optimized for edge deployment.
                             </Text>
                         </div>
@@ -77,7 +77,7 @@ const TechnologySpecs = () => {
 
                         <div className="mt-8 flex justify-end">
                             <button className="text-xs font-mono uppercase tracking-wider border border-border px-4 py-2 hover:bg-secondary transition-colors">
-                        View Full Documentation ->
+                                View Full Documentation &rarr;
                             </button>
                         </div>
                     </div>

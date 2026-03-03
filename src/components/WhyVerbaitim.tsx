@@ -31,7 +31,7 @@ const WhyVerbaitim = () => {
                     </Text>
                     <Headline as="h2" className="max-w-2xl">
                         A specialized ecosystem <br />
-                        <span className="text-signal italic serif-italic text-lg">for high-stakes language work.</span>
+                        <span className="text-signal italic serif-italic text-lg">built around the languages that matter most.</span>
                     </Headline>
                 </div>
 

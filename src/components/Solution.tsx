@@ -96,13 +96,39 @@ const Solution = () => {
                                             ))}
                                         </div>
                                     </div>
-                                    {/* Transcription area */}
-                                    <div className="bg-white/5 rounded-xl p-4 border border-white/10 space-y-3">
-                                        <div className="text-xs text-white/30 font-mono uppercase tracking-wider">IPA Transcription</div>
-                                        <div className="text-white/70 font-mono text-sm leading-relaxed">
-                                            <span className="text-signal">[</span>ˈlæŋ.ɡwɪdʒ dɒ.kjʊ.mɛnˈteɪ.ʃən<span className="text-signal">]</span>
-                                        </div>
-                                        <div className="text-white/40 text-xs italic">language documentation</div>
+                                    {/* Transcription rows */}
+                                    <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
+                                        <div className="text-[10px] text-white/30 font-mono uppercase tracking-wider px-4 pt-4 pb-2">IPA Transcription · Lakota_FieldSession_042</div>
+                                        <table className="w-full text-xs">
+                                            <thead>
+                                                <tr className="text-[9px] font-mono text-white/25 uppercase tracking-wider border-b border-white/10">
+                                                    <td className="px-4 py-1.5">Time</td>
+                                                    <td className="px-3 py-1.5">Spkr</td>
+                                                    <td className="px-3 py-1.5">IPA</td>
+                                                    <td className="px-3 py-1.5 hidden md:table-cell">Gloss</td>
+                                                    <td className="px-3 py-1.5">Conf</td>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {[
+                                                    { t: "0:04", sp: "EF_01", ipa: "haʊ̃ mitˈakʷe.ojasiŋ", en: "Hello, all my relatives", conf: "high" },
+                                                    { t: "0:09", sp: "EF_01", ipa: "čaŋtéčhila čhe tȟamákhočhe", en: "I love this land", conf: "high" },
+                                                    { t: "0:21", sp: "EF_02", ipa: "wičhóie kiŋ hé wašté", en: "That word is good", conf: "med" },
+                                                    { t: "0:34", sp: "EF_01", ipa: "wóokiye čha uŋspékhičhiyapi", en: "They taught us to pray", conf: "high" },
+                                                    { t: "0:47", sp: "EF_02", ipa: "táku eháŋni uŋkáǧapi", en: "What we made long ago", conf: "med" },
+                                                ].map((row, i) => (
+                                                    <tr key={i} className={`border-b border-white/5 ${i === 1 ? 'bg-signal/10' : ''}`}>
+                                                        <td className="px-4 py-2 font-mono text-white/40">{row.t}</td>
+                                                        <td className="px-3 py-2 font-bold text-white/60">{row.sp}</td>
+                                                        <td className="px-3 py-2 font-mono text-signal/90 tracking-wide">{row.ipa}</td>
+                                                        <td className="px-3 py-2 text-white/40 italic hidden md:table-cell">{row.en}</td>
+                                                        <td className="px-3 py-2">
+                                                            <div className={`h-1 rounded-full w-10 ${row.conf === 'high' ? 'bg-emerald-400/70' : 'bg-yellow-400/50'}`} />
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>

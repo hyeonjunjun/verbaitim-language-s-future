@@ -29,30 +29,39 @@ const Hero = () => {
       <Container className="relative z-10">
         <motion.div style={{ opacity, y }} className="max-w-4xl mx-auto text-center">
 
-          {/* Academic Label */}
-
-
           {/* The Statement Headline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            <Headline as="h1" className="mb-8 text-foreground leading-[1.05]">
+            <Headline as="h1" className="mb-4 text-foreground leading-[1.05]">
               Where Language Comes <br />
               <span className="text-signal italic serif-italic">Back to Life.</span>
-            </Headline>
+            </Headline>sd
           </motion.div>
 
-          {/* Subtext */}
+          {/* Subtext + tagline stacked */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
-            className="max-w-2xl mx-auto mb-12"
+            className="max-w-2xl mx-auto mb-2"
           >
             <Text variant="lead" className="text-foreground/90">
-              Document faster. Teach sooner. Learn now.<br></br> An ethical AI platform built with linguists and governed by communities.
+              An ethical AI platform built with linguists and governed by communities.
+            </Text>
+          </motion.div>
+
+          {/* Sub-tagline flush under subtitle */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.55, ease: "easeOut" }}
+            className="mb-12"
+          >
+            <Text className="text-muted-foreground text-base italic serif-italic">
+              Spend less time formatting. More time analyzing.
             </Text>
           </motion.div>
 

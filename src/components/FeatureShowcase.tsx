@@ -6,26 +6,26 @@ const steps = [
     {
         icon: Mic,
         step: "01",
-        title: "Universal Capture",
-        subtitle: "Allosaurus Network",
-        description: "Our proprietary AI model identifies phonemes across 2000+ languages without requiring language-specific training data. It captures the raw acoustic truth of heritage speech.",
-        image: "https://images.unsplash.com/photo-1555449742-1209b534433d?q=80&w=2670&auto=format&fit=crop" // Abstract waveform or tech
+        title: "Capture",
+        subtitle: "Field Recording",
+        description: "Record field audio from any device with high metadata fidelity. VerbAItim handles every format — from in-person sessions to remote community recordings.",
+        image: "https://images.unsplash.com/photo-1555449742-1209b534433d?q=80&w=2670&auto=format&fit=crop"
     },
     {
         icon: RefreshCw,
         step: "02",
-        title: "Zero-Shot Conversion",
-        subtitle: "ByT5 Translation",
-        description: "Phonetic sequences are instantly transmuted into standardized orthography using byte-level language models. The gap between speech and script is bridged in milliseconds.",
-        image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop" // Abstract cyber digital
+        title: "Instant Transcription",
+        subtitle: "Allosaurus · ByT5",
+        description: "Phonetic sequences are converted into standardized IPA and orthography in real time. The gap between speech and script is bridged in milliseconds — no prior language-specific training required.",
+        image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2670&auto=format&fit=crop"
     },
     {
         icon: CheckCircle,
         step: "03",
-        title: "Fidelity Assessment",
+        title: "Verify & Export",
         subtitle: "TextPA Validation",
-        description: "Every generated articulation is verified against the original audio source. We ensure that the digital preservation remains faithful to the human original.",
-        image: "https://images.unsplash.com/photo-1614728525585-71be52055653?q=80&w=2574&auto=format&fit=crop" // Abstract verification/security
+        description: "Every generated transcription is verified against the original audio. Edit inline, annotate for archiving, and export to ELAN, CSV, or JSON — ready for research publication or classroom use.",
+        image: "https://images.unsplash.com/photo-1614728525585-71be52055653?q=80&w=2574&auto=format&fit=crop"
     }
 ];
 
@@ -37,15 +37,11 @@ const FeatureShowcase = () => {
     });
 
     const x = useTransform(scrollYProgress, [0, 1], ["1%", "-65%"]);
-
-    // Opacity for "fade in" effect when section starts
     const opacity = useTransform(scrollYProgress, [0, 0.1], [0, 1]);
 
     return (
         <section ref={targetRef} className="relative h-[300vh] bg-neutral-950 text-white">
             <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-
-                {/* Section Header (Absolute positioned, stays on left initially then scrolls away?? No, let's keep it simple horizontal scroll) */}
 
                 <motion.div style={{ x, opacity }} className="flex gap-10 pl-20 pr-20">
                     {/* Intro Card */}
@@ -56,11 +52,11 @@ const FeatureShowcase = () => {
                             To <span className="text-sky-400">Syntax</span>.
                         </h3>
                         <p className="text-slate-400 text-lg leading-relaxed max-w-md">
-                            Scroll to analyze the three-stage process of reclaiming lost languages through artificial intelligence.
+                            Three stages. Scroll to see how VerbAItim transforms a raw recording into structured, citable linguistic data.
                         </p>
                         <div className="flex items-center gap-2 mt-8 text-sm font-mono text-slate-500">
                             <ArrowRight className="animate-pulse" />
-                            <span>Initiate Sequence</span>
+                            <span>Scroll to explore</span>
                         </div>
                     </div>
 
