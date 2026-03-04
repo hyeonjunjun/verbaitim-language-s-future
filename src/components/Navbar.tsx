@@ -28,9 +28,14 @@ const Navbar = () => {
         </nav>
 
         {/* CTA - Warm Interaction */}
-        <Link to="/workbench" className="hidden md:flex items-center justify-center px-6 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 transition-all rounded-full text-sm font-bold shadow-sm active:scale-95">
-          Enter Workbench
-        </Link>
+        <div className="hidden md:flex items-center gap-3">
+          <Link to="/learner/select" className="px-5 py-2.5 text-sm font-bold text-muted-foreground hover:text-primary transition-colors">
+            Learner Hub
+          </Link>
+          <Link to="/workbench" className="flex items-center justify-center px-6 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 transition-all rounded-full text-sm font-bold shadow-sm active:scale-95">
+            Enter Workbench
+          </Link>
+        </div>
 
         {/* Mobile Menu Placeholder */}
         <button className="md:hidden text-sm font-medium px-4 py-2 border border-border rounded-full hover:bg-secondary transition-colors">Menu</button>

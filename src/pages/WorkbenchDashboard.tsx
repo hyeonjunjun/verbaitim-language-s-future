@@ -15,6 +15,7 @@ import {
     Upload,
     Wand2,
     Inbox,
+    GraduationCap,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -265,7 +266,7 @@ const WorkbenchDashboard = () => {
                                 {[
                                     { label: "Record", icon: Mic, path: "/workbench/record", desc: "Live capture", primary: true },
                                     { label: "History", icon: BookOpen, path: "/workbench/history", desc: "Past sessions", primary: false },
-                                    { label: "Elicit", icon: MessageSquarePlus, path: "/workbench/elicitation", desc: "Structured", primary: false },
+                                    { label: "Learner Hub", icon: GraduationCap, path: "/learner/select", desc: "Learn apps", primary: false },
                                     { label: "Upload", icon: Upload, path: "/workbench/editor", desc: "Transcribe", primary: false },
                                 ].map((action) => (
                                     <button

@@ -10,7 +10,8 @@ import {
     Settings,
     ChevronRight,
     Plus,
-    BookMarked
+    BookMarked,
+    GraduationCap
 } from "lucide-react";
 
 // Decorative IPA characters that float quietly in the sidebar background
@@ -134,6 +135,14 @@ const WorkbenchSidebar = () => {
 
             {/* Footer Navigation */}
             <div className="p-3 border-t border-border space-y-0.5 mt-auto relative z-10 bg-gradient-to-t from-secondary/10 to-transparent">
+                <Link
+                    to="/learner/select"
+                    className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all text-primary/80 hover:text-primary hover:bg-primary/5 group"
+                >
+                    <GraduationCap size={18} className="text-primary/60 group-hover:text-primary transition-colors" />
+                    Learner Hub
+                    <span className="ml-auto text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Go</span>
+                </Link>
                 <Link
                     to="/workbench/settings"
                     className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${location.pathname === "/workbench/settings"
