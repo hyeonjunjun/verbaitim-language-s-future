@@ -225,7 +225,7 @@ const WorkbenchDashboard = () => {
                                     {recentSessions.map((sess) => (
                                         <div
                                             key={sess.id}
-                                            onClick={() => navigate("/workbench/editor")}
+                                            onClick={() => navigate(`/workbench/editor/${sess.id}`)}
                                             className="flex items-center justify-between p-5 bg-card border border-border rounded-2xl hover:bg-white hover:border-primary/30 transition-all cursor-pointer group shadow-sm"
                                         >
                                             <div className="flex items-center gap-4 min-w-0">
@@ -264,7 +264,7 @@ const WorkbenchDashboard = () => {
                             <div className="grid grid-cols-2 gap-3">
                                 {[
                                     { label: "Record", icon: Mic, path: "/workbench/record", desc: "Live capture", primary: true },
-                                    { label: "Notes", icon: BookOpen, path: "/workbench/notes", desc: "Observations", primary: false },
+                                    { label: "History", icon: BookOpen, path: "/workbench/history", desc: "Past sessions", primary: false },
                                     { label: "Elicit", icon: MessageSquarePlus, path: "/workbench/elicitation", desc: "Structured", primary: false },
                                     { label: "Upload", icon: Upload, path: "/workbench/editor", desc: "Transcribe", primary: false },
                                 ].map((action) => (

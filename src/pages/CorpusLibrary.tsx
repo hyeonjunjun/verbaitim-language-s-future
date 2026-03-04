@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
+import { useAudioStore } from "@/hooks/useAudioStore";
 import {
     fetchGlottologInfo,
     ENDANGERMENT_COLOURS,
@@ -18,9 +19,11 @@ import {
     Filter,
     Globe,
     ShieldAlert,
+    Inbox,
+    Mic,
 } from "lucide-react";
 
-// ── Mock Data ────────────────────────────────────────────────────────
+// ── Types ────────────────────────────────────────────────────────────
 
 type CorpusStatus = "In Progress" | "Reviewed" | "Archived";
 
@@ -36,88 +39,8 @@ interface Corpus {
     status: CorpusStatus;
     lastModified: string;
     description: string;
+    sessionIds: string[];
 }
-
-const MOCK_CORPORA: Corpus[] = [
-    {
-        id: "1",
-        name: "Lakota_Corpus_Q4",
-        language: "Lakota",
-        languageCode: "lkt",
-        speakers: 8,
-        recordings: 42,
-        totalSegments: 320,
-        transcribedSegments: 284,
-        status: "In Progress",
-        lastModified: "2 hours ago",
-        description: "Elder interviews and ceremonial narratives from Pine Ridge.",
-    },
-    {
-        id: "2",
-        name: "Quechua_Archive_01",
-        language: "Quechua",
-        languageCode: "que",
-        speakers: 5,
-        recordings: 28,
-        totalSegments: 196,
-        transcribedSegments: 196,
-        status: "Reviewed",
-        lastModified: "Yesterday",
-        description: "Agricultural vocabulary and seasonal stories from Cusco region.",
-    },
-    {
-        id: "3",
-        name: "Maori_Elders_2024",
-        language: "Māori",
-        languageCode: "mri",
-        speakers: 12,
-        recordings: 67,
-        totalSegments: 540,
-        transcribedSegments: 312,
-        status: "In Progress",
-        lastModified: "3 days ago",
-        description: "Oral histories and whakataukī from North Island elders.",
-    },
-    {
-        id: "4",
-        name: "Cherokee_Syllabary",
-        language: "Cherokee",
-        languageCode: "chr",
-        speakers: 3,
-        recordings: 15,
-        totalSegments: 120,
-        transcribedSegments: 120,
-        status: "Reviewed",
-        lastModified: "1 week ago",
-        description: "Syllabary pronunciation guide with native speaker validation.",
-    },
-    {
-        id: "5",
-        name: "Navajo_Stories",
-        language: "Navajo",
-        languageCode: "nav",
-        speakers: 6,
-        recordings: 34,
-        totalSegments: 280,
-        transcribedSegments: 45,
-        status: "In Progress",
-        lastModified: "4 days ago",
-        description: "Traditional coyote stories and coming-of-age narratives.",
-    },
-    {
-        id: "6",
-        name: "Hawaiian_Archive_Legacy",
-        language: "Hawaiian",
-        languageCode: "haw",
-        speakers: 4,
-        recordings: 22,
-        totalSegments: 180,
-        transcribedSegments: 180,
-        status: "Archived",
-        lastModified: "2 months ago",
-        description: "Historical recordings digitized from the Bishop Museum collection.",
-    },
-];
 
 // ── Glottolog enrichment sub-hook ────────────────────────────────────
 
@@ -137,19 +60,67 @@ function useGlottologBatch(codes: string[]) {
     return data;
 }
 
+// ── Build corpora from real session data ─────────────────────────────
+
+function buildCorporaFromSessions(sessions: ReturnType<typeof useAudioStore>["sessions"]): Corpus[] {
+    if (sessions.length === 0) return [];
+
+    // Group sessions by language
+    const grouped = new Map<string, typeof sessions>();
+    sessions.forEach((sess) => {
+        const lang = sess.language || "Unknown";
+        const bucket = grouped.get(lang) || [];
+        bucket.push(sess);
+        grouped.set(lang, bucket);
+    });
+
+    return Array.from(grouped.entries()).map(([lang, sessList]) => {
+        const totalSegments = sessList.reduce((sum, s) => sum + s.segmentCount, 0);
+        const verifiedSegments = sessList.reduce((sum, s) =>
+            sum + s.segments.filter((seg) => seg.confidence > 85).length, 0
+        );
+        const speakers = new Set(sessList.flatMap((s) => s.segments.map((seg) => seg.speaker))).size;
+        const latestDate = new Date(Math.max(...sessList.map((s) => new Date(s.createdAt).getTime())));
+        const daysSince = Math.round((Date.now() - latestDate.getTime()) / (1000 * 60 * 60 * 24));
+        const lastModified = daysSince === 0 ? "Today" : daysSince === 1 ? "Yesterday" : `${daysSince} days ago`;
+
+        const allVerified = verifiedSegments === totalSegments && totalSegments > 0;
+        const status: CorpusStatus = allVerified ? "Reviewed" : "In Progress";
+
+        return {
+            id: `auto-${lang.toLowerCase().replace(/\s+/g, "-")}`,
+            name: `${lang}_Corpus`,
+            language: lang,
+            languageCode: lang.toLowerCase().substring(0, 3),
+            speakers,
+            recordings: sessList.length,
+            totalSegments,
+            transcribedSegments: verifiedSegments,
+            status,
+            lastModified,
+            description: `${sessList.length} session${sessList.length !== 1 ? "s" : ""} with ${totalSegments} segments from ${speakers} speaker${speakers !== 1 ? "s" : ""}.`,
+            sessionIds: sessList.map((s) => s.id),
+        };
+    });
+}
+
 // ── Component ────────────────────────────────────────────────────────
 
 const CorpusLibrary = () => {
     const navigate = useNavigate();
+    const { sessions } = useAudioStore();
     const [searchQuery, setSearchQuery] = useState("");
     const [activeFilter, setActiveFilter] = useState<"All" | CorpusStatus>("All");
 
+    // Derive corpora from real sessions
+    const corpora = useMemo(() => buildCorporaFromSessions(sessions), [sessions]);
+
     // Fetch Glottolog data for all language codes in the library
-    const glottologData = useGlottologBatch(MOCK_CORPORA.map((c) => c.languageCode));
+    const glottologData = useGlottologBatch(corpora.map((c) => c.languageCode));
 
     const filters: ("All" | CorpusStatus)[] = ["All", "In Progress", "Reviewed", "Archived"];
 
-    const filteredCorpora = MOCK_CORPORA.filter((c) => {
+    const filteredCorpora = corpora.filter((c) => {
         const matchesFilter = activeFilter === "All" || c.status === activeFilter;
         const matchesSearch =
             searchQuery === "" ||
@@ -179,50 +150,68 @@ const CorpusLibrary = () => {
                             Corpus Library
                         </Headline>
                         <Text className="text-muted-foreground/80">
-                            {MOCK_CORPORA.length} corpora ·{" "}
-                            {MOCK_CORPORA.reduce((sum, c) => sum + c.recordings, 0)} recordings ·{" "}
-                            {MOCK_CORPORA.reduce((sum, c) => sum + c.speakers, 0)} speakers
+                            {corpora.length > 0
+                                ? `${corpora.length} corpora · ${corpora.reduce((sum, c) => sum + c.recordings, 0)} recordings · ${corpora.reduce((sum, c) => sum + c.speakers, 0)} speakers`
+                                : "No corpora yet. Record sessions to build your library."}
                         </Text>
                     </div>
                     <button
-                        onClick={() => navigate("/workbench/editor")}
+                        onClick={() => navigate("/workbench/record")}
                         className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-base font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20"
                     >
-                        <Plus size={18} /> New Corpus
+                        <Plus size={18} /> New Session
                     </button>
                 </div>
 
                 {/* Search + Filters */}
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="relative flex-1 max-w-md">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
-                        <input
-                            type="text"
-                            placeholder="Search corpora by name or language…"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-card border border-border rounded-full py-3 pl-11 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
-                        />
-                    </div>
+                {corpora.length > 0 && (
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="relative flex-1 max-w-md">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                            <input
+                                type="text"
+                                placeholder="Search corpora by name or language…"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full bg-card border border-border rounded-full py-3 pl-11 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
+                            />
+                        </div>
 
-                    <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
-                        {filters.map((filter) => (
-                            <button
-                                key={filter}
-                                onClick={() => setActiveFilter(filter)}
-                                className={`px-4 py-2 rounded-[0.85rem] text-xs font-bold transition-all ${activeFilter === filter
-                                    ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50 border border-transparent"
-                                    }`}
-                            >
-                                {filter}
-                            </button>
-                        ))}
+                        <div className="flex items-center gap-1 bg-card border border-border rounded-xl p-1">
+                            {filters.map((filter) => (
+                                <button
+                                    key={filter}
+                                    onClick={() => setActiveFilter(filter)}
+                                    className={`px-4 py-2 rounded-[0.85rem] text-xs font-bold transition-all ${activeFilter === filter
+                                        ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50 border border-transparent"
+                                        }`}
+                                >
+                                    {filter}
+                                </button>
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
-                {/* Corpus Grid */}
-                {filteredCorpora.length === 0 ? (
+                {/* Empty State */}
+                {corpora.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-24 border border-dashed border-border rounded-2xl text-center">
+                        <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-muted-foreground/30 mb-5">
+                            <Inbox size={30} />
+                        </div>
+                        <p className="text-base font-bold text-foreground/50 mb-1">No corpora yet</p>
+                        <p className="text-sm text-muted-foreground/40 mb-6 max-w-xs">
+                            Record audio sessions and transcribe them. Your sessions will be automatically organized into corpora by language.
+                        </p>
+                        <button
+                            onClick={() => navigate("/workbench/record")}
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-base font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20"
+                        >
+                            <Mic size={18} className="fill-current" /> Start Recording
+                        </button>
+                    </div>
+                ) : filteredCorpora.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-center">
                         <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center text-muted-foreground/30 mb-4">
                             <Filter size={28} />
@@ -233,15 +222,21 @@ const CorpusLibrary = () => {
                         </p>
                     </div>
                 ) : (
+                    /* Corpus Grid */
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {filteredCorpora.map((corpus) => {
-                            const progress = Math.round(
-                                (corpus.transcribedSegments / corpus.totalSegments) * 100
-                            );
+                            const progress = corpus.totalSegments > 0
+                                ? Math.round((corpus.transcribedSegments / corpus.totalSegments) * 100)
+                                : 0;
                             return (
                                 <button
                                     key={corpus.id}
-                                    onClick={() => navigate("/workbench/editor")}
+                                    onClick={() => {
+                                        // Navigate to editor with first session of this corpus
+                                        if (corpus.sessionIds.length > 0) {
+                                            navigate(`/workbench/editor/${corpus.sessionIds[0]}`);
+                                        }
+                                    }}
                                     className="text-left bg-card border border-border rounded-[1.5rem] p-6 hover:border-primary/40 hover:shadow-lg transition-all duration-300 group shadow-sm flex flex-col justify-between h-full"
                                 >
                                     <div>
@@ -303,7 +298,7 @@ const CorpusLibrary = () => {
                                         <div className="mb-4">
                                             <div className="flex items-center justify-between mb-2">
                                                 <span className="text-[10px] font-mono text-muted-foreground/60 font-bold uppercase tracking-widest">
-                                                    {corpus.transcribedSegments}/{corpus.totalSegments} segments
+                                                    {corpus.transcribedSegments}/{corpus.totalSegments} verified
                                                 </span>
                                                 <span className="text-[11px] font-mono font-bold text-primary">
                                                     {progress}%

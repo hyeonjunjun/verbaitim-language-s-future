@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
 import { useAudioStore } from "@/hooks/useAudioStore";
+import { exportSession } from "@/lib/exportSession";
+import type { ExportFormat } from "@/lib/exportSession";
 import {
     Mic2,
     FileText,
@@ -61,13 +63,7 @@ const SessionHistory = () => {
     const handleExportSession = (sessId: string) => {
         const sess = sessions.find((s) => s.id === sessId);
         if (!sess) return;
-        const blob = new Blob([JSON.stringify(sess, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `${sess.fileName.replace(/\.[^.]+$/, "")}_session.json`;
-        a.click();
-        URL.revokeObjectURL(url);
+        exportSession(sess, defaultExport as ExportFormat);
     };
 
     return (
@@ -194,7 +190,7 @@ const SessionHistory = () => {
                                     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                                         <button
                                             title="Open in editor"
-                                            onClick={() => navigate("/workbench/editor")}
+                                            onClick={() => navigate(`/workbench/editor/${sess.id}`)}
                                             className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
                                         >
                                             <ArrowUpRight size={18} />

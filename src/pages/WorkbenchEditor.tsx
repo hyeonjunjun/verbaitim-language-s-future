@@ -1,26 +1,36 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Edit2, Play, Check, AlertTriangle, Users } from "lucide-react";
+import { ArrowLeft, Edit2, Play, Check, AlertTriangle, Users, Download } from "lucide-react";
 import { useAudioStore } from "@/hooks/useAudioStore";
+import { exportSession } from "@/lib/exportSession";
+import type { ExportFormat } from "@/lib/exportSession";
 import { useState } from "react";
 
 const WorkbenchEditor = () => {
     const navigate = useNavigate();
     const { sessionId } = useParams();
-    const { sessions, updateSegment } = useAudioStore();
+    const { sessions, updateSegment, defaultExport } = useAudioStore();
 
-    const session = sessions.find((s) => s.id === sessionId);
+    // If no sessionId param, fall back to most recent session
+    const session = sessionId
+        ? sessions.find((s) => s.id === sessionId)
+        : sessions[0];
 
     // For prototype simplicity, we'll keep a local state of whether the context editor is open
-    const [isEditingContext, setIsEditingContext] = useState(false);
+    const [editingSegmentId, setEditingSegmentId] = useState<string | null>(null);
     const [contextInput, setContextInput] = useState("");
+
+    const handleExportSession = () => {
+        if (!session) return;
+        exportSession(session, defaultExport as ExportFormat);
+    };
 
     if (!session) {
         return (
             <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center p-6">
                 <div className="text-center">
-                    <h2 className="text-xl font-bold mb-2">Session not found</h2>
-                    <p className="text-muted-foreground mb-4">The session you are looking for does not exist or has been deleted.</p>
-                    <button onClick={() => navigate('/workbench')} className="px-4 py-2 bg-primary text-white rounded-lg font-bold">Return to Dashboard</button>
+                    <h2 className="text-xl font-bold mb-2">No sessions yet</h2>
+                    <p className="text-muted-foreground mb-4">Record and transcribe your first session to review it here.</p>
+                    <button onClick={() => navigate('/workbench/record')} className="px-4 py-2 bg-primary text-white rounded-lg font-bold">Start Recording</button>
                 </div>
             </div>
         );
@@ -32,7 +42,7 @@ const WorkbenchEditor = () => {
 
     const handleContextSave = (segmentId: string) => {
         updateSegment(segmentId, { culturalContext: contextInput });
-        setIsEditingContext(false);
+        setEditingSegmentId(null);
         setContextInput("");
     };
 
@@ -45,9 +55,18 @@ const WorkbenchEditor = () => {
                     Back
                 </button>
                 <h1 className="font-semibold text-lg text-card-foreground">Session Review</h1>
-                <button className="w-10 h-10 flex items-center justify-end text-foreground">
-                    <Edit2 size={18} />
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={handleExportSession}
+                        title="Export session as JSON"
+                        className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
+                    >
+                        <Download size={18} />
+                    </button>
+                    <button className="w-10 h-10 flex items-center justify-end text-foreground">
+                        <Edit2 size={18} />
+                    </button>
+                </div>
             </header>
 
             <main className="px-6 space-y-8 max-w-3xl mx-auto">
@@ -90,7 +109,7 @@ const WorkbenchEditor = () => {
                     </div>
 
                     <div className="space-y-6">
-                        {session.segments.map((segment, index) => (
+                        {session.segments.map((segment) => (
                             <div key={segment.id} className="bg-white border border-border/50 rounded-2xl p-5 shadow-sm">
                                 <div className="flex items-center justify-between mb-2">
                                     <span className="text-[11px] font-bold text-muted-foreground">{segment.time}</span>
@@ -125,14 +144,14 @@ const WorkbenchEditor = () => {
                                 <div className="mt-4 pt-4 border-t border-border/30">
                                     <div className="flex items-center justify-between mb-2">
                                         <h4 className="font-bold text-xs text-card-foreground flex items-center gap-1"><Users size={12} className="text-primary" /> Cultural context</h4>
-                                        {!isEditingContext && !segment.culturalContext && (
-                                            <button onClick={() => setIsEditingContext(true)} className="text-primary text-xs font-bold hover:underline">
+                                        {editingSegmentId !== segment.id && !segment.culturalContext && (
+                                            <button onClick={() => setEditingSegmentId(segment.id)} className="text-primary text-xs font-bold hover:underline">
                                                 + Add Note
                                             </button>
                                         )}
                                     </div>
 
-                                    {isEditingContext ? (
+                                    {editingSegmentId === segment.id ? (
                                         <div className="mt-2">
                                             <textarea
                                                 value={contextInput}
@@ -141,7 +160,7 @@ const WorkbenchEditor = () => {
                                                 className="w-full bg-muted/30 border border-border/50 rounded-lg p-2 text-sm focus:outline-none focus:border-primary transition-colors min-h-[80px]"
                                             />
                                             <div className="flex justify-end gap-2 mt-2">
-                                                <button onClick={() => setIsEditingContext(false)} className="text-xs font-bold text-muted-foreground px-3 py-1.5 rounded-md hover:bg-muted/50">Cancel</button>
+                                                <button onClick={() => setEditingSegmentId(null)} className="text-xs font-bold text-muted-foreground px-3 py-1.5 rounded-md hover:bg-muted/50">Cancel</button>
                                                 <button onClick={() => handleContextSave(segment.id)} className="text-xs font-bold bg-primary text-white px-3 py-1.5 rounded-md">Save Context</button>
                                             </div>
                                         </div>
@@ -153,7 +172,7 @@ const WorkbenchEditor = () => {
                                             <button
                                                 onClick={() => {
                                                     setContextInput(segment.culturalContext || "");
-                                                    setIsEditingContext(true);
+                                                    setEditingSegmentId(segment.id);
                                                 }}
                                                 className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-white border border-border/50 shadow-sm rounded-md"
                                             >
@@ -172,4 +191,3 @@ const WorkbenchEditor = () => {
 };
 
 export default WorkbenchEditor;
-

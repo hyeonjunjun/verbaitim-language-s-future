@@ -52,6 +52,10 @@ interface AudioState {
     confidenceThreshold: number;
     playbackSpeed: string;
     defaultExport: string;
+    selectedModel: string;
+    displayName: string;
+    role: string;
+    apiUrl: string;
 
     // Actions
     loadAudioFile: (file: File) => void;
@@ -62,7 +66,8 @@ interface AudioState {
     removeSegment: (id: string) => void;
     deleteSession: (id: string) => void;
     checkBackendHealth: () => Promise<void>;
-    updateSettings: (settings: Partial<Pick<AudioState, "confidenceThreshold" | "playbackSpeed" | "defaultExport">>) => void;
+    updateSettings: (settings: Partial<Pick<AudioState, "confidenceThreshold" | "playbackSpeed" | "defaultExport" | "selectedModel" | "displayName" | "role" | "apiUrl">>) => void;
+    resetSettings: () => void;
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────
@@ -123,6 +128,10 @@ export const useAudioStore = create<AudioState>()(
             confidenceThreshold: 85,
             playbackSpeed: "1.0",
             defaultExport: "json",
+            selectedModel: "allosaurus-uni2005",
+            displayName: "Dr. Sarah Chen",
+            role: "Lead Linguist",
+            apiUrl: "http://localhost:8001/api",
 
             loadAudioFile: (file: File) => {
                 const prev = get().audioUrl;
@@ -259,6 +268,16 @@ export const useAudioStore = create<AudioState>()(
                 set(settings);
             },
 
+            resetSettings: () => set({
+                confidenceThreshold: 85,
+                playbackSpeed: "1.0",
+                defaultExport: "json",
+                selectedModel: "allosaurus-uni2005",
+                displayName: "Dr. Sarah Chen",
+                role: "Lead Linguist",
+                apiUrl: "http://localhost:8001/api",
+            }),
+
             checkBackendHealth: async () => {
                 set({ backendStatus: "checking" });
                 try {
@@ -278,6 +297,10 @@ export const useAudioStore = create<AudioState>()(
                 confidenceThreshold: state.confidenceThreshold,
                 playbackSpeed: state.playbackSpeed,
                 defaultExport: state.defaultExport,
+                selectedModel: state.selectedModel,
+                displayName: state.displayName,
+                role: state.role,
+                apiUrl: state.apiUrl,
             }),
         }
     )

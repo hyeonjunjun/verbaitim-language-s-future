@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import WorkbenchLayout from "@/layouts/WorkbenchLayout";
 import { Headline, Text } from "@/design-system/Typography";
 import { useAudioStore } from "@/hooks/useAudioStore";
@@ -12,19 +12,49 @@ import {
     CheckCircle2,
     AlertCircle,
     Loader2,
+    Check,
 } from "lucide-react";
 
-// ── Component ────────────────────────────────────────────────────────
+const MODEL_OPTIONS = [
+    { id: "allosaurus-uni2005", label: "Allosaurus — uni2005 (Universal)" },
+    { id: "allosaurus-eng2020", label: "Allosaurus — eng2020 (English)" },
+    { id: "mock", label: "MockRecognizer (Lite Demo)" },
+];
 
 const WorkbenchSettings = () => {
-    const { backendStatus, backendMode, checkBackendHealth, confidenceThreshold, playbackSpeed, defaultExport, updateSettings } = useAudioStore();
-    const [apiUrl, setApiUrl] = useState("http://localhost:8001/api");
-    const [displayName, setDisplayName] = useState("Dr. Sarah Chen");
-    const [role, setRole] = useState("Lead Linguist");
+    const {
+        backendStatus,
+        backendMode,
+        checkBackendHealth,
+        confidenceThreshold,
+        playbackSpeed,
+        defaultExport,
+        selectedModel,
+        displayName,
+        role,
+        apiUrl,
+        updateSettings,
+        resetSettings,
+    } = useAudioStore();
+
+    const [saved, setSaved] = useState(false);
 
     useEffect(() => {
         checkBackendHealth();
     }, [checkBackendHealth]);
+
+    const handleSave = () => {
+        // Settings are already persisted via zustand/persist on every change.
+        // This button provides visual confirmation.
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+    };
+
+    const handleReset = () => {
+        resetSettings();
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+    };
 
     return (
         <WorkbenchLayout>
@@ -63,10 +93,14 @@ const WorkbenchSettings = () => {
                                     Active Model
                                 </label>
                                 <div className="relative">
-                                    <select className="w-full bg-background border border-border rounded-2xl py-3 px-4 text-sm font-medium text-foreground appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm">
-                                        <option>Allosaurus — uni2005 (Universal)</option>
-                                        <option>Allosaurus — eng2020 (English)</option>
-                                        <option>MockRecognizer (Lite Demo)</option>
+                                    <select
+                                        value={selectedModel}
+                                        onChange={(e) => updateSettings({ selectedModel: e.target.value })}
+                                        className="w-full bg-background border border-border rounded-2xl py-3 px-4 text-sm font-medium text-foreground appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
+                                    >
+                                        {MODEL_OPTIONS.map((opt) => (
+                                            <option key={opt.id} value={opt.id}>{opt.label}</option>
+                                        ))}
                                     </select>
                                     <ChevronDown
                                         size={16}
@@ -229,7 +263,7 @@ const WorkbenchSettings = () => {
                                 <input
                                     type="text"
                                     value={apiUrl}
-                                    onChange={(e) => setApiUrl(e.target.value)}
+                                    onChange={(e) => updateSettings({ apiUrl: e.target.value })}
                                     className="w-full bg-background border border-border rounded-2xl py-3 px-4 text-sm font-mono font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
                                 />
                             </div>
@@ -292,7 +326,7 @@ const WorkbenchSettings = () => {
                                 <input
                                     type="text"
                                     value={displayName}
-                                    onChange={(e) => setDisplayName(e.target.value)}
+                                    onChange={(e) => updateSettings({ displayName: e.target.value })}
                                     className="w-full bg-background border border-border rounded-2xl py-3 px-4 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
                                 />
                             </div>
@@ -303,7 +337,7 @@ const WorkbenchSettings = () => {
                                 <div className="relative">
                                     <select
                                         value={role}
-                                        onChange={(e) => setRole(e.target.value)}
+                                        onChange={(e) => updateSettings({ role: e.target.value })}
                                         className="w-full bg-background border border-border rounded-2xl py-3 px-4 text-sm font-medium text-foreground appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
                                     >
                                         <option>Lead Linguist</option>
@@ -321,13 +355,23 @@ const WorkbenchSettings = () => {
                     </section>
                 </div>
 
-                {/* Save */}
+                {/* Save / Reset */}
                 <div className="mt-10 flex items-center justify-end gap-4">
-                    <button className="px-5 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors">
+                    <button
+                        onClick={handleReset}
+                        className="px-5 py-3 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
+                    >
                         Reset to Defaults
                     </button>
-                    <button className="px-8 py-3 bg-primary text-white rounded-2xl text-base font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20">
-                        Save Settings
+                    <button
+                        onClick={handleSave}
+                        className={`px-8 py-3 rounded-2xl text-base font-bold transition-all active:scale-95 shadow-lg flex items-center gap-2 ${saved
+                            ? "bg-sage text-white shadow-sage/20"
+                            : "bg-primary text-white hover:bg-primary/90 shadow-primary/20"
+                            }`}
+                    >
+                        {saved && <Check size={18} />}
+                        {saved ? "Saved!" : "Save Settings"}
                     </button>
                 </div>
             </div>
