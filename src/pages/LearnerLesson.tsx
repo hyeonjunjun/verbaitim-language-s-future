@@ -26,9 +26,12 @@ const LearnerLesson = () => {
 
     useEffect(() => {
         if (!activeUnit || !currentSegment) {
-            navigate('/learner');
+            navigate('/learner/select', { replace: true });
         }
     }, [activeUnit, currentSegment, navigate]);
+
+    // Don't render until we have valid data
+    if (!activeUnit || !currentSegment) return null;
 
     const handleCheck = () => {
         if (!currentSegment?.meaning) return;

@@ -433,7 +433,7 @@ export const ENDANGERMENT_COLOURS: Record<EndangermentLevel, string> = {
     "not endangered": "bg-sage/15 text-sage     border-sage/20",
     "threatened": "bg-ochre/15 text-ochre   border-ochre/20",
     "shifting": "bg-ochre/20 text-ochre   border-ochre/30",
-    "moribund": "bg-signal/15 text-signal border-signal/20",
+    "moribund": "bg-destructive/15 text-destructive border-destructive/20",
     "nearly extinct": "bg-destructive/15 text-destructive border-destructive/20",
     "extinct": "bg-muted text-muted-foreground border-border",
     "unknown": "bg-muted/50 text-muted-foreground/60 border-border/50",

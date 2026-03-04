@@ -13,10 +13,6 @@
     --font-body: 'Source Sans 3', sans-serif;
     --font-reading: 'Source Serif 4', serif;
 
-    /* Accents - "The Earth" */
-    --signal: 25 45% 45%;
-    --signal-foreground: 0 0% 100%;
-
     /* UI Shell */
     --card: 35 30% 98%;
     --card-foreground: 25 15% 15%;
@@ -55,9 +51,6 @@
   .dark {
     --background: 25 15% 5%;
     --foreground: 35 20% 90%;
-
-    --signal: 25 60% 60%;
-    --signal-foreground: 25 15% 5%;
 
     --card: 25 10% 8%;
     --card-foreground: 35 20% 90%;
@@ -99,10 +92,10 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body antialiased selection:bg-signal/30 selection:text-foreground;
+    @apply bg-background text-foreground font-body antialiased selection:bg-primary/30 selection:text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    /* Subtle noise grain — gives the parchment some texture */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    /* Subtle parchment grain texture */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
   }
 
   h1,
@@ -130,7 +123,7 @@
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: hsl(var(--signal) / 0.4);
+    background: hsl(var(--primary) / 0.4);
   }
 
   /* Required React Lenis CSS */
@@ -167,7 +160,7 @@
     background-size: 18px 18px;
   }
 
-  /* Glowing signal ring pulse */
+  /* Glowing ring pulse */
   .glow-signal {
     animation: glow-pulse 2.4s ease-in-out infinite;
   }
@@ -188,11 +181,11 @@
 
   0%,
   100% {
-    box-shadow: 0 0 0 0 hsl(var(--signal) / 0);
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
   }
 
   50% {
-    box-shadow: 0 0 20px 4px hsl(var(--signal) / 0.22);
+    box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.22);
   }
 }
 
@@ -217,7 +210,7 @@
 .shimmer {
   background: linear-gradient(90deg,
       transparent 0%,
-      hsl(var(--signal) / 0.1) 50%,
+      hsl(var(--primary) / 0.1) 50%,
       transparent 100%);
   background-size: 400px 100%;
   animation: shimmer 2.4s linear infinite;

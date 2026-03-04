@@ -31,12 +31,15 @@ const LearnerDashboard = () => {
         syncWithAudioStore(sessions);
     }, [sessions, syncWithAudioStore]);
 
-    // Redirect to select if no active course
+    // Redirect to select if no active course is available
     useEffect(() => {
-        if (!activeCourseId && courses.length > 0) {
-            navigate('/learner/select');
+        if (!activeCourse) {
+            navigate('/learner/select', { replace: true });
         }
-    }, [activeCourseId, courses, navigate]);
+    }, [activeCourse, navigate]);
+
+    // Don't render until we have a valid course
+    if (!activeCourse) return null;
 
     const handleLessonClick = (unitId: string, status: string) => {
         if (status === 'active') {

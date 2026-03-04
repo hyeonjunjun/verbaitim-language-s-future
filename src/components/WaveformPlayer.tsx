@@ -54,17 +54,17 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
                 wavesurferRef.current = null;
             }
 
-            // Read CSS variable for signal color
+            // Read CSS variable for primary color
             const computedStyle = getComputedStyle(document.documentElement);
-            const signalHSL = computedStyle.getPropertyValue("--primary").trim();
-            const waveColor = signalHSL
-                ? `hsl(${signalHSL} / 0.4)`
+            const primaryHSL = computedStyle.getPropertyValue("--primary").trim();
+            const waveColor = primaryHSL
+                ? `hsl(${primaryHSL} / 0.4)`
                 : "rgba(200, 150, 80, 0.4)";
-            const progressColor = signalHSL
-                ? `hsl(${signalHSL})`
+            const progressColor = primaryHSL
+                ? `hsl(${primaryHSL})`
                 : "rgba(200, 150, 80, 1)";
-            const cursorColor = signalHSL
-                ? `hsl(${signalHSL})`
+            const cursorColor = primaryHSL
+                ? `hsl(${primaryHSL})`
                 : "rgba(200, 150, 80, 1)";
 
             const ws = WaveSurfer.create({

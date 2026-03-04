@@ -4,7 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
-import LinguistDashboard from "./pages/LinguistDashboard";
 import LearnerDashboard from "./pages/LearnerDashboard";
 import WorkbenchDashboard from "./pages/WorkbenchDashboard";
 import WorkbenchEditor from "./pages/WorkbenchEditor";
@@ -12,7 +11,6 @@ import CorpusLibrary from "./pages/CorpusLibrary";
 import SessionHistory from "./pages/SessionHistory";
 import WorkbenchSettings from "./pages/WorkbenchSettings";
 import WorkbenchRecord from "./pages/WorkbenchRecord";
-import WorkbenchNotes from "./pages/WorkbenchNotes";
 import WorkbenchElicitation from "./pages/WorkbenchElicitation";
 import LearnerLanguageSelect from "./pages/LearnerLanguageSelect";
 import LearnerLesson from "./pages/LearnerLesson";
@@ -31,7 +29,6 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/linguist" element={<LinguistDashboard />} />
             <Route path="/learner" element={<LearnerDashboard />} />
             <Route path="/learner/select" element={<LearnerLanguageSelect />} />
             <Route path="/learner/lesson" element={<LearnerLesson />} />
@@ -43,7 +40,6 @@ const App = () => (
             <Route path="/workbench/history" element={<SessionHistory />} />
             <Route path="/workbench/settings" element={<WorkbenchSettings />} />
             <Route path="/workbench/record" element={<WorkbenchRecord />} />
-            <Route path="/workbench/notes" element={<WorkbenchNotes />} />
             <Route path="/workbench/elicitation" element={<WorkbenchElicitation />} />
 
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

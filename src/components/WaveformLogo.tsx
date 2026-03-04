@@ -3,39 +3,84 @@ const WaveformLogo = ({ size = 28 }: { size?: number }) => {
         <svg
             width={size}
             height={size}
-            viewBox="0 0 32 32"
+            viewBox="0 0 64 64"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
             className="text-primary"
         >
-            {/* Elegant organic shape combining a soundwave and a leaf/drop of water */}
+            {/* Open book base */}
             <path
-                d="M16 2C8.26801 2 2 8.26801 2 16C2 23.732 8.26801 30 16 30C23.732 30 30 23.732 30 16C30 8.26801 23.732 2 16 2ZM16 28C9.37258 28 4 22.6274 4 16C4 9.37258 9.37258 4 16 4C22.6274 4 28 9.37258 28 16C28 22.6274 22.6274 28 16 28Z"
+                d="M8 48V18C8 18 14 14 32 14C50 14 56 18 56 18V48C56 48 50 44 32 44C14 44 8 48 8 48Z"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 fill="currentColor"
-                opacity="0.15"
+                fillOpacity="0.06"
             />
-            {/* Central dynamic waves */}
+            {/* Book spine */}
             <path
-                d="M11 12C11 11.4477 11.4477 11 12 11C12.5523 11 13 11.4477 13 12V20C13 20.5523 12.5523 21 12 21C11.4477 21 11 20.5523 11 20V12Z"
-                fill="currentColor"
+                d="M32 14V44"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+            />
+            {/* Left page lines */}
+            <path
+                d="M14 24H28M14 29H26M14 34H24"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                opacity="0.5"
+            />
+            {/* Right page — speech / quotation mark */}
+            <path
+                d="M40 24C40 24 42 22 44 22C46 22 47 23.5 47 25C47 27 44 29 40 30"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                fill="none"
+            />
+            <circle cx="40" cy="31" r="1" fill="currentColor" />
+            {/* Sound waves emanating upward (organic) */}
+            <path
+                d="M22 14C22 14 24 8 28 6"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                opacity="0.6"
             />
             <path
-                d="M15 9C15 8.44772 15.4477 8 16 8C16.5523 8 17 8.44772 17 9V23C17 23.5523 16.5523 24 16 24C15.4477 24 15 23.5523 15 23V9Z"
-                fill="currentColor"
+                d="M32 14C32 14 32 7 32 4"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                opacity="0.7"
             />
             <path
-                d="M19 13C19 12.4477 19.4477 12 20 12C20.5523 12 21 12.4477 21 13V19C21 19.5523 20.5523 20 20 20C19.4477 20 19 19.5523 19 19V13Z"
-                fill="currentColor"
+                d="M42 14C42 14 40 8 36 6"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                opacity="0.6"
             />
-            {/* Organic accent leaf/drop wrapping the bottom */}
+            {/* Organic flourish wisps */}
             <path
-                d="M23 16C23 19.866 19.866 23 16 23C12.134 23 9 19.866 9 16C9 14.4984 9.47355 13.1075 10.2783 11.9682C10.7495 12.3551 11.3486 12.5833 12 12.5833C12.8795 12.5833 13.6279 12.0163 13.9167 11.2312C14.072 11.192 14.2332 11.1714 14.4 11.1714C14.9398 11.1714 15.4377 11.3537 15.8333 11.6599V21C15.8333 21.092 15.8304 21.1834 15.8247 21.2736C18.6657 20.8986 21.8333 18.5273 21.8333 16H23Z"
-                fill="currentColor"
-                opacity="0.3"
+                d="M26 8C24 5 20 4 18 6"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                opacity="0.35"
+            />
+            <path
+                d="M38 8C40 5 44 4 46 6"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                opacity="0.35"
             />
         </svg>
     );
 };
 
 export default WaveformLogo;
-
