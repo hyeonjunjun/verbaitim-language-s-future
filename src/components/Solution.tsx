@@ -31,8 +31,8 @@ const Solution = () => {
                         The Solution
                     </Text>
                     <Headline as="h2" className="mb-8 text-4xl md:text-5xl">
-                        One workflow. <br />
-                        From <span className="text-primary italic font-serif">documentation</span> to <span className="text-primary italic font-serif">learning</span>.
+                        AI-native infrastructure. <br />
+                        From <span className="text-primary italic font-serif">documentation</span> to <span className="text-primary italic font-serif">activation</span>.
                     </Headline>
 
                     <motion.div
@@ -43,7 +43,7 @@ const Solution = () => {
                         className="max-w-2xl"
                     >
                         <Text variant="lead" className="text-muted-foreground font-medium">
-                            Verb<span className="text-primary">AI</span>tim integrates AI-assisted transcription, metadata tagging, structured annotation, and language learning into a single, field-ready platform.
+                            Verb<span className="text-primary">AI</span>tim is a linguist-led, ethical AI platform that <strong>accelerates</strong> documentation, <strong>structures</strong> linguistic data, <strong>generates</strong> ready-to-use learning pathways, and <strong>preserves</strong> community ownership.
                         </Text>
                     </motion.div>
 

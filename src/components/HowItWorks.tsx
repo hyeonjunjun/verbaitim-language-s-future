@@ -7,22 +7,22 @@ const steps = [
     {
         icon: Mic,
         title: "1. Capture",
-        description: "Record field audio recordings with high metadata fidelity."
+        description: "Upload recorded speech from field sessions with high metadata fidelity."
     },
     {
         icon: Fingerprint,
-        title: "2. Structure",
-        description: "Send the recording to VerbAItim’s transcription and begin data metatagging."
+        title: "2. Transcribe",
+        description: "Generate AI-assisted draft transcription and value assignment automatically."
     },
     {
         icon: Layers,
-        title: "3. Refine",
-        description: "Edit, organize, and annotate for archiving or research reference."
+        title: "3. Structure",
+        description: "Organize metadata and linguistic structure for long-term archiving."
     },
     {
         icon: Rocket,
         title: "4. Activate",
-        description: "Send documented language data to the learning portal and generate pathways."
+        description: "Convert documentation into structured learning pathways for immediate use."
     }
 ];
 
@@ -73,4 +73,3 @@ const HowItWorks = () => {
 };
 
 export default HowItWorks;
-

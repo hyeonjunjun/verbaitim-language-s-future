@@ -14,8 +14,7 @@ const Problem = () => {
                             The Problem
                         </Text>
                         <Headline as="h2" className="text-4xl md:text-5xl lg:text-6xl tracking-tight leading-tight mb-8">
-                            Language documentation is <span className="italic font-serif opacity-90 text-primary">slow</span>. <br />
-                            Time isn't.
+                            Nearly half the world's languages are <span className="italic font-serif opacity-90 text-primary">endangered</span>.
                         </Headline>
 
                         <div className="h-px w-24 bg-border/60 hidden md:block" />
@@ -41,12 +40,12 @@ const Problem = () => {
 
                         <div className="space-y-8">
                             <Text variant="body" className="text-muted-foreground font-medium leading-relaxed">
-                                Existing tools are fragmented, manual, and built for outdated workflows. After documentation, materials must be manually rebuilt into learning resources, adding years to the process.
+                                Existing tools are fragmented, manual, not AI-native, and not built for revitalization. The manual labor pace cannot keep up with language loss.
                             </Text>
 
                             <div className="p-6 border-l-4 border-primary/30 bg-primary/5 rounded-r-xl">
                                 <Text variant="lead" className="text-card-foreground font-bold italic">
-                                    For many endangered languages, there may not be years left.
+                                    Up to 50–90% of the world's 7,000+ languages could vanish by 2100.
                                 </Text>
                             </div>
                         </div>

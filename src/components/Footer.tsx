@@ -16,10 +16,10 @@ const Footer = () => {
               <span className="font-display font-bold text-xl tracking-tight text-foreground italic">Verb<span className="text-primary font-sans not-italic">AI</span>tim</span>
             </div>
             <Text variant="body" className="max-w-xs text-sm italic font-serif leading-relaxed text-muted-foreground">
-              An ethical AI platform built with linguists and governed by communities.
+              A linguist-led, ethical AI platform that accelerates documentation and activates learning.
               <br /><br />
-              Open Research. <br />
-              Community Managed.
+              New York, NY <br />
+              Contact@VerbAItim.com
             </Text>
           </div>
 

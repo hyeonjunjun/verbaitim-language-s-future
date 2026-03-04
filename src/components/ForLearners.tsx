@@ -39,7 +39,7 @@ const ForLearners = () => {
                         For Communities & Learners
                     </Headline>
                     <Text variant="body" className="text-muted-foreground font-medium text-lg">
-                        Access newly documented language materials through structured learning pathways built on actual field research.
+                        Preserve identity, connect native speakers, and engage heritage learners through pathways built on real field research.
                     </Text>
                 </div>
 

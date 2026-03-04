@@ -11,8 +11,8 @@ const reasons = [
     },
     {
         icon: Users,
-        title: "Documentation & Education",
-        description: "Most tools stop at annotation. VerbAItim does it all—from field recording to classroom activation."
+        title: "Documentation to Activation",
+        description: "There is no other AI-native infrastructure that connects documentation, structured data, learning activation, and community connection."
     },
     {
         icon: ShieldCheck,
@@ -31,7 +31,7 @@ const WhyVerbaitim = () => {
                     </Text>
                     <Headline as="h2" className="max-w-2xl text-4xl md:text-5xl tracking-tight">
                         A specialized ecosystem <br />
-                        <span className="text-primary italic font-serif opacity-90">built around the languages that matter most.</span>
+                        <span className="text-primary italic font-serif opacity-90">built for the languages that need it most.</span>
                     </Headline>
                 </div>
 

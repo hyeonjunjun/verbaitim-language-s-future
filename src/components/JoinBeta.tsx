@@ -25,7 +25,7 @@ const JoinBeta = () => {
 
                         {/* Descriptive text ABOVE the CTA */}
                         <Text variant="lead" className="text-white/90 mb-12 max-w-2xl mx-auto italic font-serif opacity-90">
-                            If you are documenting a language or are interested in learning an endangered language, help shape the platform.
+                            Let's document language faster — so languages can keep living.
                         </Text>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">

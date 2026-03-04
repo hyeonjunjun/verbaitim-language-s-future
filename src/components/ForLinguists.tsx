@@ -13,17 +13,17 @@ const features = [
     {
         icon: FileText,
         title: "Generate draft transcriptions",
-        description: "Zero-shot transcription in the International Phonetic Alphabet (IPA) with state-of-the-art accuracy."
+        description: "AI-assisted transcription and value assignment in the International Phonetic Alphabet."
     },
     {
         icon: Database,
         title: "Organize metadata",
-        description: "Add speaker history, cultural context, and structured tags for long-term archiving."
+        description: "Structure linguistic data with speaker history, cultural context, and archival tags."
     },
     {
         icon: GraduationCap,
-        title: "Prepare research",
-        description: "Send documentation results immediately to generate structured learning pathways."
+        title: "Convert to learning pathways",
+        description: "Transform documentation into structured learning materials for immediate community use."
     }
 ];
 
@@ -40,8 +40,8 @@ const ForLinguists = () => {
                             For Field Linguists
                         </Headline>
                         <Text variant="lead" className="text-muted-foreground font-medium italic">
-                            Spend less time formatting. <br className="hidden md:block" />
-                            More time analyzing.
+                            Expedite data collection with modern tools. <br className="hidden md:block" />
+                            Save university and grant money.
                         </Text>
                     </div>
                 </div>
@@ -81,7 +81,7 @@ const ForLinguists = () => {
 
                 <div className="flex justify-center">
                     <Link
-                        to="/linguist"
+                        to="/workbench"
                         className="inline-flex items-center justify-center px-10 py-5 bg-card text-card-foreground border border-border shadow-sm rounded-2xl font-bold text-lg hover:border-primary/50 hover:bg-white hover:-translate-y-1 transition-all active:scale-95 group"
                     >
                         Enter the Workbench
