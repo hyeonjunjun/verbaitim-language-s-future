@@ -90,9 +90,9 @@ const WorkbenchPreview = () => {
                                     />
                                 </svg>
                                 {/* Playhead at ~15% */}
-                                <div className="absolute top-0 bottom-0 left-[45%] w-px bg-signal shadow-[0_0_10px_hsl(var(--signal)/0.6)]" />
+                                <div className="absolute top-0 bottom-0 left-[45%] w-px bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.6)]" />
                                 {/* Region highlight */}
-                                <div className="absolute top-0 bottom-0 left-[38%] w-[14%] bg-signal/8 border-l border-r border-signal/20" />
+                                <div className="absolute top-0 bottom-0 left-[38%] w-[14%] bg-primary/8 border-l border-r border-primary/20" />
                             </div>
 
                             {/* Data Table */}
@@ -109,7 +109,7 @@ const WorkbenchPreview = () => {
                                     </thead>
                                     <tbody className="text-sm">
                                         {SEGMENT_ROWS.map((row, i) => (
-                                            <tr key={i} className={`hover:bg-muted/50 border-b border-border font-mono text-xs ${i === 4 ? 'bg-signal/5 border-l-2 border-l-signal' : ''}`}>
+                                            <tr key={i} className={`hover:bg-muted/50 border-b border-border font-mono text-xs ${i === 4 ? 'bg-primary/5 border-l-2 border-l-primary' : ''}`}>
                                                 <td className="p-3 text-muted-foreground">{row.time}</td>
                                                 <td className="p-3 font-bold">{row.speaker}</td>
                                                 <td className="p-3 font-serif text-base tracking-wide">{row.ipa}</td>
@@ -141,3 +141,4 @@ const WorkbenchPreview = () => {
 };
 
 export default WorkbenchPreview;
+

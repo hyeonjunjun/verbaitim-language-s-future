@@ -8,7 +8,7 @@ const SovereigntyProtocol = () => {
             <Container>
                 <div className="flex flex-col md:flex-row gap-12 md:gap-24 mb-16">
                     <div className="md:w-1/3">
-                        <Text variant="caption" className="mb-4 block text-signal">
+                        <Text variant="caption" className="mb-4 block text-primary">
                             Legal Framework
                         </Text>
                         <Headline as="h2">
@@ -30,7 +30,7 @@ const SovereigntyProtocol = () => {
 
                     {/* Step 1 */}
                     <div className="border-r border-b border-border p-8 md:p-12 group hover:bg-secondary/20 transition-colors relative">
-                        <div className="mb-6 text-signal">
+                        <div className="mb-6 text-primary">
                             <ShieldCheck size={32} strokeWidth={1.5} />
                         </div>
                         <div className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -45,7 +45,7 @@ const SovereigntyProtocol = () => {
 
                     {/* Step 2 */}
                     <div className="border-r border-b border-border p-8 md:p-12 group hover:bg-secondary/20 transition-colors relative">
-                        <div className="mb-6 text-signal">
+                        <div className="mb-6 text-primary">
                             <Network size={32} strokeWidth={1.5} />
                         </div>
                         <div className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -60,7 +60,7 @@ const SovereigntyProtocol = () => {
 
                     {/* Step 3 */}
                     <div className="border-r border-b border-border p-8 md:p-12 group hover:bg-secondary/20 transition-colors relative">
-                        <div className="mb-6 text-signal">
+                        <div className="mb-6 text-primary">
                             <Database size={32} strokeWidth={1.5} />
                         </div>
                         <div className="mb-4 font-mono text-xs uppercase tracking-widest text-muted-foreground">
@@ -80,3 +80,4 @@ const SovereigntyProtocol = () => {
 };
 
 export default SovereigntyProtocol;
+

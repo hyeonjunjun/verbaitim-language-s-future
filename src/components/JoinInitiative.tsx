@@ -14,7 +14,7 @@ const JoinInitiative = () => {
                     </div>
 
                     <Headline as="h2" className="mb-8 text-white">
-                        Join the <span className="text-signal">federation</span>.
+                        Join the <span className="text-primary">federation</span>.
                     </Headline>
 
                     <Text variant="lead" className="text-background/70 mb-12">
@@ -26,9 +26,9 @@ const JoinInitiative = () => {
                         <input
                             type="email"
                             placeholder="institute@university.edu"
-                            className="flex-1 bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/30 focus:outline-none focus:border-signal transition-colors font-mono text-sm"
+                            className="flex-1 bg-background/10 border border-background/20 px-4 py-3 text-background placeholder:text-background/30 focus:outline-none focus:border-primary transition-colors font-mono text-sm"
                         />
-                        <button className="bg-signal text-white px-8 py-3 font-mono text-sm uppercase tracking-wider hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                        <button className="bg-primary text-white px-8 py-3 font-mono text-sm uppercase tracking-wider hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
                             Request Access <ArrowRight size={16} />
                         </button>
                     </div>
@@ -43,3 +43,4 @@ const JoinInitiative = () => {
 };
 
 export default JoinInitiative;
+

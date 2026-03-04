@@ -186,9 +186,9 @@ const CorpusLibrary = () => {
                     </div>
                     <button
                         onClick={() => navigate("/workbench/editor")}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-signal text-white rounded-xl text-sm font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-base font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20"
                     >
-                        <Plus size={16} /> New Corpus
+                        <Plus size={18} /> New Corpus
                     </button>
                 </div>
 
@@ -201,7 +201,7 @@ const CorpusLibrary = () => {
                             placeholder="Search corpora by name or language…"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full bg-card border border-border rounded-xl py-2.5 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-signal/30 transition-all"
+                            className="w-full bg-card border border-border rounded-full py-3 pl-11 pr-4 text-sm font-medium text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
                         />
                     </div>
 
@@ -210,9 +210,9 @@ const CorpusLibrary = () => {
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${activeFilter === filter
-                                    ? "bg-signal/15 text-signal border border-signal/30 shadow-inner"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                                className={`px-4 py-2 rounded-[0.85rem] text-xs font-bold transition-all ${activeFilter === filter
+                                    ? "bg-primary/10 text-primary border border-primary/20 shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-accent/50 border border-transparent"
                                     }`}
                             >
                                 {filter}
@@ -242,87 +242,91 @@ const CorpusLibrary = () => {
                                 <button
                                     key={corpus.id}
                                     onClick={() => navigate("/workbench/editor")}
-                                    className="text-left bg-card border border-border rounded-2xl p-6 hover:border-signal/30 hover:shadow-lg transition-all duration-300 group"
+                                    className="text-left bg-card border border-border rounded-[1.5rem] p-6 hover:border-primary/40 hover:shadow-lg transition-all duration-300 group shadow-sm flex flex-col justify-between h-full"
                                 >
-                                    {/* Header */}
-                                    <div className="flex items-start justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-xl bg-signal/10 border border-signal/20 flex items-center justify-center text-signal group-hover:scale-110 transition-transform shadow-inner">
-                                                <Database size={18} />
+                                    <div>
+                                        {/* Header */}
+                                        <div className="flex items-start justify-between mb-5">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-2xl bg-primary/5 border border-primary/15 flex items-center justify-center text-primary group-hover:scale-105 transition-transform shadow-sm">
+                                                    <Database size={20} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-base text-card-foreground group-hover:text-primary transition-colors">
+                                                        {corpus.name}
+                                                    </h3>
+                                                    <p className="text-[10px] text-muted-foreground/80 font-mono uppercase tracking-widest mt-0.5">
+                                                        {corpus.language} · {corpus.languageCode}
+                                                    </p>
+                                                    {/* Glottolog endangerment badge */}
+                                                    {glottologData[corpus.languageCode] && (
+                                                        <span className={`inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border mt-0.5 ${ENDANGERMENT_COLOURS[glottologData[corpus.languageCode]!.endangerment]
+                                                            }`}>
+                                                            <ShieldAlert size={8} />
+                                                            {glottologData[corpus.languageCode]!.endangerment}
+                                                        </span>
+                                                    )}
+                                                </div>
                                             </div>
-                                            <div>
-                                                <h3 className="font-bold text-sm text-foreground group-hover:text-signal transition-colors">
-                                                    {corpus.name}
-                                                </h3>
-                                                <p className="text-[10px] text-muted-foreground/60 font-mono uppercase tracking-wider">
-                                                    {corpus.language} · {corpus.languageCode}
-                                                </p>
-                                                {/* Glottolog endangerment badge */}
-                                                {glottologData[corpus.languageCode] && (
-                                                    <span className={`inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border mt-0.5 ${ENDANGERMENT_COLOURS[glottologData[corpus.languageCode]!.endangerment]
-                                                        }`}>
-                                                        <ShieldAlert size={8} />
-                                                        {glottologData[corpus.languageCode]!.endangerment}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        </div>
-                                        <ArrowUpRight
-                                            size={14}
-                                            className="text-muted-foreground/30 group-hover:text-signal transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                                        />
-                                    </div>
-
-                                    {/* Description */}
-                                    <p className="text-xs text-muted-foreground/70 mb-5 line-clamp-2 leading-relaxed">
-                                        {corpus.description}
-                                    </p>
-
-                                    {/* Stats Row */}
-                                    <div className="flex items-center gap-4 mb-4 text-[10px] text-muted-foreground/60 font-mono">
-                                        <span className="flex items-center gap-1">
-                                            <Users size={10} /> {corpus.speakers}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <FileAudio size={10} /> {corpus.recordings}
-                                        </span>
-                                        <span className="flex items-center gap-1">
-                                            <Calendar size={10} /> {corpus.lastModified}
-                                        </span>
-                                        {glottologData[corpus.languageCode] && (
-                                            <span className="flex items-center gap-1 text-muted-foreground/40">
-                                                <Globe size={10} /> {glottologData[corpus.languageCode]!.family}
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    {/* Progress */}
-                                    <div className="mb-3">
-                                        <div className="flex items-center justify-between mb-1.5">
-                                            <span className="text-[10px] font-mono text-muted-foreground/50">
-                                                {corpus.transcribedSegments}/{corpus.totalSegments} segments
-                                            </span>
-                                            <span className="text-[10px] font-mono font-bold text-signal">
-                                                {progress}%
-                                            </span>
-                                        </div>
-                                        <div className="h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
-                                            <div
-                                                className="h-full bg-signal rounded-full transition-all duration-500"
-                                                style={{ width: `${progress}%` }}
+                                            <ArrowUpRight
+                                                size={18}
+                                                className="text-muted-foreground/30 group-hover:text-primary transition-all group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                                             />
                                         </div>
-                                    </div>
 
-                                    {/* Status Badge */}
-                                    <div className="flex items-center justify-end">
-                                        <span
-                                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusStyle(
-                                                corpus.status
-                                            )}`}
-                                        >
-                                            {corpus.status}
-                                        </span>
+                                        {/* Description */}
+                                        <p className="text-[13px] font-medium text-muted-foreground mb-6 line-clamp-2 leading-relaxed">
+                                            {corpus.description}
+                                        </p>
+                                    </div>
+                                    <div>
+
+                                        {/* Stats Row */}
+                                        <div className="flex items-center gap-4 mb-4 text-[10px] text-muted-foreground/60 font-mono">
+                                            <span className="flex items-center gap-1">
+                                                <Users size={10} /> {corpus.speakers}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <FileAudio size={10} /> {corpus.recordings}
+                                            </span>
+                                            <span className="flex items-center gap-1">
+                                                <Calendar size={10} /> {corpus.lastModified}
+                                            </span>
+                                            {glottologData[corpus.languageCode] && (
+                                                <span className="flex items-center gap-1 text-muted-foreground/40">
+                                                    <Globe size={10} /> {glottologData[corpus.languageCode]!.family}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Progress */}
+                                        <div className="mb-4">
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-[10px] font-mono text-muted-foreground/60 font-bold uppercase tracking-widest">
+                                                    {corpus.transcribedSegments}/{corpus.totalSegments} segments
+                                                </span>
+                                                <span className="text-[11px] font-mono font-bold text-primary">
+                                                    {progress}%
+                                                </span>
+                                            </div>
+                                            <div className="h-2 bg-secondary rounded-full overflow-hidden shadow-inner">
+                                                <div
+                                                    className="h-full bg-primary rounded-full transition-all duration-500"
+                                                    style={{ width: `${progress}%` }}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Status Badge */}
+                                        <div className="flex items-center justify-end">
+                                            <span
+                                                className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${statusStyle(
+                                                    corpus.status
+                                                )}`}
+                                            >
+                                                {corpus.status}
+                                            </span>
+                                        </div>
                                     </div>
                                 </button>
                             );

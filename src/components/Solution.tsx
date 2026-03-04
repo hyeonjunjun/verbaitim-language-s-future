@@ -13,7 +13,7 @@ const Solution = () => {
                     {IPA_CHARACTERS.map((char, i) => (
                         <span
                             key={i}
-                            className="absolute font-reading text-signal/[0.06] font-medium"
+                            className="absolute font-reading text-primary/[0.06] font-medium"
                             style={{
                                 fontSize: `${32 + (i % 4) * 16}px`,
                                 top: `${8 + (i * 7.5) % 85}%`,
@@ -26,13 +26,13 @@ const Solution = () => {
                     ))}
                 </div>
 
-                <div className="max-w-4xl">
-                    <Text variant="caption" className="mb-6 block text-signal font-semibold">
+                <div className="max-w-4xl tracking-tight">
+                    <Text variant="caption" className="mb-6 block text-primary font-bold tracking-widest uppercase">
                         The Solution
                     </Text>
-                    <Headline as="h2" className="mb-8">
+                    <Headline as="h2" className="mb-8 text-4xl md:text-5xl">
                         One workflow. <br />
-                        From <span className="text-signal">documentation</span> to <span className="text-signal">learning</span>.
+                        From <span className="text-primary italic font-serif">documentation</span> to <span className="text-primary italic font-serif">learning</span>.
                     </Headline>
 
                     <motion.div
@@ -42,8 +42,8 @@ const Solution = () => {
                         transition={{ duration: 0.8 }}
                         className="max-w-2xl"
                     >
-                        <Text variant="lead" className="text-foreground/90 font-medium">
-                            VerbAItim integrates AI-assisted transcription, metadata tagging, structured annotation, and language learning into a single, field-ready platform.
+                        <Text variant="lead" className="text-muted-foreground font-medium">
+                            Verb<span className="text-primary">AI</span>tim integrates AI-assisted transcription, metadata tagging, structured annotation, and language learning into a single, field-ready platform.
                         </Text>
                     </motion.div>
 
@@ -67,17 +67,17 @@ const Solution = () => {
                                     <span className="text-xs text-muted-foreground font-mono">verbaitim.app/workbench</span>
                                 </div>
                             </div>
-                            {/* Screenshot placeholder — mock workbench UI */}
-                            <div className="bg-[#1a1a2e] p-8 min-h-[320px] flex gap-6">
+                            {/* Screenshot placeholder — mock workbench UI (Light mode) */}
+                            <div className="bg-[#FDFCFB] p-8 min-h-[320px] flex gap-6">
                                 {/* Sidebar mock */}
                                 <div className="w-48 space-y-4 flex-shrink-0 hidden md:block">
                                     <div className="flex items-center gap-2 mb-6">
-                                        <div className="w-4 h-4 rounded-sm bg-signal/80" />
-                                        <span className="text-white/80 text-sm font-semibold">VerbAItim</span>
+                                        <div className="w-4 h-4 rounded-sm bg-primary/80" />
+                                        <span className="text-card-foreground font-bold text-sm italic">VerbAItim</span>
                                     </div>
                                     {['Overview', 'Live Editor', 'Corpus Library', 'History'].map((item, i) => (
-                                        <div key={item} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${i === 1 ? 'bg-signal/20 text-signal' : 'text-white/40'}`}>
-                                            <div className={`w-3 h-3 rounded ${i === 1 ? 'bg-signal/40' : 'bg-white/10'}`} />
+                                        <div key={item} className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold ${i === 1 ? 'bg-primary/10 text-primary border border-primary/20' : 'text-muted-foreground'}`}>
+                                            <div className={`w-3 h-3 rounded ${i === 1 ? 'bg-primary/40' : 'bg-muted-foreground/30'}`} />
                                             {item}
                                         </div>
                                     ))}
@@ -85,28 +85,28 @@ const Solution = () => {
                                 {/* Main content mock */}
                                 <div className="flex-1 space-y-4">
                                     {/* Waveform */}
-                                    <div className="bg-white/5 rounded-xl p-4 border border-white/10">
+                                    <div className="bg-white rounded-[1.5rem] p-4 border shadow-sm">
                                         <div className="flex items-end gap-[3px] h-12 justify-center">
                                             {Array.from({ length: 48 }).map((_, i) => (
                                                 <div
                                                     key={i}
-                                                    className="w-1 bg-signal/60 rounded-full"
+                                                    className="w-1 bg-primary/60 rounded-full"
                                                     style={{ height: `${12 + Math.sin(i * 0.5) * 20 + Math.random() * 15}px` }}
                                                 />
                                             ))}
                                         </div>
                                     </div>
                                     {/* Transcription rows */}
-                                    <div className="bg-white/5 rounded-xl border border-white/10 overflow-hidden">
-                                        <div className="text-[10px] text-white/30 font-mono uppercase tracking-wider px-4 pt-4 pb-2">IPA Transcription · Lakota_FieldSession_042</div>
+                                    <div className="bg-white rounded-[1.5rem] border shadow-sm overflow-hidden">
+                                        <div className="text-[10px] text-muted-foreground/60 font-mono font-bold uppercase tracking-widest px-4 pt-4 pb-2 border-b border-border/50">IPA Transcription · Lakota_FieldSession_042</div>
                                         <table className="w-full text-xs">
                                             <thead>
-                                                <tr className="text-[9px] font-mono text-white/25 uppercase tracking-wider border-b border-white/10">
-                                                    <td className="px-4 py-1.5">Time</td>
-                                                    <td className="px-3 py-1.5">Spkr</td>
-                                                    <td className="px-3 py-1.5">IPA</td>
-                                                    <td className="px-3 py-1.5 hidden md:table-cell">Gloss</td>
-                                                    <td className="px-3 py-1.5">Conf</td>
+                                                <tr className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider border-b border-border/50 bg-muted/20">
+                                                    <td className="px-5 py-2">Time</td>
+                                                    <td className="px-3 py-2">Spkr</td>
+                                                    <td className="px-3 py-2">IPA</td>
+                                                    <td className="px-3 py-2 hidden md:table-cell">Gloss</td>
+                                                    <td className="px-3 py-2">Conf</td>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -117,13 +117,13 @@ const Solution = () => {
                                                     { t: "0:34", sp: "EF_01", ipa: "wóokiye čha uŋspékhičhiyapi", en: "They taught us to pray", conf: "high" },
                                                     { t: "0:47", sp: "EF_02", ipa: "táku eháŋni uŋkáǧapi", en: "What we made long ago", conf: "med" },
                                                 ].map((row, i) => (
-                                                    <tr key={i} className={`border-b border-white/5 ${i === 1 ? 'bg-signal/10' : ''}`}>
-                                                        <td className="px-4 py-2 font-mono text-white/40">{row.t}</td>
-                                                        <td className="px-3 py-2 font-bold text-white/60">{row.sp}</td>
-                                                        <td className="px-3 py-2 font-mono text-signal/90 tracking-wide">{row.ipa}</td>
-                                                        <td className="px-3 py-2 text-white/40 italic hidden md:table-cell">{row.en}</td>
-                                                        <td className="px-3 py-2">
-                                                            <div className={`h-1 rounded-full w-10 ${row.conf === 'high' ? 'bg-emerald-400/70' : 'bg-yellow-400/50'}`} />
+                                                    <tr key={i} className={`border-b border-border/50 ${i === 1 ? 'bg-primary/5' : ''}`}>
+                                                        <td className="px-5 py-2.5 font-mono text-muted-foreground/60">{row.t}</td>
+                                                        <td className="px-3 py-2.5 font-bold text-card-foreground/80">{row.sp}</td>
+                                                        <td className="px-3 py-2.5 font-mono font-bold text-primary tracking-wide">{row.ipa}</td>
+                                                        <td className="px-3 py-2.5 text-muted-foreground italic hidden md:table-cell">{row.en}</td>
+                                                        <td className="px-3 py-2.5">
+                                                            <div className={`h-1.5 rounded-full w-10 shadow-inner ${row.conf === 'high' ? 'bg-sage/80' : 'bg-ochre/80'}`} />
                                                         </td>
                                                     </tr>
                                                 ))}

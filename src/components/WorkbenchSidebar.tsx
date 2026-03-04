@@ -56,12 +56,12 @@ const WorkbenchSidebar = () => {
             </div>
 
             {/* Sidebar Header — warm gradient swatch */}
-            <div className="h-14 flex items-center px-5 border-b border-border relative bg-gradient-to-r from-signal/8 via-transparent to-transparent shrink-0">
+            <div className="h-16 flex items-center px-5 border-b border-border relative bg-gradient-to-r from-primary/5 via-transparent to-transparent shrink-0">
                 {/* Subtle left accent stripe */}
-                <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-gradient-to-b from-signal/60 via-signal/20 to-transparent" />
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary/40 via-primary/10 to-transparent" />
                 <Link to="/" className="flex items-center gap-3 group relative z-10">
-                    <WaveformLogo size={20} />
-                    <span className="font-display font-bold text-lg tracking-tight text-foreground italic">VerbAItim</span>
+                    <WaveformLogo size={22} />
+                    <span className="font-display font-bold text-lg tracking-tight text-foreground italic">Verb<span className="text-primary font-sans not-italic">AI</span>tim</span>
                 </Link>
             </div>
 
@@ -73,9 +73,9 @@ const WorkbenchSidebar = () => {
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group relative overflow-hidden ${isActive
-                                    ? "bg-signal/12 text-signal shadow-sm border border-signal/15"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                            className={`flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200 group relative overflow-hidden ${isActive
+                                ? "bg-primary/10 text-primary shadow-sm border border-primary/20"
+                                : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
                                 }`}
                         >
                             {/* Active shimmer sweep */}
@@ -84,15 +84,15 @@ const WorkbenchSidebar = () => {
                             )}
                             <div className="flex items-center gap-3 relative z-10">
                                 <item.icon
-                                    size={17}
+                                    size={18}
                                     className={isActive
-                                        ? "text-signal"
-                                        : "text-muted-foreground group-hover:text-foreground transition-colors"}
+                                        ? "text-primary"
+                                        : "text-muted-foreground group-hover:text-primary transition-colors"}
                                 />
                                 <span className="tracking-tight">{item.name}</span>
                             </div>
                             {isActive && (
-                                <ChevronRight size={13} className="text-signal/60 relative z-10 shrink-0" />
+                                <ChevronRight size={14} className="text-primary/60 relative z-10 shrink-0" />
                             )}
                         </Link>
                     );
@@ -126,17 +126,17 @@ const WorkbenchSidebar = () => {
             </div>
 
             {/* Footer Navigation */}
-            <div className="p-3 border-t border-border space-y-0.5 mt-auto relative z-10 bg-gradient-to-t from-muted/20 to-transparent">
+            <div className="p-3 border-t border-border space-y-0.5 mt-auto relative z-10 bg-gradient-to-t from-secondary/10 to-transparent">
                 <Link
                     to="/workbench/settings"
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${location.pathname === "/workbench/settings"
-                            ? "bg-signal/12 text-signal border border-signal/15"
-                            : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
+                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all ${location.pathname === "/workbench/settings"
+                        ? "bg-primary/10 text-primary border border-primary/20"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/40"
                         }`}
                 >
                     <Settings
-                        size={17}
-                        className={location.pathname === "/workbench/settings" ? "text-signal" : "text-muted-foreground"}
+                        size={18}
+                        className={location.pathname === "/workbench/settings" ? "text-primary" : "text-muted-foreground"}
                     />
                     Settings
                 </Link>

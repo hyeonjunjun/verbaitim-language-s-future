@@ -100,14 +100,14 @@ const WorkbenchDashboard = () => {
                     </div>
                     {/* Live backend status */}
                     <div className="text-right">
-                        <p className="text-xs text-muted-foreground/60 uppercase tracking-widest font-bold">System Status</p>
-                        <p className={`text-sm font-mono flex items-center gap-2 justify-end font-bold mt-1 ${backendStatus === "online" ? "text-signal"
-                                : backendStatus === "checking" ? "text-muted-foreground"
-                                    : "text-ochre"
+                        <p className="text-xs text-muted-foreground/80 uppercase tracking-widest font-bold">System Status</p>
+                        <p className={`text-sm font-mono flex items-center gap-2 justify-end font-bold mt-1 ${backendStatus === "online" ? "text-primary"
+                            : backendStatus === "checking" ? "text-muted-foreground"
+                                : "text-ochre"
                             }`}>
-                            <span className={`w-2 h-2 rounded-full ${backendStatus === "online" ? "bg-signal animate-pulse shadow-[0_0_8px_rgba(var(--signal),0.5)]"
-                                    : backendStatus === "checking" ? "bg-muted-foreground animate-pulse"
-                                        : "bg-ochre"
+                            <span className={`w-2 h-2 rounded-full ${backendStatus === "online" ? "bg-primary animate-pulse shadow-[0_0_8px_rgba(var(--primary),0.5)]"
+                                : backendStatus === "checking" ? "bg-muted-foreground animate-pulse"
+                                    : "bg-ochre"
                                 }`} />
                             {statusLabel}
                         </p>
@@ -144,20 +144,20 @@ const WorkbenchDashboard = () => {
                     ].map((stat) => (
                         <div
                             key={stat.label}
-                            className="relative bg-card border border-border p-6 rounded-2xl shadow-sm hover:border-signal/30 hover:shadow-md hover:shadow-signal/5 transition-all duration-300 group overflow-hidden"
+                            className="relative bg-card border border-border p-6 rounded-3xl shadow-sm hover:border-primary/30 hover:shadow-md hover:shadow-primary/5 transition-all duration-300 group overflow-hidden"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-br from-signal/4 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                            <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-signal/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                            <div className="absolute bottom-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
                             <div className="flex items-center justify-between mb-4 relative z-10">
-                                <div className="p-2.5 bg-signal/10 text-signal rounded-xl group-hover:scale-110 group-hover:bg-signal/15 transition-all shadow-inner">
-                                    <stat.icon size={19} />
+                                <div className="p-3 bg-primary/10 text-primary rounded-2xl group-hover:-translate-y-1 group-hover:bg-primary/15 transition-all border border-primary/20">
+                                    <stat.icon size={20} />
                                 </div>
-                                <div className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-wider text-right max-w-[80px] leading-tight">
+                                <div className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-wider text-right max-w-[80px] leading-tight">
                                     {stat.trend}
                                 </div>
                             </div>
-                            <h3 className="text-2xl font-bold text-foreground mb-1 tracking-tight relative z-10">
+                            <h3 className="text-3xl font-bold text-foreground mb-1 tracking-tight relative z-10">
                                 {stat.value}
                             </h3>
                             <p className="text-xs text-muted-foreground font-medium relative z-10">{stat.label}</p>
@@ -173,19 +173,19 @@ const WorkbenchDashboard = () => {
                         {/* Active file banner */}
                         {hasActiveFile && (
                             <div
-                                className="flex items-center justify-between p-4 bg-signal/8 border border-signal/20 rounded-xl cursor-pointer hover:bg-signal/12 transition-all group"
+                                className="flex items-center justify-between p-5 bg-primary/5 border border-primary/20 rounded-3xl cursor-pointer hover:bg-primary/10 transition-all group"
                                 onClick={() => navigate("/workbench/editor")}
                             >
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-lg bg-signal/15 text-signal flex items-center justify-center">
-                                        <Wand2 size={16} />
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-2xl bg-primary/10 text-primary flex items-center justify-center border border-primary/20 shadow-sm">
+                                        <Wand2 size={18} />
                                     </div>
                                     <div>
-                                        <p className="text-sm font-bold text-foreground">{fileName}</p>
-                                        <p className="text-[10px] text-signal/70 uppercase tracking-wider">Active file · Click to open in editor</p>
+                                        <p className="text-base font-bold text-foreground">{fileName}</p>
+                                        <p className="text-xs text-primary/80 uppercase tracking-widest font-bold mt-0.5">Active file · Click to open in editor</p>
                                     </div>
                                 </div>
-                                <ArrowUpRight size={16} className="text-signal/50 group-hover:text-signal transition-colors" />
+                                <ArrowUpRight size={20} className="text-primary/50 group-hover:text-primary transition-colors" />
                             </div>
                         )}
 
@@ -196,7 +196,7 @@ const WorkbenchDashboard = () => {
                                 {sessions.length > 0 && (
                                     <button
                                         onClick={() => navigate("/workbench/history")}
-                                        className="text-xs text-muted-foreground hover:text-signal transition-colors font-medium flex items-center gap-1"
+                                        className="text-xs text-muted-foreground hover:text-primary transition-colors font-medium flex items-center gap-1"
                                     >
                                         View All <ArrowUpRight size={12} />
                                     </button>
@@ -215,7 +215,7 @@ const WorkbenchDashboard = () => {
                                     </p>
                                     <button
                                         onClick={() => navigate("/workbench/record")}
-                                        className="flex items-center gap-2 px-4 py-2 bg-signal text-white rounded-xl text-xs font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20"
+                                        className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-xl text-xs font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20"
                                     >
                                         <Mic size={13} /> Start Recording
                                     </button>
@@ -226,27 +226,27 @@ const WorkbenchDashboard = () => {
                                         <div
                                             key={sess.id}
                                             onClick={() => navigate("/workbench/editor")}
-                                            className="flex items-center justify-between p-4 bg-card border border-border/70 rounded-xl hover:bg-background hover:border-signal/30 transition-all cursor-pointer group"
+                                            className="flex items-center justify-between p-5 bg-card border border-border rounded-2xl hover:bg-white hover:border-primary/30 transition-all cursor-pointer group shadow-sm"
                                         >
                                             <div className="flex items-center gap-4 min-w-0">
-                                                <div className="h-10 w-10 bg-signal/8 border border-signal/15 flex items-center justify-center rounded-xl text-signal shrink-0 group-hover:scale-105 transition-transform">
-                                                    <Mic size={16} />
+                                                <div className="h-12 w-12 bg-primary/5 border border-primary/15 flex items-center justify-center rounded-[1.25rem] text-primary shrink-0 group-hover:scale-105 transition-transform">
+                                                    <Mic size={20} />
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="text-sm font-semibold text-foreground truncate">{sess.fileName}</p>
-                                                    <p className="text-[10px] text-muted-foreground/60 uppercase tracking-tighter font-mono">
-                                                        {sess.language.toUpperCase()} · {sess.segmentCount} seg · {sess.avgConfidence}% conf · {formatDuration(sess.durationSeconds)}
+                                                    <p className="text-base font-bold text-foreground truncate">{sess.fileName}</p>
+                                                    <p className="text-xs text-muted-foreground/80 font-medium">
+                                                        {sess.language.toUpperCase()} · {sess.segmentCount} segments
                                                     </p>
                                                 </div>
                                             </div>
                                             <div className="text-right shrink-0 ml-3">
-                                                <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border mb-1 ${sess.model.includes("Mock")
-                                                        ? "bg-ochre/10 text-ochre border-ochre/20"
-                                                        : "bg-sage/10 text-sage border-sage/20"
+                                                <div className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border mb-1.5 ${sess.model.includes("Mock")
+                                                    ? "bg-ochre/10 text-ochre border-ochre/20"
+                                                    : "bg-sage/10 text-sage border-sage/20"
                                                     }`}>
                                                     {sess.model.includes("Mock") ? "Lite" : "Full"}
                                                 </div>
-                                                <p className="text-[10px] text-muted-foreground/50 font-mono">
+                                                <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest">
                                                     {formatDistanceToNow(new Date(sess.createdAt), { addSuffix: true })}
                                                 </p>
                                             </div>
@@ -271,17 +271,17 @@ const WorkbenchDashboard = () => {
                                     <button
                                         key={action.label}
                                         onClick={() => navigate(action.path)}
-                                        className={`relative overflow-hidden flex flex-col items-start p-4 border rounded-xl transition-all text-left group active:scale-95 ${action.primary
-                                                ? "bg-signal text-signal-foreground border-signal/20 shadow-lg shadow-signal/20 hover:shadow-xl hover:shadow-signal/30"
-                                                : "bg-card border-border hover:border-signal/40 hover:bg-signal/5"
+                                        className={`relative overflow-hidden flex flex-col items-start p-5 border rounded-2xl transition-all text-left group active:scale-95 ${action.primary
+                                            ? "bg-primary text-primary-foreground border-primary/20 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                                            : "bg-card border-border hover:border-primary/40 hover:bg-primary/5 hover:shadow-sm"
                                             }`}
                                     >
-                                        <span className={`absolute inset-0 shimmer ${action.primary ? "opacity-30 group-hover:opacity-60" : "opacity-0 group-hover:opacity-100"} transition-opacity`} />
-                                        <div className={`mb-3 transition-colors relative z-10 ${action.primary ? "text-white/80 group-hover:text-white" : "text-muted-foreground group-hover:text-signal"}`}>
+                                        <span className={`absolute inset-0 shimmer ${action.primary ? "opacity-30 group-hover:opacity-60" : "opacity-0 group-hover:opacity-100"} transition-opacity pointer-events-none`} />
+                                        <div className={`mb-4 p-2.5 rounded-xl transition-colors relative z-10 ${action.primary ? "bg-white/10 text-white" : "bg-secondary text-primary group-hover:bg-primary/10 border border-transparent group-hover:border-primary/20"}`}>
                                             <action.icon size={20} />
                                         </div>
-                                        <p className={`font-bold text-sm mb-1 relative z-10 ${action.primary ? "text-white" : "text-foreground"}`}>{action.label}</p>
-                                        <p className={`text-[10px] relative z-10 ${action.primary ? "text-white/70" : "text-muted-foreground"}`}>{action.desc}</p>
+                                        <p className={`font-bold text-base mb-1 relative z-10 ${action.primary ? "text-white" : "text-foreground"}`}>{action.label}</p>
+                                        <p className={`text-xs font-medium relative z-10 ${action.primary ? "text-white/80" : "text-muted-foreground"}`}>{action.desc}</p>
                                     </button>
                                 ))}
                             </div>
@@ -302,19 +302,19 @@ const WorkbenchDashboard = () => {
                                         ];
                                     })().map((row) => (
                                         <div key={row.label}>
-                                            <div className="flex items-center justify-between mb-1.5">
-                                                <span className="text-xs font-semibold text-foreground">{row.label}</span>
-                                                <span className="text-xs text-signal font-mono font-bold">{row.value}</span>
+                                            <div className="flex items-center justify-between mb-2">
+                                                <span className="text-sm font-bold text-foreground">{row.label}</span>
+                                                <span className="text-sm text-primary font-mono font-bold">{row.value}</span>
                                             </div>
-                                            <div className="h-1.5 bg-muted rounded-full overflow-hidden shadow-inner">
+                                            <div className="h-2 bg-secondary rounded-full overflow-hidden shadow-inner">
                                                 <div
-                                                    className="h-full bg-gradient-to-r from-signal to-signal/60 rounded-full transition-all duration-700"
+                                                    className="h-full bg-gradient-to-r from-primary to-primary/60 rounded-full transition-all duration-700"
                                                     style={{ width: `${row.pct}%` }}
                                                 />
                                             </div>
                                         </div>
                                     ))}
-                                    <p className="text-[10px] text-muted-foreground/50 font-mono italic mt-2">
+                                    <p className="text-[10px] text-muted-foreground font-medium italic mt-2">
                                         Start the Python backend to get Full mode transcriptions.
                                     </p>
                                 </div>
@@ -328,3 +328,4 @@ const WorkbenchDashboard = () => {
 };
 
 export default WorkbenchDashboard;
+

@@ -32,13 +32,13 @@ const ForLearners = () => {
         <Section id="learners" className="bg-background">
             <Container>
                 <div className="mb-20 text-center max-w-3xl mx-auto">
-                    <Text variant="caption" className="mb-6 block text-signal font-semibold">
+                    <Text variant="caption" className="mb-6 block text-primary font-bold tracking-widest uppercase">
                         Activating the next speaker
                     </Text>
-                    <Headline as="h2" className="mb-8">
+                    <Headline as="h2" className="mb-8 text-4xl md:text-5xl tracking-tight">
                         For Communities & Learners
                     </Headline>
-                    <Text variant="body" className="text-foreground/85">
+                    <Text variant="body" className="text-muted-foreground font-medium text-lg">
                         Access newly documented language materials through structured learning pathways built on actual field research.
                     </Text>
                 </div>
@@ -51,16 +51,16 @@ const ForLearners = () => {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="flex gap-6 p-8 rounded-2xl bg-secondary/20 border border-transparent hover:border-signal/10 hover:bg-card transition-all shadow-sm"
+                            className="flex gap-6 p-8 rounded-3xl bg-white border border-border/50 hover:border-primary/20 hover:shadow-md transition-all group"
                         >
-                            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-signal text-white flex items-center justify-center">
-                                <path.icon size={22} />
+                            <div className="flex-shrink-0 w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:-translate-y-1 transition-transform">
+                                <path.icon size={24} />
                             </div>
                             <div>
-                                <h3 className="font-display text-xl font-semibold mb-2 text-foreground">
+                                <h3 className="font-display text-xl font-bold mb-2 text-card-foreground">
                                     {path.title}
                                 </h3>
-                                <Text className="text-base text-muted-foreground italic serif-italic">
+                                <Text className="text-base text-muted-foreground font-medium">
                                     {path.description}
                                 </Text>
                             </div>
@@ -76,46 +76,49 @@ const ForLearners = () => {
                     transition={{ duration: 0.8 }}
                     className="mb-16 flex justify-center"
                 >
-                    <div className="relative w-full max-w-2xl rounded-3xl bg-gradient-to-br from-signal/5 via-signal/10 to-signal/5 border border-signal/10 p-12 flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full max-w-2xl rounded-3xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-primary/10 p-12 flex items-center justify-center overflow-hidden">
                         {/* Abstract learning community illustration via CSS */}
                         <div className="flex items-end gap-6">
                             {/* Person silhouettes as abstract circles */}
                             {[
-                                { size: 'w-14 h-14', color: 'bg-signal/30', label: 'ə' },
-                                { size: 'w-16 h-16', color: 'bg-signal/50', label: 'ŋ' },
-                                { size: 'w-20 h-20', color: 'bg-signal/40', label: 'ɪ' },
-                                { size: 'w-16 h-16', color: 'bg-signal/60', label: 'ʃ' },
-                                { size: 'w-12 h-12', color: 'bg-signal/25', label: 'æ' },
+                                { size: 'w-14 h-14', color: 'bg-primary/30', label: 'ə' },
+                                { size: 'w-16 h-16', color: 'bg-primary/50', label: 'ŋ' },
+                                { size: 'w-20 h-20', color: 'bg-primary/40', label: 'ɪ' },
+                                { size: 'w-16 h-16', color: 'bg-primary/60', label: 'ʃ' },
+                                { size: 'w-12 h-12', color: 'bg-primary/25', label: 'æ' },
                             ].map((person, i) => (
                                 <div key={i} className="flex flex-col items-center gap-2">
-                                    <div className={`${person.size} ${person.color} rounded-full flex items-center justify-center`}>
-                                        <span className="font-reading text-white/80 text-lg font-medium">{person.label}</span>
+                                    <div className={`${person.size} ${person.color} rounded-full flex items-center justify-center shadow-inner border border-white/20`}>
+                                        <span className="font-reading text-white/90 text-xl font-bold">{person.label}</span>
                                     </div>
-                                    <div className={`h-1 w-8 ${person.color} rounded-full`} />
+                                    <div className={`h-1.5 w-8 ${person.color} rounded-full`} />
                                 </div>
                             ))}
                         </div>
                         {/* Decorative connecting lines */}
-                        <div className="absolute inset-0 pointer-events-none opacity-20">
+                        <div className="absolute inset-0 pointer-events-none opacity-[0.15]">
                             <svg className="w-full h-full" viewBox="0 0 600 200" fill="none">
-                                <path d="M100 100 Q200 40 300 100 Q400 160 500 100" stroke="currentColor" strokeWidth="1" className="text-signal" />
-                                <path d="M50 130 Q250 60 350 130 Q450 180 550 80" stroke="currentColor" strokeWidth="0.5" className="text-signal" />
+                                <path d="M100 100 Q200 40 300 100 Q400 160 500 100" stroke="currentColor" strokeWidth="1.5" className="text-primary" />
+                                <path d="M50 130 Q250 60 350 130 Q450 180 550 80" stroke="currentColor" strokeWidth="1" className="text-primary" />
                             </svg>
                         </div>
                     </div>
                 </motion.div>
 
-                <div className="text-center bg-accent/30 p-12 rounded-3xl border border-accent">
-                    <Text variant="lead" className="max-w-2xl mx-auto text-foreground italic serif-italic mb-8">
-                        Language documentation should not end in an archive. <br />
-                        <span className="text-signal not-italic font-bold">Activate the next speaker.</span>
-                    </Text>
-                    <Link
-                        to="/learner"
-                        className="inline-flex items-center justify-center px-10 py-4 bg-background border border-signal text-signal rounded-full font-display font-bold text-lg hover:bg-signal hover:text-white transition-all active:scale-95 shadow-sm"
-                    >
-                        Explore the Learning Hub
-                    </Link>
+                <div className="text-center bg-primary/5 p-16 rounded-[2.5rem] border border-primary/20 shadow-sm relative overflow-hidden group">
+                    <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-out" />
+                    <div className="relative z-10">
+                        <Text variant="lead" className="max-w-2xl mx-auto text-card-foreground italic font-serif mb-10 text-2xl">
+                            Language documentation should not end in an archive. <br />
+                            <span className="text-primary not-italic font-sans font-bold block mt-2">Activate the next speaker.</span>
+                        </Text>
+                        <Link
+                            to="/learner"
+                            className="inline-flex items-center justify-center px-10 py-5 bg-primary text-primary-foreground rounded-full font-bold text-lg hover:bg-primary/90 transition-all shadow-lg active:scale-95 border-2 border-transparent hover:border-primary/20"
+                        >
+                            Explore the Learning Hub
+                        </Link>
+                    </div>
                 </div>
             </Container>
         </Section>
@@ -123,3 +126,4 @@ const ForLearners = () => {
 };
 
 export default ForLearners;
+

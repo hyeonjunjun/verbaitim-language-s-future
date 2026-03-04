@@ -31,7 +31,7 @@ const StewardshipCouncil = () => {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12">
 
                     <div className="md:col-span-4">
-                        <Text variant="caption" className="mb-4 block text-signal">
+                        <Text variant="caption" className="mb-4 block text-primary">
                             Governance
                         </Text>
                         <div className="sticky top-24">
@@ -50,7 +50,7 @@ const StewardshipCouncil = () => {
                             {councilMembers.map((member, i) => (
                                 <div key={i} className="bg-background p-8 flex flex-col md:flex-row md:items-center justify-between gap-4 group hover:bg-secondary/20 transition-colors">
                                     <div>
-                                        <h3 className="font-display text-2xl mb-1 group-hover:text-signal transition-colors">{member.name}</h3>
+                                        <h3 className="font-display text-2xl mb-1 group-hover:text-primary transition-colors">{member.name}</h3>
                                         <Text variant="caption" className="text-muted-foreground">{member.role}</Text>
                                     </div>
                                     <div className="md:text-right">
@@ -70,3 +70,4 @@ const StewardshipCouncil = () => {
 };
 
 export default StewardshipCouncil;
+

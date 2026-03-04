@@ -4,7 +4,7 @@ import { ReactNode } from 'react';
 const MainLayout = ({ children }: { children: ReactNode }) => {
     return (
         <ReactLenis root>
-            <div className="bg-background min-h-screen text-foreground selection:bg-signal/30 selection:text-foreground">
+            <div className="bg-background min-h-screen text-foreground selection:bg-primary/30 selection:text-foreground">
                 <main>
                     {children}
                 </main>
@@ -14,3 +14,4 @@ const MainLayout = ({ children }: { children: ReactNode }) => {
 };
 
 export default MainLayout;
+

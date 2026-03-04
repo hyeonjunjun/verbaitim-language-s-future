@@ -1,139 +1,71 @@
 import { useNavigate } from "react-router-dom";
-import WorkbenchLayout from "@/layouts/WorkbenchLayout";
-import { Headline, Text } from "@/design-system/Typography";
-import { BookOpen, Camera, Link as LinkIcon, Bold, Italic, List, CheckCircle2, Calendar, FileAudio, Plus, UserCircle } from "lucide-react";
-import { useAudioStore } from "@/hooks/useAudioStore";
+import { ArrowLeft, Search, Plus } from "lucide-react";
 
 const WorkbenchNotes = () => {
     const navigate = useNavigate();
-    const { fileName, segments } = useAudioStore();
+
     return (
-        <WorkbenchLayout>
-            <div className="p-4 md:p-8 w-full max-w-4xl mx-auto flex flex-col min-h-[calc(100vh-80px)]">
+        <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body pb-20 relative">
+            {/* Top Bar */}
+            <header className="px-4 pt-12 pb-4 flex items-center justify-between sticky top-0 bg-[#FDFCFB] z-10">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-foreground font-medium">
+                    <ArrowLeft size={20} />
+                    Back
+                </button>
+                <h1 className="font-semibold text-lg text-card-foreground">Field Notes</h1>
+                <button className="w-10 h-10 flex items-center justify-end text-foreground">
+                    <Search size={20} className="text-muted-foreground" />
+                </button>
+            </header>
 
-                {/* Header Metadata (Screen 4 style) */}
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-                    <div className="flex-1">
-                        <input
-                            type="text"
-                            defaultValue="Plant names — field walk"
-                            className="text-3xl font-display font-bold text-foreground bg-transparent border-none focus:outline-none focus:ring-0 p-0 w-full mb-2 placeholder:text-muted-foreground/40"
-                            placeholder="Note Title..."
-                        />
-                        <div className="flex flex-wrap items-center gap-4 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                            <span className="flex items-center gap-1.5"><Calendar size={14} /> Oct 24, 2026</span>
-                            <span className="flex items-center gap-1.5"><UserCircle size={14} /> María P., Dr. Aris</span>
-                        </div>
-                    </div>
-
-                    {/* Status badges */}
-                    <div className="flex items-center gap-2 shrink-0">
-                        <span className="px-3 py-1.5 bg-card border border-border rounded-full text-[10px] font-bold uppercase tracking-wider text-foreground shadow-sm">
-                            Field Notes
-                        </span>
-                        <span className="px-3 py-1.5 bg-sage/10 text-sage border border-sage/20 rounded-full text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
-                            <CheckCircle2 size={12} /> Completed
-                        </span>
+            <main className="px-6 space-y-4 max-w-3xl mx-auto">
+                {/* Card 1 */}
+                <div className="bg-white rounded-3xl p-5 border border-border/50 shadow-sm cursor-pointer hover:border-primary/30 transition-colors">
+                    <h2 className="text-lg font-bold text-card-foreground mb-1 leading-tight">Mixtec kinship terms structure</h2>
+                    <p className="text-xs text-muted-foreground mb-3 font-medium">Yesterday • Mixtec (San Juan) • Audio</p>
+                    <p className="text-sm text-card-foreground/80 mb-4 line-clamp-2 leading-relaxed">
+                        María explained that kinship terms differ based on the gender of the speaker. For example...
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">kinship</span>
+                        <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">grammar</span>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* Main Content: Observations */}
-                    <div className="lg:col-span-2 space-y-6">
-                        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col h-[500px]">
-                            {/* Rich text toolbar mock */}
-                            <div className="bg-muted/30 border-b border-border p-3 flex items-center gap-2">
-                                <button className="p-1.5 rounded-md hover:bg-background text-foreground transition-colors"><Bold size={16} /></button>
-                                <button className="p-1.5 rounded-md hover:bg-background text-foreground transition-colors"><Italic size={16} /></button>
-                                <button className="p-1.5 rounded-md hover:bg-background text-foreground transition-colors"><List size={16} /></button>
-                                <div className="w-px h-4 bg-border mx-2" />
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Observations</span>
-                            </div>
-
-                            <textarea
-                                className="flex-1 w-full bg-transparent p-6 text-sm text-foreground focus:outline-none resize-none leading-relaxed placeholder:text-muted-foreground/40"
-                                placeholder="Start typing ethnobotanical observations..."
-                                defaultValue="Walking with María near the eastern ridge. She pointed out several medicinal herbs that are becoming scarce due to changing rainfall patterns.
-
-Notable terms discussed:
-• yita yuku (wild flower)
-• yutnu Ndute (water tree / willow)
-• ñuku (herb/weed)
-
-She mentioned that 'yutnu Ndute' is specifically used to treat fevers when prepared as a tea, but it must be harvested before sunrise."
-                            />
-                        </div>
-                    </div>
-
-                    {/* Sidebar: Media & Links */}
-                    <div className="space-y-6">
-
-                        {/* Photos Gallery */}
-                        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-display font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
-                                    <Camera size={14} className="text-muted-foreground" /> Photos <span className="text-muted-foreground font-mono text-xs">(3)</span>
-                                </h3>
-                                <button className="text-signal hover:bg-signal/10 p-1.5 rounded-lg transition-colors">
-                                    <Plus size={16} />
-                                </button>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                {/* Mock photo thumbnails */}
-                                <div className="aspect-square bg-muted rounded-xl border border-border overflow-hidden relative group cursor-pointer">
-                                    <img src="/placeholder.svg" alt="plant" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                                <div className="aspect-square bg-muted rounded-xl border border-border overflow-hidden relative group cursor-pointer">
-                                    <img src="/placeholder.svg" alt="landscape" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                </div>
-                                <div className="aspect-square bg-muted rounded-xl border border-border overflow-hidden relative group cursor-pointer">
-                                    <div className="w-full h-full bg-background flex items-center justify-center">
-                                        <Camera size={20} className="text-muted-foreground/30" />
-                                    </div>
-                                </div>
-                                <button className="aspect-square bg-background border border-dashed border-border rounded-xl flex flex-col items-center justify-center text-muted-foreground hover:text-signal hover:border-signal/50 hover:bg-signal/5 transition-all">
-                                    <Plus size={20} className="mb-1" />
-                                    <span className="text-[10px] font-bold uppercase tracking-wider">Add</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Linked Recordings */}
-                        <div className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-sm font-display font-bold uppercase tracking-widest text-foreground flex items-center gap-2">
-                                    <LinkIcon size={14} className="text-muted-foreground" /> Linked Media
-                                </h3>
-                                <button className="text-signal hover:bg-signal/10 p-1.5 rounded-lg transition-colors">
-                                    <Plus size={16} />
-                                </button>
-                            </div>
-
-                            <div className="space-y-3">
-                                {fileName ? (
-                                    <div
-                                        onClick={() => navigate('/workbench/editor')}
-                                        className="group bg-background border border-border rounded-xl p-3 flex gap-3 items-center hover:border-signal/40 transition-colors cursor-pointer"
-                                    >
-                                        <div className="h-10 w-10 shrink-0 bg-signal/10 text-signal rounded-lg flex items-center justify-center">
-                                            <FileAudio size={18} />
-                                        </div>
-                                        <div className="overflow-hidden">
-                                            <p className="text-sm font-bold text-foreground truncate group-hover:text-signal transition-colors">{fileName}</p>
-                                            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-0.5">{segments.length} segments • Linked</p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <p className="text-xs text-muted-foreground italic px-2">No active session linked.</p>
-                                )}
-                            </div>
-                        </div>
-
+                {/* Card 2 */}
+                <div className="bg-white rounded-3xl p-5 border border-border/50 shadow-sm cursor-pointer hover:border-primary/30 transition-colors">
+                    <h2 className="text-lg font-bold text-card-foreground mb-1 leading-tight">Tonal minimal pairs with /a/</h2>
+                    <p className="text-xs text-muted-foreground mb-3 font-medium">Feb 20 • Mixtec (San Juan) • Text</p>
+                    <p className="text-sm text-card-foreground/80 mb-4 line-clamp-2 leading-relaxed">
+                        Identified three distinct tones on /a/ in the root for 'water' vs 'animal' that we need...
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">phonology</span>
+                        <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">tones</span>
                     </div>
                 </div>
+
+                {/* Card 3 */}
+                <div className="bg-white rounded-3xl p-5 border border-border/50 shadow-sm cursor-pointer hover:border-primary/30 transition-colors">
+                    <h2 className="text-lg font-bold text-card-foreground mb-1 leading-tight">Cultural context for harvest songs</h2>
+                    <p className="text-xs text-muted-foreground mb-3 font-medium">Feb 18 • Mixtec (San Juan) • Video</p>
+                    <p className="text-sm text-card-foreground/80 mb-4 line-clamp-2 leading-relaxed">
+                        The songs recorded yesterday are only sung during the first week of the maize harvest...
+                    </p>
+                    <div className="flex items-center gap-2">
+                        <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">culture</span>
+                        <span className="px-3 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">music</span>
+                    </div>
+                </div>
+            </main>
+
+            {/* FAB */}
+            <div className="fixed bottom-6 right-6 z-20 md:static md:mt-8 md:flex md:justify-end md:pr-6 md:pb-6">
+                <button className="w-14 h-14 bg-primary text-white rounded-full flex items-center justify-center shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                    <Plus size={24} />
+                </button>
             </div>
-        </WorkbenchLayout>
+        </div>
     );
 };
 

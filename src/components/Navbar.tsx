@@ -7,10 +7,10 @@ const Navbar = () => {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
       <Container className="flex h-16 items-center justify-between">
-        {/* Logo - The Academic Mark */}
+        {/* Logo - The Organic Mark */}
         <Link to="/" className="flex items-center gap-3 group">
-          <WaveformLogo size={24} />
-          <span className="font-display font-semibold text-xl tracking-tight text-foreground">VerbAItim</span>
+          <WaveformLogo size={28} />
+          <span className="font-display font-bold text-xl tracking-tight text-foreground italic">Verb<span className="text-primary font-sans not-italic">AI</span>tim</span>
         </Link>
 
         {/* Navigation - Scholarly Links */}
@@ -21,14 +21,14 @@ const Navbar = () => {
             { name: "For Learners", href: "#learners" },
             { name: "How It Works", href: "#how-it-works" }
           ].map((item) => (
-            <a key={item.name} href={item.href} className="text-sm font-medium text-muted-foreground hover:text-signal transition-colors">
+            <a key={item.name} href={item.href} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
               {item.name}
             </a>
           ))}
         </nav>
 
         {/* CTA - Warm Interaction */}
-        <Link to="/workbench" className="hidden md:flex items-center justify-center px-6 py-2 bg-signal text-white hover:bg-signal/90 transition-all rounded-full text-sm font-medium shadow-sm active:scale-95">
+        <Link to="/workbench" className="hidden md:flex items-center justify-center px-6 py-2.5 bg-primary text-primary-foreground hover:bg-primary/90 transition-all rounded-full text-sm font-bold shadow-sm active:scale-95">
           Enter Workbench
         </Link>
 
@@ -40,3 +40,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

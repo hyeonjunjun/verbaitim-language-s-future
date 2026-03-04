@@ -33,7 +33,7 @@ const TechnologySpecs = () => {
 
                     {/* Header */}
                     <div className="md:col-span-4">
-                        <Text variant="caption" className="mb-4 block text-signal">
+                        <Text variant="caption" className="mb-4 block text-primary">
                             Technical Specifications
                         </Text>
                         <div className="sticky top-24">
@@ -68,7 +68,7 @@ const TechnologySpecs = () => {
                                         </div>
                                         <div className="col-span-2">
                                             <span className="block text-[10px] uppercase tracking-wider mb-1 text-foreground/50">Benchmark</span>
-                                            <span className="text-signal">{spec.accuracy}</span>
+                                            <span className="text-primary">{spec.accuracy}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -89,3 +89,4 @@ const TechnologySpecs = () => {
 };
 
 export default TechnologySpecs;
+

@@ -31,15 +31,15 @@ const HowItWorks = () => {
         <Section id="how-it-works" className="bg-secondary/20 border-b border-border/50">
             <Container>
                 <div className="mb-20 text-center">
-                    <Text variant="caption" className="mb-6 block text-signal font-semibold">
+                    <Text variant="caption" className="mb-6 block text-primary font-bold tracking-widest uppercase">
                         The Workflow
                     </Text>
-                    <Headline as="h2">How It Works</Headline>
+                    <Headline as="h2" className="text-4xl md:text-5xl tracking-tight">How It Works</Headline>
                 </div>
 
                 <div className="relative">
                     {/* Connection Line */}
-                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-signal/10 -translate-y-1/2 hidden lg:block" />
+                    <div className="absolute top-1/2 left-0 w-full h-0.5 bg-primary/10 -translate-y-1/2 hidden lg:block" />
 
                     <div className="grid lg:grid-cols-4 gap-8">
                         {steps.map((step, idx) => (
@@ -51,18 +51,18 @@ const HowItWorks = () => {
                                 transition={{ duration: 0.5, delay: idx * 0.1 }}
                                 className="relative bg-background p-8 rounded-2xl border border-border shadow-sm hover:shadow-md transition-shadow group z-10"
                             >
-                                <div className="w-16 h-16 rounded-2xl bg-signal text-white flex items-center justify-center mb-6 shadow-lg shadow-signal/20 group-hover:scale-110 transition-transform">
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:-translate-y-1 transition-transform border border-primary/20">
                                     <step.icon size={28} />
                                 </div>
-                                <h3 className="font-display text-2xl font-semibold mb-3 text-foreground">
+                                <h3 className="font-display text-2xl font-bold mb-3 text-card-foreground">
                                     {step.title}
                                 </h3>
-                                <Text className="text-muted-foreground leading-relaxed italic serif-italic">
+                                <Text className="text-muted-foreground leading-relaxed font-medium">
                                     {step.description}
                                 </Text>
 
                                 {/* Step Indicator Dot for Timeline */}
-                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-signal/20 border-4 border-background hidden lg:block" />
+                                <div className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-primary/20 border-4 border-background hidden lg:block" />
                             </motion.div>
                         ))}
                     </div>
@@ -73,3 +73,4 @@ const HowItWorks = () => {
 };
 
 export default HowItWorks;
+

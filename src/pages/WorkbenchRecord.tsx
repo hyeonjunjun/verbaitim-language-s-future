@@ -1,134 +1,130 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import WorkbenchLayout from "@/layouts/WorkbenchLayout";
-import { Headline, Text } from "@/design-system/Typography";
-import { Mic, Square, ShieldCheck, Settings2, Languages, UserCircle, Tag, FileAudio, BookOpen, RotateCcw } from "lucide-react";
+import { ArrowLeft, MoreVertical, ShieldCheck, Tag, Square, Bookmark, Wand2, Loader2, Play } from "lucide-react";
 import { useAudioStore } from "@/hooks/useAudioStore";
 
-const BAR_COUNT = 40;
+const BAR_COUNT = 30;
 
 const WorkbenchRecord = () => {
     const navigate = useNavigate();
+    const { loadAudioFile, transcribe, isTranscribing, sessions } = useAudioStore();
+
     const [isRecording, setIsRecording] = useState(false);
     const [recordingTime, setRecordingTime] = useState(0);
-    const [showPostAction, setShowPostAction] = useState(false);
-    const [selectedLanguage, setSelectedLanguage] = useState("ipa");
-    const [barAmplitudes, setBarAmplitudes] = useState<number[]>(Array(BAR_COUNT).fill(4));
+    const [barAmplitudes, setBarAmplitudes] = useState<number[]>(Array(BAR_COUNT).fill(10));
+    const [liveTranscript, setLiveTranscript] = useState("");
 
+    // Recording refs
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-    const chunksRef = useRef<BlobPart[]>([]);
-    const streamRef = useRef<MediaStream | null>(null);
-    // Web Audio API refs for real visualizer
-    const audioContextRef = useRef<AudioContext | null>(null);
-    const analyserRef = useRef<AnalyserNode | null>(null);
-    const animFrameRef = useRef<number | null>(null);
-    const { loadAudioFile, transcribe } = useAudioStore();
+    const audioChunksRef = useRef<BlobPart[]>([]);
+    const timerRef = useRef<NodeJS.Timeout | null>(null);
+    const recognitionRef = useRef<any>(null);
 
-    // Timer logic for UI purposes
     useEffect(() => {
-        let interval: NodeJS.Timeout;
-        if (isRecording) {
-            interval = setInterval(() => {
-                setRecordingTime((prev) => prev + 1);
-            }, 1000);
-        } else {
-            setRecordingTime(0);
+        // Initialize Speech Recognition
+        const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onresult = (event: any) => {
+                let interimTranscript = '';
+                for (let i = 0; i < event.results.length; i++) {
+                    interimTranscript += event.results[i][0].transcript;
+                }
+                setLiveTranscript(interimTranscript);
+            };
+            recognitionRef.current = recognition;
         }
+
+        return () => {
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
+                mediaRecorderRef.current.stop();
+            }
+            if (recognitionRef.current) {
+                try { recognitionRef.current.stop(); } catch (e) { }
+            }
+        };
+    }, []);
+
+    // Visualizer animation
+    useEffect(() => {
+        if (!isRecording) return;
+        const interval = setInterval(() => {
+            setBarAmplitudes(Array.from({ length: BAR_COUNT }, () => Math.max(4, Math.random() * 40)));
+        }, 100);
         return () => clearInterval(interval);
     }, [isRecording]);
-
-    // Cleanup tracks and audio context on unmount
-    useEffect(() => {
-        return () => {
-            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-            if (mediaRecorderRef.current && isRecording) mediaRecorderRef.current.stop();
-            if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
-            if (audioContextRef.current) audioContextRef.current.close();
-        };
-    }, [isRecording]);
-
-    // ── Drive the visualizer bars from the AnalyserNode ───────────────────────
-    const startVisualizer = (analyser: AnalyserNode) => {
-        const bufferLength = analyser.frequencyBinCount;
-        const dataArray = new Uint8Array(bufferLength);
-
-        const draw = () => {
-            animFrameRef.current = requestAnimationFrame(draw);
-            analyser.getByteFrequencyData(dataArray);
-
-            // Sample BAR_COUNT evenly-spaced buckets from the frequency data
-            const step = Math.floor(bufferLength / BAR_COUNT);
-            const amplitudes = Array.from({ length: BAR_COUNT }, (_, i) => {
-                const bucket = dataArray[i * step] ?? 0;
-                // Map 0–255 to 4–48px
-                return Math.max(4, (bucket / 255) * 48);
-            });
-            setBarAmplitudes(amplitudes);
-        };
-        draw();
-    };
-
-    const stopVisualizer = () => {
-        if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-        setBarAmplitudes(Array(BAR_COUNT).fill(4));
-    };
 
     const startRecording = async () => {
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            streamRef.current = stream;
-
-            // ── Set up Web Audio visualizer ─────────────────
-            const audioCtx = new AudioContext();
-            audioContextRef.current = audioCtx;
-            const source = audioCtx.createMediaStreamSource(stream);
-            const analyser = audioCtx.createAnalyser();
-            analyser.fftSize = 128;
-            source.connect(analyser);
-            analyserRef.current = analyser;
-            startVisualizer(analyser);
-
-            // ── Set up MediaRecorder ─────────────────────
             const mediaRecorder = new MediaRecorder(stream);
             mediaRecorderRef.current = mediaRecorder;
-            chunksRef.current = [];
+            audioChunksRef.current = [];
 
-            mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) chunksRef.current.push(e.data);
+            mediaRecorder.ondataavailable = (event) => {
+                if (event.data.size > 0) {
+                    audioChunksRef.current.push(event.data);
+                }
             };
 
-            mediaRecorder.onstop = () => {
-                // Stop visualizer and close audio context
-                stopVisualizer();
-                audioCtx.close();
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+                const file = new File([audioBlob], `recording_${new Date().getTime()}.webm`, { type: 'audio/webm' });
 
-                const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-                const file = new File([blob], `Session_${Date.now()}.webm`, { type: 'audio/webm' });
+                // Load into store and transcribe
                 loadAudioFile(file);
-                transcribe(selectedLanguage);
+                await transcribe("Mixtec"); // Hardcode Mixtec for prototype
 
-                if (streamRef.current) {
-                    streamRef.current.getTracks().forEach(track => track.stop());
-                }
+                // Stop all tracks to release microphone
+                stream.getTracks().forEach(track => track.stop());
             };
 
             mediaRecorder.start();
             setIsRecording(true);
             setRecordingTime(0);
-            setShowPostAction(false);
-        } catch (err) {
-            console.error("Error accessing microphone:", err);
-            alert("Could not access microphone. Please check permissions.");
+            setLiveTranscript("");
+
+            if (recognitionRef.current) {
+                try { recognitionRef.current.start(); } catch (e) { console.error(e) }
+            }
+
+            timerRef.current = setInterval(() => {
+                setRecordingTime((prev) => prev + 1);
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error accessing microphone:", error);
+            alert("Could not access microphone.");
         }
     };
 
     const stopRecording = () => {
-        if (mediaRecorderRef.current && isRecording) {
+        if (mediaRecorderRef.current && mediaRecorderRef.current.state === "recording") {
             mediaRecorderRef.current.stop();
             setIsRecording(false);
-            setShowPostAction(true);
+            if (timerRef.current) clearInterval(timerRef.current);
+            if (recognitionRef.current) {
+                try { recognitionRef.current.stop(); } catch (e) { }
+            }
+            setBarAmplitudes(Array(BAR_COUNT).fill(10)); // Reset visualizer
         }
     };
+
+    // Watch for new sessions being created so we can navigate to the editor
+    useEffect(() => {
+        if (!isTranscribing && !isRecording && recordingTime > 0) {
+            // Transcription likely just finished
+            const latestSession = sessions[0];
+            if (latestSession) {
+                navigate(`/workbench/editor/${latestSession.id}`);
+            }
+        }
+    }, [isTranscribing, isRecording, recordingTime, sessions, navigate]);
+
 
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
@@ -137,175 +133,135 @@ const WorkbenchRecord = () => {
     };
 
     return (
-        <WorkbenchLayout>
-            <div className="p-4 md:p-8 w-full max-w-3xl mx-auto flex flex-col min-h-[calc(100vh-80px)]">
-                {/* Header Metadata (Screen 1 style) */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <Headline as="h1" className="text-2xl font-display text-foreground">New Recording</Headline>
+        <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body pb-10">
+            {/* Top Bar */}
+            <header className="px-4 pt-12 pb-4 flex items-center justify-between sticky top-0 bg-[#FDFCFB] z-10">
+                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-foreground font-medium">
+                    <ArrowLeft size={20} />
+                    Back
+                </button>
+                <h1 className="font-semibold text-lg text-card-foreground">Recording</h1>
+                <button className="w-10 h-10 flex items-center justify-end text-foreground">
+                    <MoreVertical size={20} />
+                </button>
+            </header>
 
-                    {/* Consent status indicator */}
-                    <div className="flex items-center gap-2 px-3 py-1.5 bg-sage/10 text-sage rounded-full border border-sage/20 shadow-sm w-fit">
-                        <ShieldCheck size={14} />
-                        <span className="text-[10px] font-bold uppercase tracking-wider">Consent Granted · Community Owned</span>
+            <main className="px-6 space-y-6 max-w-3xl mx-auto">
+                {/* Consent Banner */}
+                <div className="flex items-center justify-center gap-2 py-2.5 px-4 bg-sage/10 text-sage rounded-xl font-medium text-sm w-full mx-auto">
+                    <ShieldCheck size={16} />
+                    Consent granted - Community-owned
+                </div>
+
+                {/* Metadata List */}
+                <div className="space-y-3 px-2">
+                    <div className="flex justify-between items-center text-[15px]">
+                        <span className="text-muted-foreground">Language</span>
+                        <span className="font-semibold text-card-foreground">Mixtec (San Juan)</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[15px]">
+                        <span className="text-muted-foreground">Speaker</span>
+                        <span className="font-semibold text-card-foreground">María López</span>
+                    </div>
+                    <div className="flex justify-between items-center text-[15px]">
+                        <span className="text-muted-foreground">Session type</span>
+                        <span className="font-semibold text-card-foreground">Elicitation</span>
                     </div>
                 </div>
 
-                {/* Metadata Bar */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-                    <div className="bg-card border border-border rounded-xl p-3 flex flex-col gap-1">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground/60 flex items-center gap-1"><Languages size={10} /> Language</label>
-                        <select
-                            value={selectedLanguage}
-                            onChange={(e) => setSelectedLanguage(e.target.value)}
-                            className="bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer"
-                        >
-                            <option value="ipa">Universal (IPA)</option>
-                            <option value="que">Quechua</option>
-                            <option value="lkt">Lakota</option>
-                            <option value="mri">Māori</option>
-                        </select>
-                    </div>
-                    <div className="bg-card border border-border rounded-xl p-3 flex flex-col gap-1">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground/60 flex items-center gap-1"><UserCircle size={10} /> Contributor</label>
-                        <input type="text" placeholder="Enter name..." defaultValue="María P." className="bg-transparent text-sm font-semibold text-foreground focus:outline-none placeholder:text-muted-foreground/40" />
-                    </div>
-                    <div className="bg-card border border-border rounded-xl p-3 flex flex-col gap-1">
-                        <label className="text-[10px] uppercase font-bold text-muted-foreground/60 flex items-center gap-1"><Tag size={10} /> Session Type</label>
-                        <select className="bg-transparent text-sm font-semibold text-foreground focus:outline-none cursor-pointer">
-                            <option>Free Narrative</option>
-                            <option>Elicitation</option>
-                            <option>Interview</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Primary Recording Interface */}
-                <div className="flex flex-col items-center justify-center p-12 bg-card border border-border rounded-3xl shadow-sm mb-8 relative overflow-hidden">
-                    {/* Background pulse effect when recording */}
-                    {isRecording && (
-                        <>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-signal/20 rounded-full blur-3xl animate-ping" />
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-signal/10 rounded-full blur-3xl animate-pulse delay-75" />
-                        </>
-                    )}
-
-                    <div className="relative z-10 flex flex-col items-center">
-                        <Text className={`text-6xl font-mono font-bold tracking-tighter mb-8 transition-colors ${isRecording ? 'text-signal drop-shadow-[0_0_12px_rgba(var(--signal),0.4)]' : 'text-foreground'}`}>
-                            {formatTime(recordingTime)}
-                        </Text>
-
-                        {/* Record / Stop Button */}
-                        <button
-                            onClick={() => {
-                                if (isRecording) {
-                                    stopRecording();
-                                } else {
-                                    startRecording();
-                                }
-                            }}
-                            className={`w-24 h-24 rounded-full flex items-center justify-center transition-all duration-300 shadow-xl border-4 ${isRecording
-                                ? 'bg-background border-signal text-signal hover:bg-signal/10 scale-95'
-                                : 'bg-signal border-background text-signal-foreground hover:scale-105 hover:shadow-signal/30'
-                                }`}
-                        >
-                            {isRecording ? <Square size={32} className="fill-current" /> : <Mic size={40} className="ml-1" />}
-                        </button>
-
-                        <p className="mt-6 text-sm font-medium text-muted-foreground uppercase tracking-widest">
-                            {isRecording ? 'Recording active...' : 'Tap to Record'}
-                        </p>
+                {/* Recording Card (Main UI) */}
+                <div className="bg-white rounded-3xl p-8 border border-border/50 shadow-sm flex flex-col items-center">
+                    <div className="text-5xl font-semibold tracking-tight text-card-foreground mb-4">
+                        {formatTime(recordingTime)}
                     </div>
 
-                    {/* Real audio visualizer driven by AnalyserNode */}
-                    <div className="w-full max-w-md h-12 flex items-end justify-center gap-[2px] mt-8">
+                    <div className="flex items-center gap-2 text-destructive font-medium mb-10 h-6">
+                        {isRecording ? (
+                            <>
+                                <div className="w-2.5 h-2.5 rounded-full bg-destructive animate-pulse" />
+                                Recording...
+                            </>
+                        ) : isTranscribing ? (
+                            <div className="flex items-center gap-2 text-primary">
+                                <Loader2 size={16} className="animate-spin" />
+                                Transcribing audio...
+                            </div>
+                        ) : (
+                            <span className="text-muted-foreground">Ready to record</span>
+                        )}
+                    </div>
+
+                    {/* Waveform visualizer */}
+                    <div className="h-12 w-full flex items-center justify-center gap-[3px] mb-12">
                         {barAmplitudes.map((height, i) => (
                             <div
                                 key={i}
-                                className={`w-1.5 rounded-full transition-all duration-75 ${isRecording ? 'bg-signal' : 'bg-muted-foreground/20'
-                                    }`}
-                                style={{ height: `${height}px` }}
+                                className={`w-1.5 rounded-full transition-all duration-100 ${isRecording ? (i % 3 === 0 ? 'bg-[#C46B44]' : 'bg-[#E5D7CC]') : 'bg-muted'}`}
+                                style={{
+                                    height: `${isRecording ? height : 10}px`,
+                                }}
                             />
                         ))}
                     </div>
-                </div>
 
-                {/* Live Transcription Feed Skeleton */}
-                <div className="flex-1 bg-card/50 border border-border rounded-2xl p-6 flex flex-col">
-                    <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-sm font-display font-bold uppercase tracking-widest text-muted-foreground/80 flex items-center gap-2">
-                            <Settings2 size={14} /> Live Transcription
-                        </h3>
-                        {isRecording && <span className="text-[10px] font-bold text-signal animate-pulse flex items-center gap-1"><span className="w-1.5 h-1.5 bg-signal rounded-full" /> Streaming</span>}
-                    </div>
+                    {/* Action Buttons */}
+                    <div className="flex items-center gap-8">
+                        <button className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDFCFB] border border-border/50 text-foreground hover:bg-muted/50 transition-colors disabled:opacity-50" disabled={isTranscribing}>
+                            <Tag size={20} />
+                        </button>
 
-                    <div className="flex-1 flex flex-col justify-end space-y-3 relative overflow-hidden">
-                        {/* Fade mask at top */}
-                        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-card to-transparent z-10 pointer-events-none" />
-
-                        {showPostAction ? (
-                            <div className="h-full flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-500 z-20">
-                                <h4 className="text-xl font-display font-bold text-foreground mb-6">Session Captured</h4>
-                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-lg">
-                                    <button
-                                        onClick={() => navigate("/workbench/editor")}
-                                        className="bg-card border border-border p-4 flex flex-col items-center gap-3 rounded-xl hover:border-signal/50 hover:bg-signal/5 transition-all group"
-                                    >
-                                        <div className="w-10 h-10 rounded-full bg-signal/10 text-signal flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <FileAudio size={20} />
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="font-bold text-sm text-foreground">Review</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Corrections</p>
-                                        </div>
-                                    </button>
-                                    <button
-                                        onClick={() => navigate("/workbench/notes")}
-                                        className="bg-card border border-border p-4 flex flex-col items-center gap-3 rounded-xl hover:border-signal/50 hover:bg-signal/5 transition-all group"
-                                    >
-                                        <div className="w-10 h-10 rounded-full bg-signal/10 text-signal flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <BookOpen size={20} />
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="font-bold text-sm text-foreground">Notes</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Context</p>
-                                        </div>
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            setShowPostAction(false);
-                                            useAudioStore.getState().clearAudio();
-                                        }}
-                                        className="bg-card border border-border p-4 flex flex-col items-center gap-3 rounded-xl hover:border-signal/50 hover:bg-signal/5 transition-all group"
-                                    >
-                                        <div className="w-10 h-10 rounded-full bg-background border border-border text-muted-foreground flex items-center justify-center group-hover:text-signal transition-colors">
-                                            <RotateCcw size={18} />
-                                        </div>
-                                        <div className="text-center">
-                                            <p className="font-bold text-sm text-foreground">Discard</p>
-                                            <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-1">Record New</p>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
+                        {!isRecording ? (
+                            <button onClick={startRecording} disabled={isTranscribing} className="w-16 h-16 flex items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all disabled:opacity-50">
+                                <Play size={24} className="fill-current ml-1" />
+                            </button>
                         ) : (
-                            <div className="h-full flex items-center justify-center">
-                                {isRecording ? (
-                                    <div className="p-4 rounded-xl border border-signal/30 bg-signal/5 animate-pulse w-full">
-                                        <span className="text-[10px] font-bold uppercase text-signal flex items-center gap-2 mb-1">
-                                            <div className="w-3 h-3 border-2 border-signal border-t-transparent rounded-full animate-spin" />
-                                            Processing
-                                        </span>
-                                        <p className="font-mono text-lg text-foreground/50">Transcription will appear in the editor after recording stops.</p>
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-muted-foreground italic tracking-wide">Transcription feed will appear here after you record.</p>
-                                )}
-                            </div>
+                            <button onClick={stopRecording} className="w-16 h-16 flex items-center justify-center rounded-full bg-destructive text-white shadow-lg hover:scale-95 transition-transform">
+                                <Square size={24} className="fill-current" />
+                            </button>
                         )}
+
+                        <button className="w-12 h-12 flex items-center justify-center rounded-full bg-[#FDFCFB] border border-border/50 text-foreground hover:bg-muted/50 transition-colors disabled:opacity-50" disabled={isTranscribing}>
+                            <Bookmark size={20} />
+                        </button>
                     </div>
                 </div>
-            </div>
-        </WorkbenchLayout>
+
+                {/* Live Transcription Section */}
+                {isRecording && (
+                    <div className="pt-2 animate-in fade-in slide-in-from-bottom-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h2 className="font-bold text-lg text-card-foreground">Live transcription + IPA</h2>
+                            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary text-xs font-bold rounded-md">
+                                <Wand2 size={12} />
+                                AI-assisted
+                            </div>
+                        </div>
+
+                        {/* Switcher Toggle */}
+                        <div className="bg-white border border-border/50 rounded-lg p-1 flex mb-6 shadow-sm w-fit">
+                            <button className="flex-1 py-1.5 px-4 text-xs font-bold text-card-foreground">IPA transcription</button>
+                            <div className="flex">
+                                <button className="bg-primary text-white rounded-md py-1.5 px-4 text-xs font-bold shadow-sm">Real-time</button>
+                                <button className="py-1.5 px-4 text-xs font-bold text-muted-foreground hover:text-foreground">Post-rec</button>
+                            </div>
+                        </div>
+
+                        {/* Transcription Stream */}
+                        <div className="bg-white border border-border/50 rounded-2xl p-5 shadow-sm min-h-[120px]">
+                            {liveTranscript ? (
+                                <p className="text-[17px] font-medium text-card-foreground leading-relaxed animate-in fade-in">
+                                    {liveTranscript}
+                                </p>
+                            ) : (
+                                <div className="flex items-center justify-center h-20 text-muted-foreground text-sm font-medium animate-pulse">
+                                    Listening to audio stream...
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </main>
+        </div>
     );
 };
 

@@ -93,14 +93,14 @@ const SessionHistory = () => {
                     ].map((stat) => (
                         <div
                             key={stat.label}
-                            className="bg-card border border-border rounded-xl p-5 flex items-center gap-4 group hover:border-signal/20 transition-all"
+                            className="bg-card border border-border rounded-[1.25rem] p-6 flex flex-col justify-between h-full group hover:border-primary/20 hover:shadow-md transition-all shadow-sm"
                         >
-                            <div className="p-2 bg-signal/10 text-signal rounded-lg group-hover:scale-110 transition-transform shadow-inner">
-                                <stat.icon size={18} />
+                            <div className="p-3 bg-primary/10 text-primary rounded-xl mb-4 group-hover:-translate-y-1 transition-transform border border-primary/20 self-start">
+                                <stat.icon size={20} />
                             </div>
                             <div>
-                                <p className="text-lg font-bold text-foreground tracking-tight">{stat.value}</p>
-                                <p className="text-[10px] text-muted-foreground/60 uppercase tracking-wider font-medium">{stat.label}</p>
+                                <p className="text-3xl font-bold text-foreground tracking-tight mb-1">{stat.value}</p>
+                                <p className="text-xs text-muted-foreground font-medium">{stat.label}</p>
                             </div>
                         </div>
                     ))}
@@ -118,9 +118,9 @@ const SessionHistory = () => {
                         </p>
                         <button
                             onClick={() => navigate("/workbench/record")}
-                            className="flex items-center gap-2 px-5 py-2.5 bg-signal text-white rounded-xl text-sm font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/20"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-base font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/20"
                         >
-                            <Mic size={15} /> Start Recording
+                            <Mic size={18} className="fill-current" /> Start Recording
                         </button>
                     </div>
                 ) : (
@@ -143,11 +143,11 @@ const SessionHistory = () => {
                                 >
                                     {/* Timeline icon */}
                                     <div className="flex flex-col items-center shrink-0">
-                                        <div className="w-9 h-9 rounded-xl flex items-center justify-center border bg-signal/10 text-signal border-signal/20 shadow-inner">
-                                            <Mic2 size={15} />
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center border bg-primary/5 text-primary border-primary/15 shadow-sm">
+                                            <Mic2 size={16} />
                                         </div>
                                         {idx < sessions.length - 1 && (
-                                            <div className="w-px flex-1 bg-border/40 mt-2 min-h-[16px]" />
+                                            <div className="w-px flex-1 bg-border/40 mt-3 min-h-[20px]" />
                                         )}
                                     </div>
 
@@ -181,8 +181,8 @@ const SessionHistory = () => {
 
                                                 {/* Model badge */}
                                                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${sess.model.includes("Mock")
-                                                        ? "bg-ochre/10 text-ochre border-ochre/20"
-                                                        : "bg-sage/10 text-sage border-sage/20"
+                                                    ? "bg-ochre/10 text-ochre border-ochre/20"
+                                                    : "bg-sage/10 text-sage border-sage/20"
                                                     }`}>
                                                     {sess.model.includes("Mock") ? "Lite" : "Full"}
                                                 </span>
@@ -195,16 +195,16 @@ const SessionHistory = () => {
                                         <button
                                             title="Open in editor"
                                             onClick={() => navigate("/workbench/editor")}
-                                            className="p-2 rounded-lg hover:bg-signal/10 text-muted-foreground hover:text-signal transition-colors"
+                                            className="p-2 rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors"
                                         >
-                                            <ArrowUpRight size={15} />
+                                            <ArrowUpRight size={18} />
                                         </button>
                                         <button
                                             title="Download session JSON"
                                             onClick={() => handleExportSession(sess.id)}
                                             className="p-2 rounded-lg hover:bg-sage/10 text-muted-foreground hover:text-sage transition-colors"
                                         >
-                                            <Download size={15} />
+                                            <Download size={18} />
                                         </button>
                                         {confirmDelete === sess.id ? (
                                             <div className="flex items-center gap-1">

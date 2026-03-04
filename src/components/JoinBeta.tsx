@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 
 const JoinBeta = () => {
     return (
-        <Section id="join" className="bg-signal text-white py-32 md:py-48 overflow-hidden relative">
+        <Section id="join" className="bg-primary text-primary-foreground py-32 md:py-48 overflow-hidden relative">
             {/* Background Texture */}
             <div className="absolute inset-0 opacity-10 pointer-events-none">
                 <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_0%,transparent_70%)]" />
@@ -19,17 +19,17 @@ const JoinBeta = () => {
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                     >
-                        <Headline as="h2" className="text-white mb-8">
-                            Join the VerbAItim Beta
+                        <Headline as="h2" className="text-primary-foreground mb-8 text-4xl md:text-6xl tracking-tight">
+                            Join the Verb<span className="font-sans">AI</span>tim Beta
                         </Headline>
 
                         {/* Descriptive text ABOVE the CTA */}
-                        <Text variant="lead" className="text-white/90 mb-12 max-w-2xl mx-auto italic serif-italic">
+                        <Text variant="lead" className="text-white/90 mb-12 max-w-2xl mx-auto italic font-serif opacity-90">
                             If you are documenting a language or are interested in learning an endangered language, help shape the platform.
                         </Text>
 
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                            <button className="px-10 py-5 bg-white text-signal rounded-full font-bold text-lg hover:bg-opacity-90 transition-all shadow-2xl shadow-black/20 active:scale-95 leading-none">
+                            <button className="px-10 py-5 bg-card text-primary rounded-full font-bold text-lg hover:scale-105 transition-all shadow-2xl shadow-primary-foreground/10 active:scale-95 leading-none">
                                 Request Access
                             </button>
                         </div>

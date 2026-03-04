@@ -32,14 +32,14 @@ const ForLinguists = () => {
         <Section id="linguists" className="bg-background border-b border-border/50">
             <Container>
                 <div className="mb-20">
-                    <Text variant="caption" className="mb-6 block text-signal font-semibold">
+                    <Text variant="caption" className="mb-6 block text-primary font-bold tracking-widest uppercase">
                         Field Resources
                     </Text>
                     <div className="grid md:grid-cols-2 gap-12 items-end">
-                        <Headline as="h2">
+                        <Headline as="h2" className="text-4xl md:text-5xl tracking-tight">
                             For Field Linguists
                         </Headline>
-                        <Text variant="lead" className="text-foreground/85 italic serif-italic">
+                        <Text variant="lead" className="text-muted-foreground font-medium italic">
                             Spend less time formatting. <br className="hidden md:block" />
                             More time analyzing.
                         </Text>
@@ -56,15 +56,15 @@ const ForLinguists = () => {
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                className="group p-8 rounded-2xl border border-border hover:border-signal/30 hover:bg-accent/10 transition-all duration-300"
+                                className="group p-8 rounded-2xl border border-border hover:border-primary/30 hover:bg-accent/10 transition-all duration-300"
                             >
-                                <div className="w-12 h-12 rounded-xl bg-signal/10 flex items-center justify-center text-signal mb-6 group-hover:scale-110 transition-transform">
+                                <div className="w-12 h-12 rounded-[1.25rem] bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:-translate-y-1 transition-transform border border-primary/20">
                                     <feature.icon size={24} />
                                 </div>
-                                <h3 className="font-display text-xl font-semibold mb-3 text-foreground">
+                                <h3 className="font-display text-xl font-bold mb-3 text-card-foreground">
                                     {feature.title}
                                 </h3>
-                                <Text className="text-sm leading-relaxed text-muted-foreground group-hover:text-foreground/80 transition-colors">
+                                <Text className="text-sm leading-relaxed text-muted-foreground font-medium">
                                     {feature.description}
                                 </Text>
                             </motion.div>
@@ -72,7 +72,7 @@ const ForLinguists = () => {
                             {/* Arrow connector — visible only on lg breakpoint between cards */}
                             {idx < features.length - 1 && (
                                 <div key={`arrow-${idx}`} className="hidden lg:flex items-center justify-center px-2">
-                                    <ChevronRight size={24} className="text-signal/40" />
+                                    <ChevronRight size={24} className="text-primary/30" />
                                 </div>
                             )}
                         </>
@@ -82,9 +82,10 @@ const ForLinguists = () => {
                 <div className="flex justify-center">
                     <Link
                         to="/linguist"
-                        className="inline-flex items-center justify-center px-10 py-4 bg-signal text-white rounded-full font-display font-bold text-lg hover:shadow-xl hover:-translate-y-1 transition-all active:scale-95"
+                        className="inline-flex items-center justify-center px-10 py-5 bg-card text-card-foreground border border-border shadow-sm rounded-2xl font-bold text-lg hover:border-primary/50 hover:bg-white hover:-translate-y-1 transition-all active:scale-95 group"
                     >
                         Enter the Workbench
+                        <ChevronRight size={20} className="ml-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                     </Link>
                 </div>
             </Container>
@@ -93,3 +94,4 @@ const ForLinguists = () => {
 };
 
 export default ForLinguists;
+

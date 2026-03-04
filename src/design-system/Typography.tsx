@@ -28,7 +28,7 @@ export const Text = ({ children, className, variant = "body" }: { children: Reac
                 "font-body text-base md:text-lg leading-relaxed": variant === "body",
                 "font-body text-xl md:text-2xl font-light text-foreground/85": variant === "lead",
                 "font-body text-sm uppercase tracking-wider font-medium text-muted-foreground": variant === "caption",
-                "font-mono text-xs text-signal": variant === "code",
+                "font-mono text-xs text-primary": variant === "code",
                 "font-reading text-lg md:text-xl leading-relaxed text-foreground": variant === "reading",
             },
             className
@@ -37,3 +37,4 @@ export const Text = ({ children, className, variant = "body" }: { children: Reac
         </p>
     );
 };
+

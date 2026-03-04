@@ -134,18 +134,18 @@ const WorkbenchElicitation = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                         {/* Language picker */}
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <h2 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground/60 mb-4">
+                        <div className="bg-card border border-border rounded-[1.5rem] p-8 shadow-sm">
+                            <h2 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground/60 mb-5">
                                 Target Language
                             </h2>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-2 gap-3">
                                 {TARGET_LANGUAGES.map((lang) => (
                                     <button
                                         key={lang.code}
                                         onClick={() => setLanguage(lang.code)}
-                                        className={`px-3 py-2.5 rounded-xl text-sm font-semibold border transition-all text-left ${language === lang.code
-                                                ? "bg-signal/12 text-signal border-signal/25 shadow-sm"
-                                                : "bg-background border-border/70 text-muted-foreground hover:text-foreground hover:border-signal/20"
+                                        className={`px-4 py-3 rounded-2xl text-sm font-semibold border transition-all text-left ${language === lang.code
+                                            ? "bg-primary/10 text-primary border-primary/20 shadow-sm"
+                                            : "bg-background border-border/70 text-muted-foreground hover:text-foreground hover:border-primary/30"
                                             }`}
                                     >
                                         {lang.label}
@@ -156,16 +156,16 @@ const WorkbenchElicitation = () => {
                         </div>
 
                         {/* Category filter */}
-                        <div className="bg-card border border-border rounded-2xl p-6">
-                            <h2 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground/60 mb-4">
+                        <div className="bg-card border border-border rounded-[1.5rem] p-8 shadow-sm">
+                            <h2 className="font-display font-bold text-sm uppercase tracking-widest text-muted-foreground/60 mb-5">
                                 Semantic Domain
                             </h2>
                             <div className="flex flex-wrap gap-2 max-h-48 overflow-y-auto">
                                 <button
                                     onClick={() => setCategoryFilter("All")}
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${categoryFilter === "All"
-                                            ? "bg-signal/12 text-signal border-signal/25"
-                                            : "bg-background border-border/60 text-muted-foreground hover:text-foreground"
+                                    className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${categoryFilter === "All"
+                                        ? "bg-primary/10 text-primary border-primary/20 shadow-sm"
+                                        : "bg-background border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/20"
                                         }`}
                                 >
                                     All 207
@@ -174,9 +174,9 @@ const WorkbenchElicitation = () => {
                                     <button
                                         key={cat}
                                         onClick={() => setCategoryFilter(cat)}
-                                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${categoryFilter === cat
-                                                ? "bg-signal/12 text-signal border-signal/25"
-                                                : "bg-background border-border/60 text-muted-foreground hover:text-foreground"
+                                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${categoryFilter === cat
+                                            ? "bg-primary/10 text-primary border-primary/20 shadow-sm"
+                                            : "bg-background border-border/60 text-muted-foreground hover:text-foreground hover:border-primary/20"
                                             }`}
                                     >
                                         {cat}
@@ -187,22 +187,22 @@ const WorkbenchElicitation = () => {
                     </div>
 
                     {/* Summary */}
-                    <div className="flex items-center justify-between p-5 bg-card border border-border rounded-2xl mb-6">
+                    <div className="flex items-center justify-between p-6 bg-card border border-border rounded-[1.5rem] mb-6 shadow-sm">
                         <div>
-                            <p className="font-bold text-foreground">
+                            <p className="font-bold text-base text-card-foreground">
                                 {filteredItems.length} prompts
                                 {categoryFilter !== "All" ? ` in "${categoryFilter}"` : " from Swadesh 207"}
                             </p>
-                            <p className="text-xs text-muted-foreground/60 mt-0.5">
+                            <p className="text-xs text-muted-foreground/80 mt-1 font-medium">
                                 ASJP reference forms will load from{" "}
-                                <span className="font-mono">asjp.clld.org</span> for comparison.
+                                <span className="font-mono text-muted-foreground">asjp.clld.org</span> for comparison.
                             </p>
                         </div>
                         <button
                             onClick={handleStart}
-                            className="flex items-center gap-2 px-6 py-3 bg-signal text-white rounded-xl font-bold hover:bg-signal/90 transition-all active:scale-95 shadow-lg shadow-signal/25"
+                            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-2xl text-sm font-bold hover:bg-primary/90 transition-all active:scale-95 shadow-lg shadow-primary/25"
                         >
-                            <MessageSquarePlus size={16} /> Start Session
+                            <MessageSquarePlus size={16} className="fill-current" /> Start Session
                         </button>
                     </div>
                 </div>
@@ -229,28 +229,28 @@ const WorkbenchElicitation = () => {
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => { setSessionStarted(false); setResponses(new Map()); setCurrentIdx(0); }}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all"
+                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-all font-semibold"
                         >
-                            <RotateCcw size={13} /> Reset
+                            <RotateCcw size={14} /> Reset
                         </button>
                         <button
                             onClick={() => navigate("/workbench/record")}
-                            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-signal/12 border border-signal/20 text-xs text-signal font-bold hover:bg-signal/18 transition-all"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary/10 border border-primary/20 text-xs text-primary font-bold hover:bg-primary/15 transition-all shadow-sm"
                         >
-                            <Mic size={13} /> Record
+                            <Mic size={14} className="fill-current" /> Record
                         </button>
                     </div>
                 </div>
 
                 {/* Progress bar */}
-                <div className="mb-6">
-                    <div className="flex justify-between text-xs text-muted-foreground/60 mb-1.5">
+                <div className="mb-8">
+                    <div className="flex justify-between text-xs font-semibold text-muted-foreground/80 mb-2">
                         <span>{responses.size} of {filteredItems.length} responded</span>
                         <span className="font-mono">{progress}%</span>
                     </div>
-                    <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                    <div className="h-2 bg-secondary rounded-full overflow-hidden shadow-inner">
                         <div
-                            className="h-full bg-gradient-to-r from-signal to-signal/70 rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-primary/80 to-primary rounded-full transition-all duration-500 shadow-sm"
                             style={{ width: `${progress}%` }}
                         />
                     </div>
@@ -258,9 +258,9 @@ const WorkbenchElicitation = () => {
 
                 {/* Main prompt card */}
                 {currentItem && (
-                    <div className="bg-card border border-border rounded-2xl p-8 mb-6 relative overflow-hidden">
+                    <div className="bg-card border border-border rounded-[2rem] p-10 mb-8 relative overflow-hidden shadow-sm">
                         {/* IPA watermark */}
-                        <div className="absolute top-4 right-6 text-[80px] font-display text-foreground/3 select-none pointer-events-none leading-none">
+                        <div className="absolute top-6 right-8 text-[100px] font-display text-foreground/5 select-none pointer-events-none leading-none">
                             {currentItem.id}
                         </div>
 
@@ -281,25 +281,25 @@ const WorkbenchElicitation = () => {
                         </div>
 
                         {/* ASJP reference */}
-                        <div className="flex items-center gap-3 mb-6 p-3 bg-background/50 border border-border/50 rounded-xl">
-                            <Globe size={14} className="text-muted-foreground/40 shrink-0" />
+                        <div className="flex items-center gap-4 mb-8 p-4 bg-muted/30 border border-border/50 rounded-2xl shadow-sm">
+                            <Globe size={18} className="text-muted-foreground/60 shrink-0" />
                             <div>
-                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground/40 font-bold">
+                                <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-0.5">
                                     ASJP Reference Form
                                 </p>
                                 {asjpLoading ? (
-                                    <p className="text-xs text-muted-foreground/50 italic">Loading from asjp.clld.org…</p>
+                                    <p className="text-sm font-medium text-muted-foreground/60 italic">Loading from asjp.clld.org…</p>
                                 ) : asjpRef ? (
-                                    <p className="text-sm font-mono text-signal">{asjpRef.form}</p>
+                                    <p className="text-base font-mono font-medium text-primary bg-primary/5 px-2 py-0.5 rounded-md inline-block border border-primary/10">{asjpRef.form}</p>
                                 ) : (
-                                    <p className="text-xs text-muted-foreground/40 italic">Not found in ASJP for this language</p>
+                                    <p className="text-sm font-medium text-muted-foreground/50 italic">Not found in ASJP for this language</p>
                                 )}
                             </div>
                         </div>
 
                         {/* Response input */}
-                        <div className="space-y-2">
-                            <label className="text-xs uppercase tracking-widest font-bold text-muted-foreground/50">
+                        <div className="space-y-3">
+                            <label className="text-xs uppercase tracking-widest font-bold text-muted-foreground">
                                 IPA / Response
                             </label>
                             <input
@@ -307,7 +307,7 @@ const WorkbenchElicitation = () => {
                                 placeholder="Type IPA transcription or phonemic form…"
                                 value={currentResponse?.response ?? ""}
                                 onChange={(e) => handleResponse(e.target.value)}
-                                className="w-full bg-background border border-border rounded-xl px-4 py-3 font-mono text-lg text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-signal/25 focus:border-signal/30 transition-all"
+                                className="w-full bg-background border border-border rounded-2xl px-5 py-4 font-mono text-xl text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all shadow-sm"
                             />
                         </div>
 
@@ -330,7 +330,7 @@ const WorkbenchElicitation = () => {
                                             return next;
                                         });
                                     }}
-                                    className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-border text-xs text-muted-foreground hover:text-destructive hover:border-destructive/20 transition-all"
+                                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border text-xs font-semibold text-muted-foreground hover:text-destructive hover:bg-destructive/10 hover:border-destructive/20 transition-all shadow-sm"
                                 >
                                     <XCircle size={13} /> Clear
                                 </button>
@@ -344,13 +344,13 @@ const WorkbenchElicitation = () => {
                     <button
                         onClick={goPrev}
                         disabled={currentIdx === 0}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-border text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-accent/50 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="flex items-center gap-2 px-6 py-3 rounded-2xl border border-border bg-card text-sm font-bold text-muted-foreground hover:text-foreground hover:border-primary/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-sm"
                     >
-                        <ChevronLeft size={16} /> Previous
+                        <ChevronLeft size={18} /> Previous
                     </button>
 
                     {/* Item jump dots (show ±3 around current) */}
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                         {filteredItems.slice(Math.max(0, currentIdx - 3), currentIdx + 4).map((item, i) => {
                             const actualIdx = Math.max(0, currentIdx - 3) + i;
                             const isCurrent = actualIdx === currentIdx;
@@ -359,8 +359,8 @@ const WorkbenchElicitation = () => {
                                 <button
                                     key={item.id}
                                     onClick={() => setCurrentIdx(actualIdx)}
-                                    className={`w-2.5 h-2.5 rounded-full transition-all ${isCurrent ? "bg-signal scale-125" :
-                                            isDone ? "bg-sage/60" : "bg-border"
+                                    className={`w-3 h-3 rounded-full transition-all duration-300 ${isCurrent ? "bg-primary scale-125 shadow-sm" :
+                                        isDone ? "bg-sage/70" : "bg-border hover:bg-border/80"
                                         }`}
                                     title={item.gloss}
                                 />
@@ -371,18 +371,18 @@ const WorkbenchElicitation = () => {
                     <button
                         onClick={goNext}
                         disabled={currentIdx === filteredItems.length - 1}
-                        className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-signal text-white text-sm font-semibold hover:bg-signal/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95"
+                        className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-primary text-white text-sm font-bold hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all active:scale-95 shadow-md shadow-primary/20"
                     >
-                        Next <ChevronRight size={16} />
+                        Next <ChevronRight size={18} />
                     </button>
                 </div>
 
                 {/* Response summary */}
                 {responses.size > 0 && (
-                    <div className="mt-8 bg-card border border-border rounded-2xl p-5">
+                    <div className="mt-10 bg-card border border-border rounded-[1.5rem] p-6 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-display font-bold text-sm text-foreground flex items-center gap-2">
-                                <Layers size={14} /> Session Responses ({responses.size})
+                            <h3 className="font-display font-bold text-base text-card-foreground flex items-center gap-2">
+                                <Layers size={16} className="text-primary/70" /> Session Responses ({responses.size})
                             </h3>
                             <button
                                 onClick={() => {
@@ -393,9 +393,9 @@ const WorkbenchElicitation = () => {
                                     a.download = `elicitation_${language}_${Date.now()}.json`;
                                     a.click();
                                 }}
-                                className="flex items-center gap-1.5 text-xs text-signal hover:text-signal/80 font-bold transition-colors"
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/5 text-xs text-primary hover:bg-primary/10 font-bold transition-all border border-primary/10 shadow-sm"
                             >
-                                <BookOpen size={12} /> Export JSON
+                                <BookOpen size={14} /> Export JSON
                             </button>
                         </div>
                         <div className="space-y-2 max-h-48 overflow-y-auto">

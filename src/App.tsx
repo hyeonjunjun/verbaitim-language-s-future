@@ -14,6 +14,8 @@ import WorkbenchSettings from "./pages/WorkbenchSettings";
 import WorkbenchRecord from "./pages/WorkbenchRecord";
 import WorkbenchNotes from "./pages/WorkbenchNotes";
 import WorkbenchElicitation from "./pages/WorkbenchElicitation";
+import LearnerLanguageSelect from "./pages/LearnerLanguageSelect";
+import LearnerLesson from "./pages/LearnerLesson";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,10 +33,12 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/linguist" element={<LinguistDashboard />} />
             <Route path="/learner" element={<LearnerDashboard />} />
+            <Route path="/learner/select" element={<LearnerLanguageSelect />} />
+            <Route path="/learner/lesson" element={<LearnerLesson />} />
 
             {/* Professional Workbench - Immersive App Routes */}
             <Route path="/workbench" element={<WorkbenchDashboard />} />
-            <Route path="/workbench/editor" element={<WorkbenchEditor />} />
+            <Route path="/workbench/editor/:sessionId?" element={<WorkbenchEditor />} />
             <Route path="/workbench/corpus" element={<CorpusLibrary />} />
             <Route path="/workbench/history" element={<SessionHistory />} />
             <Route path="/workbench/settings" element={<WorkbenchSettings />} />

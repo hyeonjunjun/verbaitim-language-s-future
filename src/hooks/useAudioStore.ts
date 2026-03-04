@@ -13,6 +13,7 @@ export interface Segment {
     ipa: string;
     meaning: string;
     confidence: number;
+    culturalContext?: string;
 }
 
 /** A completed transcription session stored in history */

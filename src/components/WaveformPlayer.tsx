@@ -56,7 +56,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
 
             // Read CSS variable for signal color
             const computedStyle = getComputedStyle(document.documentElement);
-            const signalHSL = computedStyle.getPropertyValue("--signal").trim();
+            const signalHSL = computedStyle.getPropertyValue("--primary").trim();
             const waveColor = signalHSL
                 ? `hsl(${signalHSL} / 0.4)`
                 : "rgba(200, 150, 80, 0.4)";
@@ -126,7 +126,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
         if (!audioUrl) {
             return (
                 <div className={`relative flex items-center justify-center ${className || ""}`}>
-                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--signal),0.05)_0%,transparent_70%)]" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary),0.05)_0%,transparent_70%)]" />
                     <svg
                         className="w-full h-40 px-10 opacity-30"
                         viewBox="0 0 1000 100"
@@ -135,7 +135,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
                         <path
                             d="M0,50 Q20,20 40,50 T80,50 T120,20 T160,80 T200,50 L250,50 Q300,10 350,50 T450,50 T550,90 T650,10 L1000,50"
                             fill="none"
-                            stroke="hsl(var(--signal))"
+                            stroke="hsl(var(--primary))"
                             strokeWidth="2"
                             opacity="0.3"
                         />
@@ -150,7 +150,7 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
         return (
             <div className={`relative ${className || ""}`}>
                 {/* Subtle radial glow behind waveform */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--signal),0.05)_0%,transparent_70%)] pointer-events-none" />
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(var(--primary),0.05)_0%,transparent_70%)] pointer-events-none" />
                 {/* WaveSurfer container */}
                 <div
                     ref={containerRef}
@@ -164,3 +164,4 @@ const WaveformPlayer = forwardRef<WaveformPlayerHandle, WaveformPlayerProps>(
 WaveformPlayer.displayName = "WaveformPlayer";
 
 export default WaveformPlayer;
+
