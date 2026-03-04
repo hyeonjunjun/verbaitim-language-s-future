@@ -38,7 +38,7 @@ function formatTotalHours(totalSeconds: number): string {
 
 const SessionHistory = () => {
     const navigate = useNavigate();
-    const { sessions, deleteSession, segments } = useAudioStore();
+    const { sessions, deleteSession, segments, defaultExport } = useAudioStore();
     const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
     // ── Derive live summary stats ────────────────────────────────────

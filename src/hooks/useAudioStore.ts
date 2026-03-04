@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { transcribeAudio, checkHealth, type TranscriptionResult } from "@/lib/api";
+import { SEED_SESSIONS } from "@/lib/seedData";
 
 // ── Types ────────────────────────────────────────────────────────────
 
@@ -302,6 +303,12 @@ export const useAudioStore = create<AudioState>()(
                 role: state.role,
                 apiUrl: state.apiUrl,
             }),
+            onRehydrateStorage: () => (state) => {
+                // Inject seed data on very first visit (no persisted sessions)
+                if (state && state.sessions.length === 0) {
+                    state.sessions = SEED_SESSIONS;
+                }
+            },
         }
     )
 );

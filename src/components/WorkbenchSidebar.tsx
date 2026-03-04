@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import WaveformLogo from "./WaveformLogo";
+import { useAudioStore } from "@/hooks/useAudioStore";
 import {
     LayoutDashboard,
     Mic,
@@ -15,8 +16,11 @@ import {
 // Decorative IPA characters that float quietly in the sidebar background
 const IPA_CHARS = ["ʃ", "ŋ", "ʒ", "θ", "ɾ", "ʔ", "ɯ", "χ", "ʕ", "β"];
 
+const STATUS_COLORS = ["bg-ochre", "bg-sage", "bg-clay", "bg-primary", "bg-accent"];
+
 const WorkbenchSidebar = () => {
     const location = useLocation();
+    const { sessions } = useAudioStore();
 
     const navItems = [
         { name: "Overview", icon: LayoutDashboard, path: "/workbench" },
@@ -26,11 +30,14 @@ const WorkbenchSidebar = () => {
         { name: "History", icon: History, path: "/workbench/history" },
     ];
 
-    const corpusProjects = [
-        { name: "Lakota_Corpus_Q4", status: "In Progress", color: "bg-ochre" },
-        { name: "Quechua_Archive_01", status: "Reviewed", color: "bg-sage" },
-        { name: "Maori_Elders_2024", status: "Transcribing", color: "bg-clay" },
-    ];
+    // Derive corpus projects from real session data
+    const corpusProjects = Array.from(
+        new Set(sessions.map(s => s.language))
+    ).map((lang, i) => ({
+        name: `${lang}_Corpus`,
+        status: sessions.filter(s => s.language === lang).length > 1 ? "In Progress" : "New",
+        color: STATUS_COLORS[i % STATUS_COLORS.length],
+    }));
 
     return (
         <aside className="w-64 bg-card border-r border-border flex flex-col shrink-0 transition-colors duration-500 relative overflow-hidden">

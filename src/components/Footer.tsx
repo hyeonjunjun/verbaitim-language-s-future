@@ -37,20 +37,20 @@ const Footer = () => {
           <div>
             <h4 className="font-display text-sm font-bold uppercase tracking-widest mb-6 text-card-foreground">Resources</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Methodology</a></li>
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Ethics Codex</a></li>
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Case Studies</a></li>
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Support</a></li>
+              <li><a href="#how-it-works" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Methodology</a></li>
+              <li><span className="text-sm font-medium text-muted-foreground inline-flex items-center gap-2">Ethics Codex <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Soon</span></span></li>
+              <li><span className="text-sm font-medium text-muted-foreground inline-flex items-center gap-2">Case Studies <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Soon</span></span></li>
+              <li><a href="mailto:Contact@VerbAItim.com" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Support</a></li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-display text-sm font-bold uppercase tracking-widest mb-6 text-card-foreground">Connect</h4>
             <ul className="space-y-4">
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Journal</a></li>
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Newsletter</a></li>
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Contact</a></li>
-              <li><a href="#" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Scholar Portal</a></li>
+              <li><span className="text-sm font-medium text-muted-foreground inline-flex items-center gap-2">Journal <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Soon</span></span></li>
+              <li><a href="#join" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Newsletter</a></li>
+              <li><a href="mailto:Contact@VerbAItim.com" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Contact</a></li>
+              <li><Link to="/workbench" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Scholar Portal</Link></li>
             </ul>
           </div>
 
