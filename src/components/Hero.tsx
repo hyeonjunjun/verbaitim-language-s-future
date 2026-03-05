@@ -106,8 +106,8 @@ const Hero = () => {
                 </div>
               </div>
               {/* Dashboard preview */}
-              <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl border border-t-0 border-border/60 p-6 shadow-2xl shadow-primary/5">
-                <div className="grid grid-cols-4 gap-3 mb-5">
+              <div className="bg-white/70 backdrop-blur-sm rounded-b-2xl border border-t-0 border-border/60 p-4 md:p-6 shadow-2xl shadow-primary/5">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
                   {([
                     { label: "Sessions", val: "3", sub: "RECORDED" },
                     { label: "Segments", val: "15", sub: "TRANSCRIBED" },
@@ -121,7 +121,7 @@ const Hero = () => {
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {([
                     { file: "mixtec_greetings.wav", lang: "MIXTEC", segs: "6 segments" },
                     { file: "mixtec_market.wav", lang: "MIXTEC", segs: "5 segments" },

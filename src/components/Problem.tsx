@@ -28,7 +28,7 @@ const Problem = () => {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.6 }}
-                            className="bg-primary/5 p-10 rounded-[2rem] border border-primary/20 shadow-sm"
+                            className="bg-primary/5 p-6 sm:p-10 rounded-[2rem] border border-primary/20 shadow-sm"
                         >
                             <div className="flex items-baseline gap-4 mb-3">
                                 <span className="font-display text-6xl md:text-7xl font-bold text-primary leading-none tracking-tighter">10–20×</span>

@@ -10,8 +10,8 @@
 
     /* Typography - "The Ink" */
     --font-display: 'Fraunces', serif;
-    --font-body: 'Source Sans 3', sans-serif;
-    --font-reading: 'Source Serif 4', serif;
+    --font-body: 'Source Sans 3', 'Noto Sans', sans-serif;
+    --font-reading: 'Source Serif 4', 'Charis SIL', 'Doulos SIL', 'Brill', serif;
 
     /* UI Shell */
     --card: 35 30% 98%;

@@ -72,19 +72,29 @@ const LearnerLesson = () => {
     return (
         <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body flex flex-col pt-safe">
             {/* Top Bar Navigation */}
-            <header className="px-6 pt-6 pb-4 flex items-center gap-4 sticky top-0 bg-[#FDFCFB] z-10 w-full max-w-2xl mx-auto">
-                <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
-                    <X size={28} />
-                </button>
-                <div className="flex-1 h-3 bg-muted/40 rounded-full overflow-hidden">
-                    <div
-                        className="h-full bg-[#A5D6A7] rounded-full transition-all duration-300"
-                        style={{ width: `${(activeUnit.completedLessons / activeUnit.totalLessons) * 100}%` }}
-                    />
+            <header className="px-6 pt-6 pb-4 flex flex-col gap-3 sticky top-0 bg-[#FDFCFB]/95 backdrop-blur z-10 w-full max-w-2xl mx-auto">
+                <div className="flex items-center text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest gap-2">
+                    <button onClick={() => navigate('/learner')} className="hover:text-primary transition-colors focus:outline-none">Learning Hub</button>
+                    <span>/</span>
+                    <button onClick={() => navigate('/learner/select')} className="hover:text-primary transition-colors focus:outline-none">{session?.language || 'Language'}</button>
+                    <span>/</span>
+                    <span className="text-card-foreground">{activeUnit.title}</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-sage font-bold shrink-0">
-                    <Heart size={24} className={`fill-current text-destructive ${lives === 0 ? "opacity-30" : ""}`} />
-                    <span className="text-destructive text-lg">{lives}</span>
+
+                <div className="flex items-center gap-4 w-full">
+                    <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors shrink-0">
+                        <X size={28} />
+                    </button>
+                    <div className="flex-1 h-3 bg-muted/40 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-[#A5D6A7] rounded-full transition-all duration-300"
+                            style={{ width: `${(activeUnit.completedLessons / activeUnit.totalLessons) * 100}%` }}
+                        />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-sage font-bold shrink-0">
+                        <Heart size={24} className={`fill-current text-destructive ${lives === 0 ? "opacity-30" : ""}`} />
+                        <span className="text-destructive text-lg">{lives}</span>
+                    </div>
                 </div>
             </header>
 

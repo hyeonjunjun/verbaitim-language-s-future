@@ -68,7 +68,7 @@ const Solution = () => {
                                 </div>
                             </div>
                             {/* Screenshot placeholder — mock workbench UI (Light mode) */}
-                            <div className="bg-[#FDFCFB] p-8 min-h-[320px] flex gap-6">
+                            <div className="bg-[#FDFCFB] p-4 sm:p-8 min-h-[320px] flex gap-6">
                                 {/* Sidebar mock */}
                                 <div className="w-48 space-y-4 flex-shrink-0 hidden md:block">
                                     <div className="flex items-center gap-2 mb-6">
@@ -83,10 +83,10 @@ const Solution = () => {
                                     ))}
                                 </div>
                                 {/* Main content mock */}
-                                <div className="flex-1 space-y-4">
+                                <div className="flex-1 space-y-4 min-w-0">
                                     {/* Waveform */}
-                                    <div className="bg-white rounded-[1.5rem] p-4 border shadow-sm">
-                                        <div className="flex items-end gap-[3px] h-12 justify-center">
+                                    <div className="bg-white rounded-[1.5rem] p-4 border shadow-sm overflow-hidden">
+                                        <div className="flex items-end gap-[2px] sm:gap-[3px] h-12 justify-center w-full">
                                             {Array.from({ length: 48 }).map((_, i) => (
                                                 <div
                                                     key={i}
@@ -99,36 +99,43 @@ const Solution = () => {
                                     {/* Transcription rows */}
                                     <div className="bg-white rounded-[1.5rem] border shadow-sm overflow-hidden">
                                         <div className="text-[10px] text-muted-foreground/60 font-mono font-bold uppercase tracking-widest px-4 pt-4 pb-2 border-b border-border/50">IPA Transcription · Lakota_FieldSession_042</div>
-                                        <table className="w-full text-xs">
-                                            <thead>
-                                                <tr className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider border-b border-border/50 bg-muted/20">
-                                                    <td className="px-5 py-2">Time</td>
-                                                    <td className="px-3 py-2">Spkr</td>
-                                                    <td className="px-3 py-2">IPA</td>
-                                                    <td className="px-3 py-2 hidden md:table-cell">Gloss</td>
-                                                    <td className="px-3 py-2">Conf</td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {[
-                                                    { t: "0:04", sp: "EF_01", ipa: "haʊ̃ mitˈakʷe.ojasiŋ", en: "Hello, all my relatives", conf: "high" },
-                                                    { t: "0:09", sp: "EF_01", ipa: "čaŋtéčhila čhe tȟamákhočhe", en: "I love this land", conf: "high" },
-                                                    { t: "0:21", sp: "EF_02", ipa: "wičhóie kiŋ hé wašté", en: "That word is good", conf: "med" },
-                                                    { t: "0:34", sp: "EF_01", ipa: "wóokiye čha uŋspékhičhiyapi", en: "They taught us to pray", conf: "high" },
-                                                    { t: "0:47", sp: "EF_02", ipa: "táku eháŋni uŋkáǧapi", en: "What we made long ago", conf: "med" },
-                                                ].map((row, i) => (
-                                                    <tr key={i} className={`border-b border-border/50 ${i === 1 ? 'bg-primary/5' : ''}`}>
-                                                        <td className="px-5 py-2.5 font-mono text-muted-foreground/60">{row.t}</td>
-                                                        <td className="px-3 py-2.5 font-bold text-card-foreground/80">{row.sp}</td>
-                                                        <td className="px-3 py-2.5 font-mono font-bold text-primary tracking-wide">{row.ipa}</td>
-                                                        <td className="px-3 py-2.5 text-muted-foreground italic hidden md:table-cell">{row.en}</td>
-                                                        <td className="px-3 py-2.5">
-                                                            <div className={`h-1.5 rounded-full w-10 shadow-inner ${row.conf === 'high' ? 'bg-sage/80' : 'bg-ochre/80'}`} />
-                                                        </td>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-xs min-w-[500px]">
+                                                <thead className="sticky top-0 bg-white/95 backdrop-blur z-10">
+                                                    <tr className="text-[9px] font-mono text-muted-foreground/50 uppercase tracking-wider border-b border-border/50 bg-muted/20">
+                                                        <td className="px-5 py-2">Time</td>
+                                                        <td className="px-3 py-2">Spkr</td>
+                                                        <td className="px-3 py-2">IPA</td>
+                                                        <td className="px-3 py-2 hidden md:table-cell">Gloss</td>
+                                                        <td className="px-3 py-2">Conf</td>
                                                     </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
+                                                </thead>
+                                                <tbody>
+                                                    {[
+                                                        { t: "0:04", sp: "EF_01", ipa: "haʊ̃ mitˈakʷe.ojasiŋ", en: "Hello, all my relatives", conf: "high" },
+                                                        { t: "0:09", sp: "EF_01", ipa: "čaŋtéčhila čhe tȟamákhočhe", en: "I love this land", conf: "high" },
+                                                        { t: "0:21", sp: "EF_02", ipa: "wičhóie kiŋ hé wašté", en: "That word is good", conf: "med" },
+                                                        { t: "0:34", sp: "EF_01", ipa: "wóokiye čha uŋspékhičhiyapi", en: "They taught us to pray", conf: "high" },
+                                                        { t: "0:47", sp: "EF_02", ipa: "táku eháŋni uŋkáǧapi", en: "What we made long ago", conf: "med" },
+                                                    ].map((row, i) => (
+                                                        <tr key={i} className={`border-b border-border/50 ${i === 1 ? 'bg-primary/5' : ''}`}>
+                                                            <td className="px-5 py-2.5 font-mono text-muted-foreground/60 flex items-center gap-1.5">
+                                                                <button className="text-primary/70 hover:text-primary transition-colors p-1 hover:bg-primary/10 rounded-full" title="Play Segment">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="6 3 20 12 6 21 6 3" /></svg>
+                                                                </button>
+                                                                {row.t}
+                                                            </td>
+                                                            <td className="px-3 py-2.5 font-bold text-card-foreground/80">{row.sp}</td>
+                                                            <td className="px-3 py-2.5 font-mono font-bold text-primary tracking-wide">{row.ipa}</td>
+                                                            <td className="px-3 py-2.5 text-muted-foreground italic hidden md:table-cell">{row.en}</td>
+                                                            <td className="px-3 py-2.5">
+                                                                <div className={`h-1.5 rounded-full w-10 shadow-inner ${row.conf === 'high' ? 'bg-sage/80' : 'bg-ochre/80'}`} />
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

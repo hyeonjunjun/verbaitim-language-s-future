@@ -3,6 +3,7 @@ import { Headline, Text } from "@/design-system/Typography";
 import { motion } from "framer-motion";
 import { Upload, FileText, Database, GraduationCap, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import React from "react";
 
 const features = [
     {
@@ -49,14 +50,14 @@ const ForLinguists = () => {
                 {/* Feature cards with arrow connectors */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr] gap-y-8 gap-x-0 mb-16 items-stretch">
                     {features.map((feature, idx) => (
-                        <>
+                        <React.Fragment key={feature.title}>
                             <motion.div
                                 key={feature.title}
                                 initial={{ opacity: 0, y: 30 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.5, delay: idx * 0.1 }}
-                                className="group p-8 rounded-2xl border border-border hover:border-primary/30 hover:bg-accent/10 transition-all duration-300"
+                                className="group p-6 sm:p-8 rounded-2xl border border-border hover:border-primary/30 hover:bg-accent/10 transition-all duration-300"
                             >
                                 <div className="w-12 h-12 rounded-[1.25rem] bg-primary/10 flex items-center justify-center text-primary mb-6 group-hover:-translate-y-1 transition-transform border border-primary/20">
                                     <feature.icon size={24} />
@@ -75,7 +76,7 @@ const ForLinguists = () => {
                                     <ChevronRight size={24} className="text-primary/30" />
                                 </div>
                             )}
-                        </>
+                        </React.Fragment>
                     ))}
                 </div>
 

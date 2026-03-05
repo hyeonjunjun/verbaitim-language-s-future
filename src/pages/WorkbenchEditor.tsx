@@ -3,7 +3,7 @@ import { ArrowLeft, Edit2, Play, Check, AlertTriangle, Users, Download } from "l
 import { useAudioStore } from "@/hooks/useAudioStore";
 import { exportSession } from "@/lib/exportSession";
 import type { ExportFormat } from "@/lib/exportSession";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const WorkbenchEditor = () => {
     const navigate = useNavigate();
@@ -18,6 +18,21 @@ const WorkbenchEditor = () => {
     // For prototype simplicity, we'll keep a local state of whether the context editor is open
     const [editingSegmentId, setEditingSegmentId] = useState<string | null>(null);
     const [contextInput, setContextInput] = useState("");
+    const [showLowConfidenceOnly, setShowLowConfidenceOnly] = useState(false);
+
+    // Keyboard Shortcuts Listener
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Don't trigger if user is typing in an input or textarea
+            if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+            if (e.key === 'p' || e.key === 'Tab') {
+                e.preventDefault();
+                // Simulation of global play/pause
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
 
     const handleExportSession = () => {
         if (!session) return;
@@ -105,14 +120,30 @@ const WorkbenchEditor = () => {
                 <div>
                     <div className="flex items-center justify-between mb-4 px-2">
                         <h3 className="font-bold text-lg">IPA Transcription</h3>
-                        <span className="text-sm text-muted-foreground font-medium">{session.segments.length} segments</span>
+                        <div className="flex items-center gap-4">
+                            <label className="flex items-center gap-2 text-sm font-semibold cursor-pointer text-muted-foreground hover:text-foreground transition-colors group">
+                                <input
+                                    type="checkbox"
+                                    checked={showLowConfidenceOnly}
+                                    onChange={(e) => setShowLowConfidenceOnly(e.target.checked)}
+                                    className="w-4 h-4 accent-ochre rounded border-border"
+                                />
+                                Show Only <span className="text-ochre group-hover:underline">Review Needed</span>
+                            </label>
+                            <span className="text-sm text-muted-foreground font-medium">{session.segments.length} segments</span>
+                        </div>
                     </div>
 
                     <div className="space-y-6">
-                        {session.segments.map((segment) => (
+                        {session.segments.filter(s => showLowConfidenceOnly ? s.confidence <= 85 : true).map((segment) => (
                             <div key={segment.id} className="bg-white border border-border/50 rounded-2xl p-5 shadow-sm">
                                 <div className="flex items-center justify-between mb-2">
-                                    <span className="text-[11px] font-bold text-muted-foreground">{segment.time}</span>
+                                    <div className="flex items-center gap-1.5">
+                                        <button className="text-primary hover:text-primary/70 transition-colors p-1.5 bg-primary/5 hover:bg-primary/10 rounded-full" title="Play Segment (Shortcut: P)">
+                                            <Play size={12} className="fill-current" />
+                                        </button>
+                                        <span className="text-[11px] font-bold text-muted-foreground">{segment.time}</span>
+                                    </div>
                                     <span className="text-xs font-bold text-primary">{segment.speaker}</span>
                                 </div>
                                 <div className="text-[15px] text-[#4A8DB7] italic mb-3">

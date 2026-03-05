@@ -19,36 +19,39 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 import MainLayout from "@/layouts/MainLayout";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <MainLayout>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/learner" element={<LearnerDashboard />} />
-            <Route path="/learner/select" element={<LearnerLanguageSelect />} />
-            <Route path="/learner/lesson" element={<LearnerLesson />} />
+  <ThemeProvider defaultTheme="light" enableSystem storageKey="verbaitim-theme">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <MainLayout>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/learner" element={<LearnerDashboard />} />
+              <Route path="/learner/select" element={<LearnerLanguageSelect />} />
+              <Route path="/learner/lesson" element={<LearnerLesson />} />
 
-            {/* Professional Workbench - Immersive App Routes */}
-            <Route path="/workbench" element={<WorkbenchDashboard />} />
-            <Route path="/workbench/editor/:sessionId?" element={<WorkbenchEditor />} />
-            <Route path="/workbench/corpus" element={<CorpusLibrary />} />
-            <Route path="/workbench/history" element={<SessionHistory />} />
-            <Route path="/workbench/settings" element={<WorkbenchSettings />} />
-            <Route path="/workbench/record" element={<WorkbenchRecord />} />
-            <Route path="/workbench/elicitation" element={<WorkbenchElicitation />} />
+              {/* Professional Workbench - Immersive App Routes */}
+              <Route path="/workbench" element={<WorkbenchDashboard />} />
+              <Route path="/workbench/editor/:sessionId?" element={<WorkbenchEditor />} />
+              <Route path="/workbench/corpus" element={<CorpusLibrary />} />
+              <Route path="/workbench/history" element={<SessionHistory />} />
+              <Route path="/workbench/settings" element={<WorkbenchSettings />} />
+              <Route path="/workbench/record" element={<WorkbenchRecord />} />
+              <Route path="/workbench/elicitation" element={<WorkbenchElicitation />} />
 
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </MainLayout>
-    </TooltipProvider>
-  </QueryClientProvider>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </MainLayout>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

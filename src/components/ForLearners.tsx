@@ -51,7 +51,7 @@ const ForLearners = () => {
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            className="flex gap-6 p-8 rounded-3xl bg-white border border-border/50 hover:border-primary/20 hover:shadow-md transition-all group"
+                            className="flex flex-col sm:flex-row gap-4 sm:gap-6 p-6 sm:p-8 rounded-3xl bg-white border border-border/50 hover:border-primary/20 hover:shadow-md transition-all group"
                         >
                             <div className="flex-shrink-0 w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center border border-primary/20 group-hover:-translate-y-1 transition-transform">
                                 <path.icon size={24} />
@@ -76,9 +76,9 @@ const ForLearners = () => {
                     transition={{ duration: 0.8 }}
                     className="mb-16 flex justify-center"
                 >
-                    <div className="relative w-full max-w-2xl rounded-3xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-primary/10 p-12 flex items-center justify-center overflow-hidden">
+                    <div className="relative w-full max-w-2xl rounded-3xl bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 border border-primary/10 p-6 md:p-12 flex items-center justify-center overflow-hidden">
                         {/* Abstract learning community illustration via CSS */}
-                        <div className="flex items-end gap-6">
+                        <div className="flex flex-wrap md:flex-nowrap items-end justify-center gap-3 md:gap-6">
                             {/* Person silhouettes as abstract circles */}
                             {[
                                 { size: 'w-14 h-14', color: 'bg-primary/30', label: 'ə' },
@@ -105,7 +105,7 @@ const ForLearners = () => {
                     </div>
                 </motion.div>
 
-                <div className="text-center bg-primary/5 p-16 rounded-[2.5rem] border border-primary/20 shadow-sm relative overflow-hidden group">
+                <div className="text-center bg-primary/5 p-8 md:p-16 rounded-[2.5rem] border border-primary/20 shadow-sm relative overflow-hidden group">
                     <div className="absolute inset-0 bg-primary/5 translate-y-full group-hover:translate-y-0 transition-transform duration-700 ease-out" />
                     <div className="relative z-10">
                         <Text variant="lead" className="max-w-2xl mx-auto text-card-foreground italic font-serif mb-10 text-2xl">
