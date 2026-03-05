@@ -4,6 +4,7 @@ import { useLearnerStore } from "@/hooks/useLearnerStore";
 import { useAudioStore } from "@/hooks/useAudioStore";
 import { useEffect } from "react";
 import WaveformLogo from "@/components/WaveformLogo";
+import { motion } from "framer-motion";
 
 const LearnerLanguageSelect = () => {
     const navigate = useNavigate();
@@ -24,7 +25,11 @@ const LearnerLanguageSelect = () => {
     const uniqueLanguages = new Set(sessions.map(s => s.language)).size;
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body p-6 pb-20">
+        <div className="min-h-screen bg-gradient-to-br from-[#FDFCFB] via-secondary/10 to-[#FDFCFB] text-foreground font-body p-6 pb-20 relative overflow-hidden">
+            {/* Soft background blob */}
+            <div className="fixed top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
+            <div className="fixed bottom-[10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sage/5 blur-[120px] pointer-events-none" />
+
             {/* Top Navigation */}
             <div className="flex items-center justify-between mb-6 max-w-5xl mx-auto pt-6">
                 <Link to="/" className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 transition-colors">
@@ -99,12 +104,15 @@ const LearnerLanguageSelect = () => {
 
                 {/* Language Grid */}
                 {courses.length > 0 ? (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                        {courses.map((course) => (
-                            <div
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 relative z-10">
+                        {courses.map((course, i) => (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.05, duration: 0.4 }}
                                 key={course.id}
                                 onClick={() => handleSelectCourse(course.id)}
-                                className="bg-white rounded-3xl p-4 border border-border/50 shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-md transition-all group"
+                                className="bg-white/80 backdrop-blur-sm rounded-3xl p-4 border border-border/50 shadow-sm cursor-pointer hover:border-primary/40 hover:shadow-md hover:-translate-y-1 transition-all group"
                             >
                                 <div
                                     className="aspect-[4/3] rounded-2xl mb-3 overflow-hidden relative"
@@ -132,7 +140,7 @@ const LearnerLanguageSelect = () => {
                                 <p className="text-[11px] text-muted-foreground/70 mt-2 font-medium">
                                     By {course.creatorName}
                                 </p>
-                            </div>
+                            </motion.div>
                         ))}
                     </div>
                 ) : (

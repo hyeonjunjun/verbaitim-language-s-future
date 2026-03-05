@@ -70,7 +70,11 @@ const LearnerLesson = () => {
     if (!activeUnit || !currentSegment) return null;
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body flex flex-col pt-safe">
+        <div className="min-h-screen bg-gradient-to-br from-[#FDFCFB] via-secondary/10 to-[#FDFCFB] text-foreground font-body flex flex-col pt-safe relative overflow-hidden">
+            {/* Soft background blobs */}
+            <div className="fixed top-0 right-0 w-[40vw] h-[40vw] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
+            <div className="fixed bottom-0 left-0 w-[50vw] h-[50vw] rounded-full bg-sage/5 blur-[120px] pointer-events-none" />
+
             {/* Top Bar Navigation */}
             <header className="px-6 pt-6 pb-4 flex flex-col gap-3 sticky top-0 bg-[#FDFCFB]/95 backdrop-blur z-10 w-full max-w-2xl mx-auto">
                 <div className="flex items-center text-[10px] font-bold text-muted-foreground/80 uppercase tracking-widest gap-2">
@@ -186,7 +190,7 @@ const LearnerLesson = () => {
             </main>
 
             {/* Bottom Action Bar */}
-            <div className={`fixed bottom-0 left-0 right-0 p-6 border-t transition-colors duration-300 ${status === "success" ? "bg-sage/10 border-sage/20" : "bg-[#FDFCFB] border-border/30"
+            <div className={`fixed bottom-0 left-0 right-0 p-6 border-t backdrop-blur-md transition-colors duration-300 ${status === "success" ? "bg-sage/10 border-sage/20" : "bg-white/80 border-border/30"
                 }`}>
                 <div className="w-full max-w-2xl mx-auto flex justify-between items-center">
                     <button
