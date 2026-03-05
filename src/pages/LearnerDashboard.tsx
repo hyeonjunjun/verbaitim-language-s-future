@@ -1,8 +1,9 @@
 import { useNavigate, Link } from "react-router-dom";
-import { UserCircle, Flame, Bell, CheckCircle2, Lock, Store, School, Leaf, MapPin } from "lucide-react";
+import { UserCircle, Flame, Bell, CheckCircle2, Lock, Store, School, Leaf, MapPin, Sparkles } from "lucide-react";
 import { useLearnerStore, LessonUnit } from "@/hooks/useLearnerStore";
 import { useAudioStore } from "@/hooks/useAudioStore";
 import { useEffect } from "react";
+import { motion } from "framer-motion";
 
 // Map string names from store to actual Lucide components
 const IconMap: Record<string, any> = {
@@ -83,16 +84,20 @@ const LearnerDashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body p-6 pb-20">
-            <div className="max-w-md mx-auto">
+        <div className="min-h-screen bg-gradient-to-br from-[#FDFCFB] via-secondary/10 to-[#FDFCFB] text-foreground font-body p-6 pb-20 relative overflow-hidden">
+            {/* Soft background blob */}
+            <div className="fixed top-[-10%] right-[-5%] w-[40vw] h-[40vw] rounded-full bg-primary/5 blur-[100px] pointer-events-none" />
+            <div className="fixed bottom-[10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-sage/5 blur-[120px] pointer-events-none" />
+
+            <div className="max-w-4xl mx-auto relative z-10">
                 {/* Top Navigation */}
                 <header className="flex items-center justify-between mb-8 pt-6">
                     <div className="flex items-center gap-3">
                         <button className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 transition-colors">
                             <UserCircle size={24} className="text-muted-foreground" />
                         </button>
-                        <Link to="/workbench" className="px-4 py-2 bg-foreground/5 text-foreground text-xs font-bold rounded-full hover:bg-foreground/10 transition-colors">
-                            Switch to Linguist
+                        <Link to="/workbench" className="px-5 py-2.5 bg-white/60 backdrop-blur-md border border-border/50 shadow-sm text-foreground text-xs font-bold rounded-full hover:bg-white hover:shadow-md hover:border-primary/20 transition-all flex items-center gap-2">
+                            <Sparkles size={14} className="text-primary" /> Switch to Linguist
                         </Link>
                     </div>
                     <div className="flex items-center gap-4">
@@ -111,25 +116,41 @@ const LearnerDashboard = () => {
                 </h1>
 
                 {/* Daily Goal Card */}
-                <div className="bg-white rounded-[2rem] p-6 border border-border/50 shadow-sm mb-10 relative overflow-hidden cursor-pointer hover:border-primary/30 transition-colors">
-                    <div className="relative z-10">
-                        <div className="flex justify-between items-start mb-4">
-                            <h2 className="text-[17px] font-bold text-card-foreground w-2/3 leading-snug">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                    className="bg-white rounded-[2rem] p-6 border border-border/50 shadow-sm mb-10 relative overflow-hidden cursor-pointer hover:border-primary/30 group transition-colors"
+                >
+                    {/* Decorative pattern for the goal card */}
+                    <div className="absolute top-0 right-0 bottom-0 w-1/2 bg-gradient-to-l from-primary/5 to-transparent pointer-events-none" />
+                    <div className="absolute -right-10 -top-10 w-40 h-40 bg-primary/10 rounded-full blur-[40px] group-hover:bg-primary/20 transition-colors pointer-events-none" />
+
+                    {/* Line Art Illustration */}
+                    <img
+                        src="/learner_village.png"
+                        alt="Village Illustration"
+                        className="absolute -right-4 bottom-0 w-36 h-36 sm:-right-8 sm:-bottom-4 sm:w-56 sm:h-56 object-contain opacity-90 mix-blend-multiply pointer-events-none group-hover:scale-105 group-hover:-rotate-2 group-hover:opacity-100 transition-all duration-700 ease-out"
+                    />
+
+                    <div className="relative z-10 pr-28 sm:pr-40">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3 mb-4">
+                            <h2 className="text-[17px] font-bold text-card-foreground leading-snug">
                                 {lessonsCompletedToday}/{dailyGoal} lessons today.<br />
                                 {lessonsCompletedToday >= dailyGoal ? "Daily goal met!" : "You're almost there!"}
                             </h2>
-                            <span className="px-2.5 py-1 bg-muted/50 text-muted-foreground text-[11px] font-bold rounded-md">
+                            <span className="self-start px-2.5 py-1 bg-white/80 backdrop-blur-sm border border-border/50 shadow-sm text-muted-foreground text-[11px] font-bold rounded-md">
                                 {activeCourse.name} {activeCourse.region && `(${activeCourse.region})`}
                             </span>
                         </div>
-                        <div className="h-2.5 w-full bg-muted rounded-full overflow-hidden mt-6">
+                        <div className="h-2.5 w-full bg-muted/80 rounded-full overflow-hidden mt-6 shadow-inner">
                             <div
-                                className="h-full bg-[#A5D6A7] rounded-full transition-all duration-500 ease-out"
+                                className="h-full bg-gradient-to-r from-sage to-[#81C784] rounded-full transition-all duration-1000 ease-out"
                                 style={{ width: `${Math.min((lessonsCompletedToday / dailyGoal) * 100, 100)}%` }}
                             />
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {units.length > 0 ? (
                     <div className="flex items-center justify-between mb-8">
@@ -152,15 +173,18 @@ const LearnerDashboard = () => {
                 )}
 
                 {/* Village Explorer Layout */}
-                <div className="flex flex-col gap-4 pb-10">
-                    {units.map((unit) => (
-                        <div
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-10">
+                    {units.map((unit, i) => (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1, duration: 0.4 }}
                             key={unit.id}
                             onClick={() => handleLessonClick(unit.id, unit.status)}
-                            className={`flex items-center gap-5 p-5 rounded-[2rem] bg-white border shadow-sm transition-all
+                            className={`flex items-center gap-5 p-5 rounded-[2rem] bg-white/80 backdrop-blur-sm border shadow-sm transition-all
                                 ${unit.status === 'locked'
                                     ? 'opacity-60 border-border/40'
-                                    : 'cursor-pointer hover:border-primary/40 hover:shadow-md border-border/50 group'
+                                    : 'cursor-pointer hover:border-primary/40 hover:shadow-md hover:-translate-y-1 border-border/50 group'
                                 }`}
                         >
                             <div className="shrink-0 relative">
@@ -189,7 +213,7 @@ const LearnerDashboard = () => {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </motion.div>
                     ))}
                 </div>
             </div>

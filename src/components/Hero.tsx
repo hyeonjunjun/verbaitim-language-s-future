@@ -18,7 +18,7 @@ const Hero = () => {
   const y = useTransform(scrollYProgress, [0, 0.5], [0, 50]);
 
   return (
-    <div ref={containerRef} className="relative min-h-screen w-full flex flex-col justify-center overflow-hidden bg-background">
+    <div ref={containerRef} className="relative min-h-screen w-full flex flex-col justify-center overflow-hidden bg-background pt-28 pb-12 md:pt-32 md:pb-24">
 
       {/* Subtle Organic Background Accent */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.14] overflow-hidden">

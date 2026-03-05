@@ -26,7 +26,7 @@ const LearnerLanguageSelect = () => {
     return (
         <div className="min-h-screen bg-[#FDFCFB] text-foreground font-body p-6 pb-20">
             {/* Top Navigation */}
-            <div className="flex items-center justify-between mb-6 max-w-lg mx-auto pt-6">
+            <div className="flex items-center justify-between mb-6 max-w-5xl mx-auto pt-6">
                 <Link to="/" className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/30 hover:bg-muted/50 transition-colors">
                     <UserCircle size={24} className="text-muted-foreground" />
                 </Link>
@@ -40,7 +40,7 @@ const LearnerLanguageSelect = () => {
                 </Link>
             </div>
 
-            <div className="max-w-lg mx-auto">
+            <div className="max-w-5xl mx-auto">
                 {/* Logo + headline */}
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-3 mb-3">
@@ -99,7 +99,7 @@ const LearnerLanguageSelect = () => {
 
                 {/* Language Grid */}
                 {courses.length > 0 ? (
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {courses.map((course) => (
                             <div
                                 key={course.id}
